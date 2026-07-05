@@ -1,0 +1,20 @@
+tokenized 604,800 in 40s
+pass: 987 template fps, union now 97,176 (+97,176)
+pass: 826 template fps, union now 159,781 (+62,605)
+UNION templated articles: 159,781 (26.4%)
+template-dominated entities: 2,010
+  kept     Coronavirus                  share=3%
+  kept     Pfizer                       share=3%
+  kept     GameStop                     share=2%
+  kept     Zoom Video Communications    share=2%
+  kept     Moderna                      share=2%
+  kept     Reddit                       share=20%
+  kept     Insider Ownership            share=27%
+  kept     Insider Transactions         share=30%
+  kept     Earnings ESP                 share=29%
+  kept     Earnings Surprise            share=27%
+  FLAGGED  EBIT                         share=89%
+  kept     Dividend Payout Ratio        share=9%
+  kept     Return on Capital Employed   share=0%
+  kept     Fund Sentiment               share=7%
+total 70s

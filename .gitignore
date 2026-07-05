@@ -1,0 +1,20 @@
+# -- data: NEVER commit ------------------------------------------------------
+# Too large for git (7+ GB) AND the subset parquets contain full FNSPID article
+# text, which must not be redistributed (CC BY-NC 4.0; publisher copyright).
+# Reproducibility comes from the released row-id lists + seeded scripts instead.
+data/
+
+# -- environments / caches ---------------------------------------------------
+.venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# -- large regenerable binaries ----------------------------------------------
+*.npy
+*.pt
+*.parquet
+
+# -- OS noise -----------------------------------------------------------------
+Thumbs.db
+.DS_Store

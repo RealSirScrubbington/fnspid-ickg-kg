@@ -1,0 +1,115 @@
+=== [1/5] ChronoBERT-2022 embeddings (21,216 names) ===
+embedding 21,216 entity names with manelalab/chrono-bert-v1-20221231
+To support symlinks on Windows, you either need to activate Developer Mode or to run Python as an administrator. In order to activate developer mode, see this article: https://docs.microsoft.com/en-us/windows/apps/get-started/enable-your-device-for-development
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[transformers] [1mModernBertModel LOAD REPORT[0m from: manelalab/chrono-bert-v1-20221231
+Key               | Status     |  | 
+------------------+------------+--+-
+decoder.bias      | UNEXPECTED |  | 
+head.dense.weight | UNEXPECTED |  | 
+head.norm.weight  | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+  0/21216
+  5120/21216
+  10240/21216
+  15360/21216
+  20480/21216
+saved data/dynamics/linkpred/emb600d_chrono22.npy shape (21216, 768)
+=== [2/5] ChronoBERT-2024 embeddings ===
+embedding 21,216 entity names with manelalab/chrono-bert-v1-20241231
+To support symlinks on Windows, you either need to activate Developer Mode or to run Python as an administrator. In order to activate developer mode, see this article: https://docs.microsoft.com/en-us/windows/apps/get-started/enable-your-device-for-development
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+[transformers] [1mModernBertModel LOAD REPORT[0m from: manelalab/chrono-bert-v1-20241231
+Key               | Status     |  | 
+------------------+------------+--+-
+head.norm.weight  | UNEXPECTED |  | 
+head.dense.weight | UNEXPECTED |  | 
+decoder.bias      | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+  0/21216
+  5120/21216
+  10240/21216
+  15360/21216
+  20480/21216
+saved data/dynamics/linkpred/emb600d_chrono24.npy shape (21216, 768)
+=== [3/5] ChronoBERT link-pred + backoff ===
+ChronoBERT-2022: embeddings (21216, 768)
+  epoch   0 loss 18.641
+  epoch   5 loss 15.877
+  epoch  10 loss 15.110
+  epoch  15 loss 14.604
+  epoch  20 loss 14.217
+  epoch  25 loss 13.944
+  epoch  30 loss 13.741
+  epoch  35 loss 13.583
+  epoch  39 loss 13.485
+
+                               MRR/all  MRR/recurring  MRR/novel  H10/all
+ChronoBERT-2022                 0.1002         0.2064     0.0341   0.1859
+recurrence                      0.1959         0.5107     0.0001   0.2962
+backoff(rec->ChronoBERT-2022)   0.2169         0.5107     0.0341   0.3419
+reference: ComplEx MRR/all 0.082 novel 0.025 | backoff(rec->ComplEx) 0.152
+=== [4/5] bootstrap CIs (dedup core) ===
+training ComplEx + ChronoBERT-2022 + ChronoBERT-2024 ...
+
+=== MRR with 95% bootstrap CI (B=1000), 49,620 test directions ===
+method                       MRR all [95% CI]             MRR novel [95% CI]
+recurrence                   0.1959 [0.1930,0.1990]   0.0001 [0.0001,0.0001]
+ComplEx                      0.1009 [0.0986,0.1030]   0.0245 [0.0233,0.0257]
+ChronoBERT-2022              0.1050 [0.1027,0.1071]   0.0354 [0.0340,0.0369]
+ChronoBERT-2024              0.0985 [0.0964,0.1005]   0.0360 [0.0345,0.0374]
+backoff(rec->ComplEx)        0.2110 [0.2082,0.2142]   0.0245 [0.0235,0.0257]
+backoff(rec->ChronoBERT)     0.2177 [0.2147,0.2208]   0.0354 [0.0340,0.0368]
+
+=== key gaps (paired bootstrap; CI excluding 0 = significant) ===
+  ChronoBERT-2024 - 2022 (novel)  [lookahead]    +0.0005 [-0.0009,+0.0019]  n.s.
+  ChronoBERT-2022 - ComplEx (novel) [semantic]   +0.0109 [+0.0094,+0.0125]  SIG
+  backoff ChronoBERT - ComplEx (all) [new best]  +0.0067 [+0.0057,+0.0077]  SIG
+=== [5/5] RE-GCN, early stopping ON THIS CORE (fixes epoch-transplant) ===
+device cuda | 21,216 entities | dim 128 hist 8 epochs 60 lr 0.002
+train weeks 1-254 (254) | through_valid=False shuffle_hist=False
+  epoch   0 loss 17.369 | valid MRR 0.0543
+  epoch   1 loss 15.259 | valid MRR 0.0558
+  epoch   2 loss 14.447 | valid MRR 0.0603
+  epoch   3 loss 14.111 | valid MRR 0.0617
+  epoch   4 loss 13.892 | valid MRR 0.0628
+  epoch   5 loss 13.708 | valid MRR 0.0673
+  epoch   6 loss 13.517 | valid MRR 0.0758
+  epoch   7 loss 13.242 | valid MRR 0.0837
+  epoch   8 loss 12.886 | valid MRR 0.0883
+  epoch   9 loss 12.590 | valid MRR 0.0905
+  epoch  10 loss 12.293 | valid MRR 0.0938
+  epoch  11 loss 12.008 | valid MRR 0.0952
+  epoch  12 loss 11.735 | valid MRR 0.0978
+  epoch  13 loss 11.480 | valid MRR 0.1067
+  epoch  14 loss 11.259 | valid MRR 0.1077
+  epoch  15 loss 11.023 | valid MRR 0.1072
+  epoch  16 loss 10.765 | valid MRR 0.1058
+  epoch  17 loss 10.540 | valid MRR 0.1159
+  epoch  18 loss 10.384 | valid MRR 0.1153
+  epoch  19 loss 10.175 | valid MRR 0.1126
+  epoch  20 loss 9.931 | valid MRR 0.1174
+  epoch  21 loss 9.737 | valid MRR 0.1203
+  epoch  22 loss 9.571 | valid MRR 0.1206
+  epoch  23 loss 9.417 | valid MRR 0.1174
+  epoch  24 loss 9.287 | valid MRR 0.1170
+  epoch  25 loss 9.158 | valid MRR 0.1132
+  epoch  26 loss 9.015 | valid MRR 0.1177
+  epoch  27 loss 8.922 | valid MRR 0.1191
+  epoch  28 loss 8.873 | valid MRR 0.1126
+  epoch  29 loss 8.773 | valid MRR 0.1173
+  epoch  30 loss 8.669 | valid MRR 0.1161
+  early stop (no valid gain for 8 epochs)
+selected epoch 22 | best valid MRR 0.1206
+
+                      MRR/all  MRR/recurring  MRR/novel  H10/all
+RE-GCN                 0.1174         0.2565     0.0308   0.1957
+recurrence             0.1959         0.5107     0.0001   0.2962
+backoff(rec->RE-GCN)   0.2149         0.5107     0.0308   0.3367
+
+reference: ComplEx MRR/all 0.082, novel 0.025 | backoff(ComplEx) MRR/all 0.152, H10 0.242
+PIPELINE_DONE

@@ -1,0 +1,86 @@
+########## EVENT RECOVERY: 3 detectors + coverage control ##########
+=== systematic event recovery (18 gold events, window +/-3 wk, 3 detectors) ===
+event date  entity                label                  timing  Klein  CUSUM   BOCD
+2018-10-29  Aurora Cannabis       cannabis boom             +6w    HIT    HIT    HIT
+2019-03-13  Boeing                737 MAX grounding         +0w    HIT    HIT    HIT
+2019-11-12  Disney                Disney+ launch            -3w    HIT    HIT    HIT
+2020-03-16  Coronavirus           COVID crash               -2w    HIT    HIT    HIT
+2020-04-20  Crude Oil             negative oil price        -3w   miss   miss    HIT
+2020-11-09  Pfizer                vaccine readout           +0w    HIT    HIT    HIT
+2021-01-27  GameStop              short squeeze             +0w    HIT    HIT    HIT
+2021-05-08  Dogecoin              Doge mania                -7w    HIT    HIT    HIT
+2021-11-01  Meta Platforms        Meta rebrand              +2w    HIT    HIT    HIT
+2022-02-24  Russia                Ukraine invasion          +1w    HIT    HIT    HIT
+2022-06-15  Inflation             Fed 75bp / CPI peak       +4w    HIT    HIT    HIT
+2022-07-27  West Virginia         Manchin / IRA deal        -3w   miss    HIT   miss
+2022-11-11  FTX                   FTX collapse              -1w   miss    HIT    HIT
+2023-03-10  Silicon Valley Bank   SVB collapse              +0w    HIT    HIT    HIT
+2023-05-25  Nvidia                AI / datacenter boom      +4w    HIT    HIT    HIT
+2023-09-15  UAW                   auto-workers strike       +0w    HIT    HIT    HIT
+2023-10-07  Gold                  Israel-Hamas safe ha      +2w    HIT   miss    HIT
+2023-11-01  Magnificent Seven     AI mega-cap concept       +6w   miss   miss    HIT
+
+in-KG events: 18/18  (0 not covered by the US-nasdaq corpus)
+RECALL Kleinberg  (burst overlaps event +/-3wk): 14/18 = 78%  | chance (dilated coverage) 16%  | excess +62pp
+RECALL CUSUM      (burst overlaps event +/-3wk): 15/18 = 83%  | chance (dilated coverage) 24%  | excess +59pp
+RECALL BOCD       (burst overlaps event +/-3wk): 17/18 = 94%  | chance (dilated coverage) 29%  | excess +66pp
+TIMING |weeks| (hits, local peak): median 2, within 1wk 43%, within 3wk 71%
+
+global velocity @ event weeks: 357 vs random-week null mean 352 (p = 0.3697)
+
+########## THEMES: lenient / strict / NB (fixed code) ##########
+=== [lenient] 401 theme lifelines (282 EMERGING / 119 recurring) over 291 active weeks (z>=3.0, obs>=6, top-8/wk) ===
+=== [strict] 304 theme lifelines (238 EMERGING / 66 recurring) over 271 active weeks (z>=3.0, obs>=6, top-8/wk) ===
+[nb] dispersion alpha = 3.748 (method of moments, 384 active entities, train weeks only)
+=== [lenient] 102 theme lifelines (97 EMERGING / 5 recurring) over 119 active weeks (z>=3.0, obs>=6, top-8/wk) ===
+
+########## GOLD-LIST EVAL: all configs ##########
+=== LENIENT config: lead time vs frozen gold list (birth window event-13..+8wk; negative lead = detected EARLY) ===
+COVID market crisis      2020-02-24  2020-03-02        +1   EMERGING  Coronavirus | Inovio Pharmaceuticals | Healthcare Select S
+Oil crash                2020-04-20  2020-04-13        -1   EMERGING  Coronavirus Pandemic | Oil Sector | Baker Hughes Co | Exxo
+Vaccine race (OWS)       2020-05-15  2020-03-02       -10   EMERGING  Coronavirus | Inovio Pharmaceuticals | Healthcare Select S
+Vaccine efficacy         2020-11-09  2020-11-09        +0   EMERGING  Pfizer | Vaccine | Pfizer Inc | Biden | Richard Horton | B
+GameStop squeeze         2021-01-25  2021-01-25        +0  recurring  GameStop | Robinhood | Janet Yellen | BlackBerry | Reddit 
+Russia-Ukraine war       2022-02-21  2022-02-28        +1   EMERGING  Russia | Ukraine | BNP Paribas | US | Volvo Cars | CRH
+FTX / crypto collapse    2022-11-07          --      MISS  (pre-existing topical lifeline born 2021-04-26)
+AI / ChatGPT wave        2022-11-28          --      MISS  
+SVB banking crisis       2023-03-06  2023-03-13        +1   EMERGING  Silicon Valley Bank | First Republic Bank | FDIC | Banking
+UAW strike               2023-09-11          --      MISS  
+detected 7/10  |  median lead +0wk  |  early-or-on-time 57%
+  COVID market crisis      chance 15.6%   (7 topical lifelines)
+  Oil crash                chance 13.8%   (3 topical lifelines)
+  Vaccine race (OWS)       chance 17.4%   (4 topical lifelines)
+  Vaccine efficacy         chance 14.1%   (3 topical lifelines)
+  GameStop squeeze         chance  7.5%   (2 topical lifelines)
+  Russia-Ukraine war       chance  6.6%   (1 topical lifelines)
+  FTX / crypto collapse    chance  6.6%   (1 topical lifelines)
+  AI / ChatGPT wave        chance  6.6%   (1 topical lifelines)
+  SVB banking crisis       chance  6.6%   (1 topical lifelines)
+  UAW strike               chance  0.0%
+expected detections by chance: 0.9/10  |  observed: 7  |  P(random >= observed) = 0
+=== STRICT config: lead time vs frozen gold list (birth window event-13..+8wk; negative lead = detected EARLY) ===
+COVID market crisis      2020-02-24  2020-02-03        -3   EMERGING  Starbucks | Beyond Meat | Global Markets | Coronavirus | B
+Oil crash                2020-04-20  2020-04-06        -2   EMERGING  Chevron | Saudi Arabia | Phillips 66 | Oil Market | Exxon 
+Vaccine race (OWS)       2020-05-15  2020-02-24       -11   EMERGING  Coronavirus | Inovio Pharmaceuticals | Healthcare Select S
+Vaccine efficacy         2020-11-09  2020-08-31       -10  recurring  Snowflake | Salesforce | Dow Jones Industrial Average | Ap
+GameStop squeeze         2021-01-25  2021-01-25        +0  recurring  GameStop | Robinhood | BlackBerry | Janet Yellen | Reddit 
+Russia-Ukraine war       2022-02-21  2022-02-28        +1   EMERGING  Russia | Ukraine | BNP Paribas | US | Volvo Cars | Japan
+FTX / crypto collapse    2022-11-07          --      MISS  (pre-existing topical lifeline born 2022-01-10)
+AI / ChatGPT wave        2022-11-28          --      MISS  (pre-existing topical lifeline born 2022-02-07)
+SVB banking crisis       2023-03-06  2023-03-13        +1   EMERGING  Silicon Valley Bank | Federal Reserve | First Republic Ban
+UAW strike               2023-09-11  2023-09-18        +1   EMERGING  Lucid Motors | UAW | General Motors
+detected 8/10  |  median lead -1wk  |  early-or-on-time 62%
+  COVID market crisis      chance 17.7%   (14 topical lifelines)
+  Oil crash                chance 21.6%   (6 topical lifelines)
+  Vaccine race (OWS)       chance 25.1%   (8 topical lifelines)
+  Vaccine efficacy         chance 15.6%   (8 topical lifelines)
+  GameStop squeeze         chance 21.9%   (5 topical lifelines)
+  Russia-Ukraine war       chance 26.3%   (4 topical lifelines)
+  FTX / crypto collapse    chance 17.7%   (4 topical lifelines)
+  AI / ChatGPT wave        chance 36.2%   (13 topical lifelines)
+  SVB banking crisis       chance  6.6%   (1 topical lifelines)
+  UAW strike               chance  6.3%   (1 topical lifelines)
+expected detections by chance: 1.9/10  |  observed: 8  |  P(random >= observed) = 2e-05
+
+########## 3x3 GRID re-verify (fixed code) ##########
+REVERIFY_DONE

@@ -1,0 +1,1360 @@
+% ======================================================================
+%  UCL MSc Dissertation Template
+%  Based on the UCL postgraduate project report template
+%  (project_report_-_pg.tex), extended with the front matter and
+%  chapter structure of a master's dissertation.
+%
+%  Compile with:  pdflatex main  ->  bibtex main (optional)
+%                 -> pdflatex main x2
+% ======================================================================
+
+\documentclass[a4paper,12pt]{report}
+
+% ---------- Packages -------------------------------------------------
+\usepackage{setspace}            % line spacing
+\usepackage{amssymb,graphicx,color}
+\usepackage{amsfonts}
+\usepackage{latexsym}
+\usepackage{a4wide}
+\usepackage{amsmath}
+\usepackage[round]{natbib}       % author-year (Harvard) citations; load BEFORE hyperref
+\usepackage[hidelinks]{hyperref} % clickable TOC / refs
+\usepackage{booktabs}            % professional tables
+\usepackage{caption}
+\usepackage{subcaption}          % subfigures (modern replacement for subfigure)
+%\usepackage[backend=bibtex]{biblatex} % alternative bibliography backend
+
+\pagestyle{plain}
+
+% ---------- Theorem environments -------------------------------------
+\newtheorem{theorem}{THEOREM}
+\newtheorem{lemma}[theorem]{LEMMA}
+\newtheorem{corollary}[theorem]{COROLLARY}
+\newtheorem{proposition}[theorem]{PROPOSITION}
+\newtheorem{remark}[theorem]{REMARK}
+\newtheorem{definition}[theorem]{DEFINITION}
+\newtheorem{fact}[theorem]{FACT}
+\newtheorem{problem}[theorem]{PROBLEM}
+\newtheorem{exercise}[theorem]{EXERCISE}
+
+\def \set#1{\{#1\} }
+
+\newenvironment{proof}{%
+PROOF:
+\begin{quotation}}{%
+$\Box$ \end{quotation}}
+
+% ---------- Handy macros ----------------------------------------------
+\newcommand{\nats}{\mbox{\( \mathbb N \)}}
+\newcommand{\rats}{\mbox{\(\mathbb Q\)}}
+\newcommand{\reals}{\mbox{\(\mathbb R\)}}
+\newcommand{\ints}{\mbox{\(\mathbb Z\)}}
+\newcommand{\Gle}{\ensuremath{\mathcal{G}_{\leq t}}} % graph of edges with timestamp <= t
+
+% ---------- Dissertation metadata (EDIT THESE) ------------------------
+\newcommand{\thesistitle}{Inductive Temporal Theme Velocity Discovery on a Knowledge Graph}
+\newcommand{\thesisauthor}{Denis Maruev}
+\newcommand{\thesisdegree}{MSc Computational Statistics and Machine Learning}
+\newcommand{\thesissupervisor}{Prof.\ Philip Treleaven}
+\newcommand{\thesisadvisor}{Dr.\ Olga Kolchyna}      % leave empty if none
+\newcommand{\submissiondate}{Day Month Year}
+
+% ======================================================================
+\begin{document}
+\onehalfspacing
+
+% ---------------------------------------------------------------------
+% TITLE PAGE
+% ---------------------------------------------------------------------
+\begin{titlepage}
+\begin{center}
+% Upload ucl_logo.png to your Overleaf project, then uncomment the next line:
+%\includegraphics[scale=.5]{ucl_logo.png}\\[1.5cm]
+
+{\Huge \thesistitle}\\[0.4cm]
+% Uncomment the next line if you have a subtitle:
+%{\large Optional Subtitle}\\[0.4cm]
+\vspace{2cm}
+
+{\Large \thesisauthor}\\[1.5cm]
+
+A dissertation submitted in partial fulfilment\\
+of the requirements for the degree of\\[0.3cm]
+{\bf \thesisdegree}\\
+of\\
+{\bf University College London}\\[2cm]
+
+Department of Computer Science\\
+University College London\\[1cm]
+
+Academic Supervisor: \thesissupervisor\\
+Technical Advisor: \thesisadvisor\\[1cm]
+
+Submission date: \submissiondate
+\end{center}
+
+\vfill
+\footnotesize
+{\bf Disclaimer:}
+This report is submitted as part requirement for the \thesisdegree\ at UCL.
+It is substantially the result of my own work except where explicitly
+indicated in the text.
+\emph{Either:} The report may be freely copied and distributed provided the
+source is explicitly acknowledged.
+\emph{Or:} The report will be distributed to the internal and external
+examiners, but thereafter may not be copied or distributed except with
+permission from the author.
+\end{titlepage}
+
+% ---------------------------------------------------------------------
+% FRONT MATTER
+% ---------------------------------------------------------------------
+\pagenumbering{roman}
+
+\chapter*{Declaration}
+\addcontentsline{toc}{chapter}{Declaration}
+I, \thesisauthor, confirm that the work presented in this dissertation is my
+own. Where information has been derived from other sources, I confirm that
+this has been indicated in the dissertation.
+
+\vspace{2cm}
+\noindent\rule{6cm}{0.4pt}\\
+\thesisauthor
+
+\begin{abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+% ===================== ABSTRACT (inlined) ============================
+A knowledge graph represents entities and the relationships between them; a
+time-indexed knowledge graph additionally records when each relationship forms,
+making its dynamics measurable. This dissertation studies the dynamics of a
+financial knowledge graph built from public news: how fast relationships between
+companies, sectors, countries and themes form (\emph{velocity}), how that rate
+changes (\emph{acceleration}), and whether that signal predicts what forms next.
+The hypothesis is that the rate at which entities become connected leads which
+connections form, treated as a graph-native question under strict point-in-time
+integrity. The work comprises three experiments, which constitute its original
+research and are discussed in Section~1.3.
+
+\textbf{Experiment 1: Building the Time-Indexed Knowledge Graph.} The substrate
+is constructed by running the open-source ICKG extractor (ICKG-v4.2, a LoRA
+adapter on Qwen-2.5-14B-Instruct distilled from GPT-4) over the FNSPID full-text
+news corpus, producing FinDKG-compatible quadruples (subject, relation, object,
+time) over twelve entity and fifteen relation types, with themes realised as
+CONCEPT and EVENT nodes and every edge timestamped by publication date. Two
+corpus scales are built (201{,}600 and 604{,}800 time-stratified articles; 0\%
+malformed output; $\sim$18.5 valid triples per article), and a syndication audit
+shows that 10--24\% of corpus articles are verbatim duplicates, motivating a
+deduplicated core of 21{,}216 entities and 212{,}294 edge-weeks that serves as
+the canonical graph.
+
+\textbf{Experiment 2: Velocity, Bursts, and Walk-Forward Theme Discovery.} This
+experiment --- the dissertation's central contribution --- defines and
+measures the rate and acceleration of new-edge
+formation per node, relation and theme (trailing-window, past-only
+Poisson-surprise normalisation), detects bursts with three independent detectors
+(Kleinberg's automaton, the CUSUM control chart, and Bayesian online
+changepoint detection), and clusters
+co-accelerating entities on their recent co-occurrence subgraph into
+\emph{themes}, tracked week-over-week into lifelines whose birth dates are the
+dates the system would have flagged each theme live. Against a frozen
+ten-event gold list the system detects 8/10 major 2020--2023 themes at a median
+lead of $-1$~week --- anticipatable themes early (the COVID market crisis
+$-3$~weeks, the vaccine race $-8$) and pure shock events at the news-flow floor
+($+1$) --- and a 100{,}000-draw placebo control shows that random event weeks
+would score $\sim$2/10 ($p \approx 10^{-4}$).
+
+\textbf{Experiment 3: Temporal Link Prediction under Point-in-Time Discipline.}
+The third experiment maps what is and is not forecastable at the
+individual-edge level. An RE-GCN-style temporal graph network is evaluated
+against the static embeddings ComplEx and DistMult, the classical Adamic--Adar
+and Common-Neighbours heuristics, a training-free recurrence baseline, and a
+ChronoBERT point-in-time-clean semantic baseline, by MRR and Hits@$k$ under a
+conservative raw-ranking protocol with a recurring/novel decomposition,
+bootstrap confidence intervals and seed replication. Recurring relationships
+are highly predictable while genuinely novel ones sit near a low ceiling for
+every method; the strongest system is a recurrence$\rightarrow$ChronoBERT
+backoff; the method ranking replicates across all three graph constructions;
+and the temporal network's advantage over static structure appears only as data
+density grows. This qualified null result for temporal structure is reported as
+a substantive finding, and a cutoff-controlled ChronoBERT comparison bounds
+extractor lookahead bias below measurement resolution ($<0.002$ MRR).
+
+The contributions to science, discussed further in Section~1.4, are as follows.
+
+\textbf{A built, leakage-controlled temporal knowledge graph} in
+FinDKG-compatible quadruple format, with themes as CONCEPT and EVENT nodes and a
+reproducible point-in-time audit trail, where graph and feature leakage are
+prevented by design and extractor hindsight is measured rather than assumed away.
+
+\textbf{A validated walk-forward theme-discovery system}: a definition and
+measurement of link-formation velocity and acceleration on a temporal knowledge
+graph, a dual-detector burst account of emergence, and a causal
+theme-discovery system with data-driven noise controls, validated by lead time
+against a frozen gold list and by a placebo control.
+
+\textbf{A decisive, replicated benchmark of edge-level predictability}:
+establishing that, under point-in-time discipline, recurrence dominates,
+a temporal graph network improves on static structure only as data density
+grows, and a recurrence$\rightarrow$ChronoBERT backoff is the strongest system
+--- with the method ranking replicated across three graph constructions and
+extractor lookahead bias bounded below measurement resolution.
+
+\textbf{An open, reproducible methodology and dataset}: source code and the
+derived knowledge-graph dataset (triples and indices only; no article text is
+redistributed), released to enable replication and extension.
+% =====================================================================
+\end{abstract}
+
+\chapter*{Impact Statement}
+\addcontentsline{toc}{chapter}{Impact Statement}
+The contributions to industry of this dissertation complement its contributions
+to science. The method produces a systematic, auditable signal for detecting
+emerging investment themes early, before they are widely reported: because every
+edge is timestamped by publication date and evaluated under strict point-in-time
+discipline, the signal is suitable for production use by quantitative asset
+managers, where it can complement existing factor models rather than replace
+them. Velocity and burst detection on a temporal financial
+knowledge graph extends naturally to risk and compliance applications such as
+early detection of contagion in counterparty networks, ESG-controversy
+monitoring, and sector-rotation or macro-regime timing. By building the graph
+from open data with an open-source extractor and releasing both the code and the
+derived knowledge-graph dataset (no source article text is redistributed), the
+work lowers the barrier for practitioners and
+regulators to reproduce and extend these capabilities, and demonstrates that
+open tooling under disciplined point-in-time evaluation can rival closed,
+vendor-supplied alternatives. Any direct investment application is treated as a
+downstream use of the method rather than its aim.
+
+\tableofcontents
+\listoffigures
+\listoftables
+
+% ---------------------------------------------------------------------
+% MAIN MATTER
+% ---------------------------------------------------------------------
+\cleardoublepage
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+% =====================================================================
+\chapter{Introduction}
+% Marking area 1 (Background, Aims & Organisation). Introduction written
+% in the structure of the Batrinca (2016) UCL thesis.
+This chapter introduces the research and its motivation, states the objectives,
+describes the three experiments that constitute the dissertation, lists the
+contributions to science, and finishes with the structure of the thesis.
+
+\section{Research Motivations}
+Investment themes reshape markets, but they are usually recognised only once
+they have been widely reported. By the time a theme such as generative AI,
+GLP-1 therapeutics or onshoring is named in commentary and research notes, the
+attention-based indicators that analysts watch: headline counts, search
+interest, and sentiment scores have already reacted, and much of the
+informational advantage has dissipated. The relationships among companies,
+sectors, countries and themes, however, begin to change before a theme is
+named: firms are linked to a new concept, concepts are linked to one another,
+and the density of those connections grows. If that structural change can be
+observed as it happens, the \emph{rate} at which relationships form may
+anticipate what attention-based indicators only confirm after the fact.
+
+Existing financial knowledge graphs are not well suited to answering this
+question. They are largely static or transductive, scoring whether a relation
+plausibly exists rather than when and how quickly relations form, and they
+rarely audit point-in-time correctness, which is the central threat to validity
+in any financial study. This dissertation therefore asks a single question:
+does the velocity of relationship formation, measured on a graph built under
+strict point-in-time discipline, carry information about which relationships
+form next?
+
+We measure and characterise the velocity signal by defining it, smoothing it
+without looking ahead, and detecting when it bursts; we then use that signal to
+discover emerging themes as they form, and separately benchmark how far
+individual future links can be predicted at all, against strong baselines and
+with honest evaluation.
+
+\section{Research Objectives}
+\label{sec:objectives}
+The main objective of this research is to determine whether the dynamics of a
+financial knowledge graph anticipate the formation of new relationships, under
+conditions strict enough that a positive result could be trusted. To this end a
+time-indexed knowledge graph is built from public financial news; the velocity
+and acceleration of edge formation are defined and measured; emerging themes are
+detected as bursts in that signal and validated against known episodes; and the
+predictive value of velocity is tested in a temporal link-prediction model
+evaluated against strong baselines.
+
+Point-in-time integrity is the central methodological commitment, and the work
+distinguishes two kinds of leakage. Graph and feature leakage are prevented by
+design: every edge is dated by the article's publication date rather than by the
+date of the event it describes, which is the single most important control, together
+with chronological train/validation/test splits, structural masking (at time
+$t$ the model observes only edges with timestamp $\leq t$), rolling causal
+normalisation, a conservative raw-ranking evaluation, within-week
+update-after-scoring ordering, and validation-only hyperparameter and threshold
+tuning. Extractor hindsight is measured rather than eliminated: the
+language-model extractor used to build the graph carries world-knowledge of the
+study period, so the residual is quantified through a blinded-versus-unblinded
+diagnostic and a cutoff-controlled comparison against chronologically
+consistent models, and reported as bounded-and-measured rather than assumed
+absent.
+
+We use the ICKG relation extractor; success is measured on graph-native metrics
+rather than as an investment signal; and country (GPE) relations, though
+present, are sparse owing to the US-centricity of the corpus and are documented
+as a limitation.
+
+\section{Research Experiments}
+\label{sec:experiments}
+The dissertation builds its substrate first, then characterises the velocity
+signal, and finally tests its predictive value. It is split into three
+experiments:
+
+\begin{enumerate}
+\item \textbf{Building the Time-Indexed Knowledge Graph.} The first experiment
+constructs the substrate rather than consuming a pre-built graph. The
+open-source ICKG extractor (ICKG-v4.2, a LoRA adapter on Qwen-2.5-14B-Instruct
+distilled from GPT-4) is run over the FNSPID full-text news corpus to produce
+FinDKG-compatible quadruples (subject, relation, object, time) over twelve entity
+and fifteen relation types, with themes realised as CONCEPT and EVENT nodes and
+every edge timestamped by publication date. The graph is built at two corpus
+scales (201{,}600 and 604{,}800 time-stratified articles), and a data-hygiene
+audit shows that 10--24\% of corpus articles are verbatim syndication
+duplicates whose removal halves the denoised core; the deduplicated core is
+adopted as the canonical graph and the smaller corpus retained as a replication
+sample. This experiment is deliberately scoped as bounded infrastructure for
+the studies that follow.
+
+\item \textbf{Edge-Formation Velocity, Burst Detection, and Walk-Forward Theme
+Discovery.} The second experiment contains the dissertation's central
+contribution. It formally defines and
+measures the rate and acceleration of new-edge formation per node, relation and
+theme using trailing-window, past-only Poisson-surprise normalisation; it
+detects bursts with three independent detectors (Kleinberg's automaton, the
+CUSUM control chart, and Bayesian online changepoint detection) so that
+detected episodes are not an artifact of one algorithm; and it clusters co-accelerating entities on their recent
+co-occurrence subgraph into themes, tracked week-over-week into lifelines whose
+birth week is the date the system would have flagged the theme live. Two
+data-driven noise controls (template-article fingerprinting and a habituation
+score separating emerging themes from recurring rituals) require no hand
+curation. Detections are validated against a frozen ten-event gold list with
+event-anchored birth windows, and specificity is established with a
+100{,}000-draw placebo control.
+
+\item \textbf{Temporal Link Prediction under Point-in-Time Discipline.} The
+third experiment maps what is and is not forecastable at the individual-edge
+level, contextualising the theme system. An RE-GCN-style temporal graph network
+is evaluated against ComplEx and DistMult static embeddings, Common-Neighbours
+and Adamic--Adar heuristics, a training-free recurrence baseline and a
+ChronoBERT semantic baseline, using MRR and Hits@$k$ under a conservative
+raw-ranking protocol with a recurring/novel decomposition, bootstrap confidence
+intervals and seed replication; the same benchmark is run on all three graph
+constructions to test replication. A null result is itself a valid finding.
+\end{enumerate}
+
+\section{Contributions to Science}
+\label{sec:contributions}
+The thesis presents the following contributions to science:
+
+\begin{enumerate}
+\item \textbf{A built, leakage-controlled temporal knowledge graph, with a
+corpus-hygiene audit.} A time-indexed financial knowledge graph constructed
+from public news in FinDKG-compatible quadruple format at two corpus scales,
+with themes as CONCEPT and EVENT nodes and a reproducible point-in-time audit
+trail; graph and feature leakage are prevented by design, extractor hindsight
+is measured rather than assumed away, and a syndication-duplication audit
+(10--24\% verbatim duplicate articles in FNSPID) quantifies and corrects a
+bias affecting any per-ticker news corpus.
+
+\item \textbf{A validated walk-forward theme-discovery system.} A definition
+and measurement of link-formation velocity and acceleration on a temporal
+knowledge graph; a dual-detector burst account of emergence; and a causal
+theme-discovery system (acceleration $\rightarrow$ community clustering
+$\rightarrow$ tracked lifelines, with data-driven noise controls) validated by
+lead time against a frozen gold list of ten documented episodes and by a
+placebo control --- with the finding that lead time reflects the information
+structure of the event: anticipatable themes are detected weeks early, shock
+events at the news-flow floor.
+
+\item \textbf{A decisive, replicated benchmark of edge-level predictability.}
+Establishing that, under point-in-time discipline, recurrence dominates what is
+predictable, genuinely novel edges sit near a low ceiling for every method, a
+temporal graph network improves on static structure only as data density grows,
+and a recurrence$\rightarrow$ChronoBERT backoff is the strongest system ---
+with the method ranking replicated across three graph constructions, and
+extractor lookahead bias bounded below measurement resolution by a
+cutoff-controlled comparison.
+
+\item \textbf{An open, reproducible methodology and dataset.} Source code and
+the derived knowledge-graph dataset (no source article text), released to
+enable replication and extension.
+\end{enumerate}
+
+\section{Thesis Structure}
+\label{sec:structure}
+Chapter~\ref{ch:background} reviews the relevant literature on financial
+knowledge graphs, large-language-model relation extraction, temporal-graph
+representation learning, time encoding, burst and change-point detection, and
+point-in-time evaluation. Chapter~\ref{ch:exp1} presents Experiment~1, the
+construction of the time-indexed knowledge graph, including the extraction
+trial. Chapter~\ref{ch:exp2} presents Experiment~2, the definition and
+validation of edge-formation velocity, burst detection, and the walk-forward
+theme-discovery system. Chapter~\ref{ch:exp3} presents Experiment~3, the
+temporal link-prediction benchmark and its replication across graph
+constructions. Chapter~\ref{ch:pit} gathers
+the point-in-time integrity framework that governs all three experiments.
+Chapter~\ref{ch:conclusions} discusses the findings, their limitations and
+threats to validity, and directions for future work.
+
+% =====================================================================
+\chapter{Background and Literature Review}
+\label{ch:background}
+% Marking area 1: literature context + extra-curricular reading.
+This chapter situates the dissertation within the prior work on which it draws.
+The research sits at the intersection of several literatures, and this review
+organises them into six strands: the construction of financial knowledge graphs
+with large language models, which supplies the substrate; the static
+knowledge-graph embeddings that serve as link-prediction baselines; the temporal
+knowledge-graph forecasting models, together with the recent recurrence-baseline
+critique that tempers expectations of them; the classical link-prediction
+heuristics that predate the embedding literature; the detection of bursts and
+change-points in event streams, which underpins the emergence analysis; and the
+point-in-time integrity and lookahead-bias considerations that govern any
+financial study built on a pretrained language model. Each strand is reviewed in
+turn and related to the experiments that follow.
+
+\section{Financial Knowledge Graphs and LLM-Based Construction}
+A knowledge graph encodes entities and the typed relationships between them. A
+temporal, or dynamic, knowledge graph additionally records the time at which each
+relationship holds, so that the graph can be reconstructed at any past instant
+and its evolution studied over time. This temporal property is central to the
+present work, since the dissertation is concerned not with whether a relationship
+exists but with how quickly relationships form.
+
+The most directly relevant system in the financial domain is FinDKG, introduced
+by \citet{Li2024FinDKG}. FinDKG defines a fixed ontology of twelve entity types
+and fifteen relation types, together with a standard temporal knowledge-graph
+file format comprising entity and relation index files, a time index, and
+chronologically split lists of quadruples. Crucially for this dissertation, the
+authors also release the Integrated Contextual Knowledge Graph (ICKG) relation
+extractor, an open large-language-model extractor fine-tuned for the task of
+knowledge-graph construction. This research adopts the FinDKG ontology and
+on-disk format, but it builds its own graph with the ICKG extractor rather than
+consuming the released FinDKG graph, so that the choice of corpus, the time
+resolution, and the point-in-time discipline all remain under the author's
+control.
+
+Building the graph by extraction rather than consuming a pre-built one makes the
+dissertation a consumer of several lines of recent language-model research. The
+ICKG release employed here is a Low-Rank Adaptation (LoRA) adapter, in the sense
+of \citet{Hu2022LoRA}, applied to the instruction-tuned Qwen-2.5 model
+\citep{Qwen2024}. LoRA fine-tunes a small set of injected low-rank matrices while
+freezing the base weights, which makes a fixed and fully documented extractor
+practical to host locally. A local, fixed extractor is preferred to a frontier
+model accessed through a commercial application-programming interface (API)
+precisely because its knowledge cutoff is controllable and documented, a property
+that matters for the point-in-time argument developed in Chapter~\ref{ch:pit}.
+High-throughput extraction over the corpus relies on vLLM \citep{Kwon2023vLLM},
+whose PagedAttention memory manager enables efficient batched generation on the
+available hardware. The corpus itself is FNSPID \citep{Dong2024FNSPID}, which
+aligns roughly 15.7 million timestamped financial-news records with stock-price
+series for the S\&P~500 universe over the period 1999 to 2023; of these, the
+present work uses only the full-text news component.
+
+\section{Knowledge-Graph Embeddings and Link-Prediction Baselines}
+Predicting which links a knowledge graph will contain is known as the
+link-prediction problem, and the strongest non-temporal baselines for it
+originate in the static knowledge-graph-embedding literature. The translational
+model TransE, proposed by \citet{Bordes2013TransE}, represents a relation as a
+translation between the vector embeddings of its subject and object entities. As
+important for the present work as the model itself is the evaluation protocol
+that accompanied it: the filtered entity-ranking procedure, reported through Mean
+Reciprocal Rank (MRR) and Hits@$k$ over corrupted candidate entities, which has
+since become the standard means of assessing link prediction and is adopted
+throughout this dissertation --- in its conservative \emph{raw} (unfiltered)
+form, so that no evaluation-time knowledge of other true future facts enters a
+prediction; this deflates absolute scores relative to the filtered convention
+and is the stricter choice under point-in-time discipline. Two later models refine the scoring function.
+DistMult \citep{Yang2015DistMult} scores a triple with a bilinear diagonal form,
+and ComplEx \citep{Trouillon2016ComplEx} extends this idea to complex-valued
+embeddings, whose Hermitian product is able to represent both symmetric and
+antisymmetric relations. Because these models score the structural plausibility
+of a triple independently of whether it has recurred in the past, they are
+informative baselines on genuinely novel edges, and it is in exactly this role
+that they are used in Experiment~3.
+
+\section{Temporal Knowledge Graph Forecasting}
+Forecasting on a temporal knowledge graph, also called the extrapolation setting,
+requires that only history strictly preceding the query time may be used to
+predict future links. This setting has been dominated by recurrent neural
+architectures. RE-NET, introduced by \citet{Jin2020RENET}, infers graph structure
+autoregressively, generating the events of each timestep conditioned on those of
+the preceding ones. RE-GCN, due to \citet{Li2021REGCN}, learns time-evolving
+representations of entities and relations by passing each snapshot of the graph
+through a relational graph convolutional network and folding the result into a
+recurrent state, with a decoder that scores candidate future edges. The temporal
+graph neural network implemented in this dissertation follows the RE-GCN design.
+
+A recent and directly relevant critique tempers expectations of these models.
+\citet{Gastinger2024Recurrence} show that a simple, training-free recurrence
+baseline, which scores a candidate fact according to how often that exact fact
+has occurred in the past, rivals or outperforms many neural temporal
+knowledge-graph forecasters, and they argue that part of the apparent progress in
+the field is an artefact of comparison against weak baselines. This finding
+directly motivates the careful baselining adopted in Experiment~3, in which the
+recurrence baseline is treated not as a foil but as a first-class competitor. It
+also anticipates one of the dissertation's own results, namely that the temporal
+graph neural network adds little forecasting advantage over static structure on
+edges that are genuinely new.
+
+\section{Classical Link-Prediction Heuristics}
+Before the embedding and neural methods described above, link prediction was
+studied as a purely structural problem in the social-network literature.
+\citet{LibenNowell2007} surveyed a family of proximity measures for predicting
+which links would later appear in a network, the simplest of which counts the
+neighbours that two nodes already share. The index of \citet{AdamicAdar2003}
+refines this count by summing over the shared neighbours of a candidate pair,
+weighting each by the inverse logarithm of its degree so that rarer common
+neighbours count for more. These heuristics encode assumptions of triadic closure
+and homophily that hold well in social graphs. Whether the same assumptions
+transfer to a financial co-mention graph is an empirical question rather than a
+settled one, and a negative answer would itself be informative; for this reason
+the Common Neighbours and Adamic-Adar heuristics are retained as baselines in
+Experiment~3.
+
+\section{Burst and Event Detection in Streams}
+Detecting the moment at which a relationship or a theme suddenly intensifies is a
+burst-detection problem. The standard approach is the model of
+\citet{Kleinberg2003Bursty}, which represents the stream as the output of an
+automaton whose states correspond to different rates of arrival. In its simplest,
+two-state form, the optimal state sequence is recovered by trading the improved
+likelihood of attributing a stretch of high activity to an elevated-rate state
+against a cost incurred each time the automaton switches into that state, so that
+only sustained runs of high activity are reported as bursts. The two-state model
+tends to merge distinct but adjacent episodes into a single long burst, a
+limitation that the hierarchical variant addresses by separating them according
+to intensity.
+
+Kleinberg's automaton is not the only lens on the problem. A complementary and
+much older tradition treats the same question as \emph{sequential change
+detection}: the cumulative-sum (CUSUM) control chart of \citet{Page1954CUSUM}
+accumulates standardised deviations from a baseline rate and raises an alarm
+when the cumulative excess crosses a decision interval, so that it responds to
+sustained shifts in level rather than to discrete spikes. A third treatment is fully Bayesian:
+the Bayesian online changepoint detection of \citet{AdamsMacKay2007BOCD}
+maintains an exact online posterior over the time since the last changepoint
+(here with a conjugate Gamma--Poisson model; changepoints are back-dated to
+the inferred onset).
+This dissertation runs all three detectors over the edge-formation series, so
+that detected episodes are demonstrably not an artifact of a single algorithm:
+empirically they agree on where activity is elevated while segmenting it at
+different granularities (Kleinberg isolating discrete events, CUSUM and BOCD
+sustained regimes). Since interval widths differ, recall is judged against
+each detector's own chance level (its dilated flagged-week coverage --- the
+recall it would achieve on random event weeks): on the gold events recall runs
+78--94\% against chance of 16--29\% (an excess of +59 to +66 points), with a
+three-detector union of 18/18.
+
+Detecting that individual entities accelerate is, however, not yet theme
+discovery: an emerging theme is a \emph{group} of related entities accelerating
+together. For this step the dissertation clusters co-accelerating entities on
+their recent co-occurrence subgraph using the Louvain community-detection
+algorithm of \citet{Blondel2008Louvain}, a fast greedy optimiser of modularity,
+and tracks the resulting communities week over week into theme lifelines ---
+a construction in the spirit of the dynamic-community-tracking literature.
+The resulting event catalogue and theme lifelines are validated against an
+independently compiled list of known episodes.
+
+\section{Point-in-Time Integrity and Lookahead Bias}
+The central methodological risk in any financial study that relies on a model
+trained on data from after the prediction date is lookahead bias, that is, the
+leakage of future information into a prediction that is supposed to depend only on
+the past. The risk is acute here because the extractor used to build the graph is
+a pretrained language model whose knowledge cutoff postdates much of the corpus,
+so the resulting hindsight must be measured rather than simply assumed away. The
+most applicable work is that of \citet{He2025Chrono}, who train chronologically
+consistent language models, including ChronoBERT, exclusively on text available
+up to a stated date, so that such models are free of lookahead bias by
+construction. Comparing two versions of the same model that differ only in their
+training cutoff yields a capacity-controlled estimate of the bias, which the
+authors report to be modest. These models descend architecturally from BERT
+\citep{Devlin2019BERT}, the bidirectional transformer encoder. Two alternatives
+sometimes suggested for time-aware financial language modelling are worth
+distinguishing here. FinBERT \citep{Araci2019FinBERT}, a sentiment-oriented
+BERT fine-tune, applies no chronological control to its training text and is
+therefore itself exposed to the lookahead risk under study, which is why the
+chronologically consistent family is preferred in this dissertation. And the
+sinusoidal positional encodings of the Transformer \citep{Vaswani2017Attention}
+encode token position within a sequence rather than calendar-time information
+availability; point-in-time correctness is accordingly enforced here at the
+data and evaluation-protocol level, where it is verifiable, rather than inside
+the encoder. Experiment~3 uses
+ChronoBERT entity embeddings in two ways: as a point-in-time-clean semantic
+baseline in its own right, and, through the cutoff-controlled comparison, as the
+instrument for the lookahead-bias diagnostic developed in Chapter~\ref{ch:pit}.
+Throughout the dissertation, uncertainty in the reported metrics is quantified
+using the bootstrap \citep{Efron1979Bootstrap}, which resamples the test
+instances with replacement in order to estimate the sampling distribution of a
+statistic without recourse to parametric assumptions.
+
+% =====================================================================
+\chapter{Experiment 1: Building the Time-Indexed Knowledge Graph}
+\label{ch:exp1}
+% Marking area 2: the build is a substantial, bounded software deliverable.
+\section{Introduction}
+This experiment builds the substrate on which the rest of the dissertation
+stands: a time-indexed financial knowledge graph in which every edge can be
+traced to a dated public news article. It is deliberately scoped as bounded
+infrastructure. Correctness, point-in-time integrity and reproducibility were
+prioritised over modelling sophistication, because any flaw introduced here is
+inherited by every result in Chapters~\ref{ch:exp2} and \ref{ch:exp3}. The
+experiment delivers three versioned graph constructions, a data-hygiene audit
+of the source corpus, and the fixed chronological splits used throughout.
+
+\section{Data: the FNSPID Corpus}
+FNSPID \citep{Dong2024FNSPID} aligns roughly 15.7 million timestamped
+financial-news records with stock-price series for the S\&P~500 universe; only
+the full-text news component is used here. The study window is 2017--2023 (84
+months, 365 weekly buckets), chosen to cover the COVID-19 shock and the
+generative-AI surge together with a multi-year pre-episode baseline.
+
+Raw article counts in FNSPID are strongly skewed towards recent years, so a
+graph built from a uniform random sample would confound structural change with
+sampling density. Subsets are therefore \emph{time-stratified}: a single
+streaming pass over the corpus performs per-month reservoir sampling
+\citep{Vitter1985Reservoir} with a fixed seed, keeping only articles whose
+bodies exceed 200 words. Two scales are drawn: 2{,}400 articles per month
+($=201{,}600$) and 7{,}200 per month ($=604{,}800$). Even monthly coverage
+guarantees that week-on-week changes in the graph reflect changes in reported
+structure rather than changes in corpus volume.
+
+\section{Extraction with ICKG-v4.2}
+Each article is passed to ICKG-v4.2, the FinDKG relation extractor
+\citep{Li2024FinDKG}, hosted locally via vLLM \citep{Kwon2023vLLM} with greedy
+decoding and the verbatim FinDKG prompt. The extractor returns typed triples
+over the fixed ontology of twelve entity types and fifteen relation types,
+with themes realised as CONCEPT and EVENT nodes.
+
+A practical finding worth recording: the model emits triples in two formats
+interchangeably --- JSON arrays of arrays ($\approx$65\% of articles) and
+Python-style parenthesised tuples ($\approx$35\%) --- and a parser tolerant of
+both (plus a filter for purely numeric ``entities'') raised the usable-output
+rate in the pilot from 35\% to over 99\%. The full runs achieved 0\% malformed
+generations at both scales, $\sim$18.5 valid triples per article, and 11.5
+million raw triples at the larger scale. A precision spot-check found both
+entities of a triple verbatim in the source text for 83\% of a sampled set ---
+a lower bound, since the extractor frequently simplifies surface forms.
+
+\section{Edge Construction and Publication-Date Timestamping}
+Every edge is timestamped by the article's \emph{publication date}, never by
+the date of any event the text describes; this is the single most important
+leakage control in the pipeline. Triples are aggregated into FinDKG-format
+quadruples with weekly time-bucketing, where the weight of an edge-week is the
+number of supporting mentions in that week. Chronological splits are fixed
+once, by week: train 0--254, validation 255--309, test 310--364 (a 70/15/15
+division of the 365 weeks).
+
+\section{Compute and Throughput}
+Extraction ran on a UCL cluster node with two RTX Pro 6000 GPUs, one vLLM
+instance per GPU over interleaved article shards, taking $\sim$14\,h for the
+200k corpus and $\sim$43\,h for the 600k corpus, with CSV-append checkpointing
+so that interrupted runs resume without repeated work. Every subsequent
+analysis in this dissertation --- including all of Chapters~\ref{ch:exp2} and
+\ref{ch:exp3} --- runs on a single consumer GPU with 6\,GB of memory, which is
+a deliberate reproducibility property of the design.
+
+\section{The Syndication-Duplication Audit and the Deduplicated Core}
+FNSPID stores one row per article--ticker pair, so an article syndicated to
+$k$ tickers can enter a subset up to $k$ times verbatim. Hashing article
+bodies reveals that \textbf{10.5\%} of the 200k subset and \textbf{24.3\%} of
+the 600k subset are exact duplicates; of 102{,}426 duplicate groups in the
+larger subset, 101{,}346 differ only in the ticker column, and only 476 span
+more than one week. The damage is therefore concentrated in \emph{same-week
+weight inflation}: a threshold such as ``keep edges supported by at least
+three mentions'' can be satisfied by a single syndicated article, so
+duplication silently biases which edges enter a denoised core.
+
+Removing duplicates (keeping one copy per body) and rebuilding with unchanged
+thresholds halves the denoised 600k core, from 41{,}888 to 21{,}216 entities
+(212{,}294 edge-weeks). This \emph{deduplicated core} is the only
+construction whose thresholds mean what they claim --- support by $N$
+independent articles --- and it is adopted as the canonical graph for the
+remainder of the dissertation. All principal conclusions are re-verified on
+it, and the audit itself is reported as a finding that applies to any
+per-ticker news corpus.
+
+\section{Chronological Splits and Versioning}
+The on-disk format permits exact reconstruction of \Gle{} for any week $t$.
+Three constructions are versioned separately and summarised in
+Table~\ref{tab:constructions}: the 200k build with a weight~$\geq 2$ /
+degree~$\geq 2$ core, the 600k build with a stricter weight~$\geq 3$ /
+degree~$\geq 3$ core, and the deduplicated 600k core. The 200k build is
+retained as a replication sample: Chapter~\ref{ch:exp3} runs its full
+benchmark on all three.
+
+\begin{table}[ht]
+\centering
+\caption{Graph constructions. Novelty is the share of test edges whose exact
+triple never appeared before its prediction week.}
+\label{tab:constructions}
+\begin{tabular}{lrrrr}
+\toprule
+Construction & Articles & Entities & Edge-weeks & Test novelty \\
+\midrule
+200k full graph & 201{,}600 & 628{,}765 & 2{,}379{,}438 & --- \\
+200k core ($w\geq2$, $d\geq2$) & & 46{,}026 & 307{,}647 & 72.4\% \\
+600k full graph & 604{,}800 & 1{,}298{,}833 & 6{,}126{,}175 & --- \\
+600k core ($w\geq3$, $d\geq3$) & & 41{,}888 & 493{,}238 & 64.0\% \\
+\textbf{600k deduplicated core (canonical)} & 457{,}619 & \textbf{21{,}216}
+& \textbf{212{,}294} & \textbf{61.6\%} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Extraction-Noise Controls and Limitations}
+Noise is measured rather than hidden. In the full graphs roughly two thirds of
+entities are singletons, motivating the degree/weight cores. Templated
+financial-media boilerplate is measured with the slot-fingerprint method of
+Section~\ref{sec:noisecontrols} and removed by an opt-in filter (on the
+canonical core: 291 entities carrying 15.6\% of edge-instances). Only light
+surface-form normalisation is applied; entity resolution is deliberately out
+of scope, but a crude corporate-suffix merge bounds its effect --- test
+novelty falls from 72.4\% to 68.4\% (200k) and from 64.0\% to 60.1\% (600k),
+so fragmentation is real but secondary. Country (GPE) relations are sparse
+owing to the US-centric corpus and are documented as a limitation rather than
+hand-curated.
+
+\section{Results and Discussion}
+The substrate meets its three design goals. It is \emph{reproducible}: fixed
+seeds, checkpointed extraction, and a fully scripted path from raw corpus to
+splits. It is \emph{point-in-time clean by construction} at the graph level:
+publication-date timestamps and chronological splits are enforced before any
+model sees the data. And it is \emph{honest about its noise}: duplication,
+fragmentation and boilerplate are quantified, with the deduplicated core as
+the corrected canonical object. Scale behaves as hoped --- tripling the
+corpus deepens evidence per relationship (test novelty falls monotonically
+across the constructions in Table~\ref{tab:constructions}) --- and the
+duplication audit stands as a transferable methodological result about
+building graphs from per-ticker news data.
+
+% =====================================================================
+\chapter{Experiment 2: Edge-Formation Velocity, Burst Detection, and Walk-Forward Theme Discovery}
+\label{ch:exp2}
+% Core contribution + validation.
+\section{Introduction}
+This chapter contains the dissertation's central contribution: a walk-forward
+system that discovers emerging themes as they form. The pipeline has four
+stages --- score each entity's formation acceleration causally, detect bursts,
+cluster co-accelerating entities on the graph into themes, and track themes
+into lifelines whose birth week is the date the system would have flagged them
+live --- followed by validation against a frozen gold list with a placebo
+control. All analyses run on the canonical deduplicated core of
+Chapter~\ref{ch:exp1}.
+
+\section{Velocity and Acceleration: Definitions}
+A \emph{formation} is the first week in which a distinct
+(subject, relation, object) triple appears. For any entity, relation or theme,
+let $c_t$ denote its formation count in week $t$. Velocity and acceleration
+are the first and second differences,
+\begin{equation}
+v_t = \Delta c_t = c_t - c_{t-1}, \qquad
+a_t = \Delta^2 c_t = v_t - v_{t-1},
+\label{eq:veldef}
+\end{equation}
+per node, per relation and per theme. Two window conventions serve two
+purposes: \emph{centred} windows for descriptive reporting, where a peak
+should align with the event that caused it, and \emph{strictly trailing}
+windows for the detection system, which must be causal to claim real-time
+operation.
+
+The raw second difference in Equation~\ref{eq:veldef} is an unbiased but
+extremely noisy acceleration estimate for sparse count series. The detector
+therefore uses its windowed, variance-stabilised form --- the surprise
+statistic of the next section, which contrasts the recent-window formation
+rate with the entity's own baseline rate. This is the operational form of
+``anomalous acceleration'' throughout the dissertation: a smoothed estimate of
+the velocity change, robust to the count noise that dominates $\Delta^2 c_t$.
+
+\section{Causal Acceleration Scoring}
+At week $t$, with a recent window of $r=4$ weeks and a baseline window of
+$b=26$ weeks, define for every entity
+\begin{equation}
+O_t = \sum_{s=t-r+1}^{t} c_s, \qquad
+E_t = \frac{r}{b} \sum_{s=t-r-b+1}^{t-r} c_s, \qquad
+z_t = \frac{O_t - E_t}{\sqrt{E_t + 1}} .
+\label{eq:surprise}
+\end{equation}
+Both windows are strictly trailing. Under a Poisson null the denominator
+stabilises the variance; the $+1$ floor keeps $z_t$ finite for zero baselines,
+so brand-new entities (``Coronavirus'' in January 2020) score high by design
+--- new-entity emergence is a feature, not an artifact.
+
+Weekly formation counts are in fact strongly over-dispersed. A
+negative-binomial variant replaces the denominator with
+$\sqrt{E_t + \alpha E_t^2 + 1}$, where the dispersion $\alpha = 3.75$ is
+estimated once by the method of moments on training weeks only. Raising the
+variance raises the detection bar: the Poisson floor is the high-recall
+configuration and the NB correction the high-precision one, and the gold-list
+conclusion of Section~\ref{sec:themevalidation} holds under both. Two
+disclosures apply: $\alpha$ is estimated on weeks 0--254 but applied at every
+$t$, which is conservative for earlier events; and the template blacklist of
+Section~\ref{sec:noisecontrols} is a static full-period list --- the one
+non-trailing input to an otherwise walk-forward system.
+
+\section{Burst and Change-Point Methods}
+Three detectors with different inductive biases are run on the formation
+series, so that detected episodes are demonstrably not an artifact of one
+algorithm. Kleinberg's two-state automaton \citep{Kleinberg2003Bursty} finds
+discrete bursts by a Viterbi trade-off between emission likelihood and a
+transition cost for entering the elevated state. The one-sided CUSUM chart
+\citep{Page1954CUSUM} accumulates standardised deviations,
+$C_t = \max(0,\, C_{t-1} + z_t - k)$ with reference value $k=0.5$, and alarms
+when $C_t$ exceeds a decision interval $h=5$, responding to sustained shifts.
+Bayesian online changepoint detection \citep{AdamsMacKay2007BOCD} maintains
+the exact run-length posterior under a Gamma--Poisson model with hazard
+$1/100$; changepoints are back-dated to the inferred onset $t - \ell_t$, where
+$\ell_t$ is the MAP run length.
+
+Because the three flag intervals of very different widths --- Kleinberg
+isolates events, CUSUM and BOCD sustained regimes (their global intervals
+agree at Jaccard 0.81) --- recall must be judged against each detector's own
+chance level, defined as its dilated flagged-week coverage: the recall it
+would achieve on random event weeks. On an 18-event gold list of documented
+2017--2023 episodes (Table~\ref{tab:detectors}), all three detect far above
+chance with comparable excesses, and their union recovers every event.
+These detectors are retrospective descriptive tools (their baselines use the
+full series); the walk-forward system is the theme detector itself.
+
+\begin{table}[ht]
+\centering
+\caption{Entity-level event recovery on the canonical core: 18 documented
+episodes, hit $=$ a burst interval overlapping the event week $\pm 3$ weeks.}
+\label{tab:detectors}
+\begin{tabular}{lrrr}
+\toprule
+Detector & Recall & Chance (dilated coverage) & Excess \\
+\midrule
+Kleinberg & 14/18 $=$ 78\% & 16\% & $+62$pp \\
+CUSUM & 15/18 $=$ 83\% & 24\% & $+59$pp \\
+BOCD & 17/18 $=$ 94\% & 29\% & $+66$pp \\
+Union & \textbf{18/18 $=$ 100\%} & --- & --- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Theme Clustering and Lifelines}
+Individual acceleration is not yet a theme: an emerging theme is a group of
+related entities accelerating together. Each week, entities passing the gate
+($z_t \geq 3$ and $O_t \geq 6$) are placed on their trailing eight-week
+co-occurrence subgraph and clustered with Louvain
+\citep{Blondel2008Louvain} (fixed seed; clusters of fewer than three members
+discarded). Clusters are ranked by total excess formations
+$\sum_i (O_t - E_t)_i$ and the top eight per week retained. Themes are
+tracked week-over-week into \emph{lifelines} by member overlap (Jaccard
+$\geq 0.3$), matching live lifelines first --- a continuation beats a
+re-activation regardless of overlap --- and allowing a lifeline to be claimed
+by at most one cluster per week; a re-activation after a gap of more than
+eight weeks rejoins its old lifeline rather than counting as a new emergence.
+A lifeline's \emph{birth week} is the date the system would have flagged the
+theme live.
+
+\section{Data-Driven Noise Controls}
+\label{sec:noisecontrols}
+Two failure modes require control, and both controls are measured from data
+rather than hand-curated. First, \emph{templated screener articles} (options
+screens, quantitative stock reports) inject formulaic entities whose ramp-ups
+mimic themes. Slot-normalised fingerprints of titles and body openings ---
+rare tokens replaced by a placeholder so that ``company-name slots'' collapse
+--- identify 26.4\% of articles as template-generated; the 2{,}010 entities
+drawing $\geq 60\%$ of their mentions from such articles are excluded from
+candidacy. Second, \emph{recurring rituals} (earnings-season screens, index
+complexes) accelerate every quarter without being new. A \emph{habituation}
+score classifies a newborn lifeline as EMERGING only if the excess-weighted
+share of members with fewer than two prior acceleration episodes is at least
+one half --- so a theme is emerging only when the entities driving it are new
+phenomena. A stricter configuration additionally excludes walk-forward
+ubiquitous entities (active in more than half of all past weeks); it
+dissolves star-shaped screener clusters at some cost in lead time, and both
+configurations are reported.
+
+\section{Validation: Frozen Gold List, Lead Times, and Placebo Control}
+\label{sec:themevalidation}
+Validation uses a frozen list of ten externally dated 2020--2023 episodes,
+word-boundary entity matching, and an event-anchored birth window ($-13$ to
+$+8$ weeks) so that pre-existing topical lifelines cannot masquerade as
+detections. Table~\ref{tab:goldlist} gives the per-event results for the
+default configuration.
+
+\begin{table}[ht]
+\centering
+\caption{Gold-list lead times (default configuration). Lead $=$ birth week
+$-$ event week; negative is early.}
+\label{tab:goldlist}
+\begin{tabular}{llll}
+\toprule
+Gold theme & Event week & Birth week & Lead \\
+\midrule
+COVID market crisis & 2020-02-24 & 2020-02-03 & $-3$ wk \\
+Oil crash (negative WTI) & 2020-04-20 & 2020-04-06 & $-2$ wk \\
+Vaccine race (Warp Speed) & 2020-05-15 & 2020-03-16 & $-8$ wk \\
+Vaccine efficacy readout & 2020-11-09 & 2020-09-28 & $-6$ wk \\
+GameStop squeeze & 2021-01-25 & 2021-01-25 & $+0$ wk \\
+Russia--Ukraine war & 2022-02-21 & 2022-02-28 & $+1$ wk \\
+FTX collapse & 2022-11-07 & --- & miss \\
+AI / ChatGPT wave & 2022-11-28 & --- & miss \\
+SVB banking crisis & 2023-03-06 & 2023-03-13 & $+1$ wk \\
+UAW strike & 2023-09-11 & 2023-09-18 & $+1$ wk \\
+\midrule
+\multicolumn{4}{l}{\textbf{8/10 detected; median lead $-1$ week; 62\%
+early-or-on-time.}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Specificity is established by a placebo control: applying the identical
+detection criterion to random event weeks (100{,}000 Monte-Carlo draws over
+the per-theme chance rates) yields an expected $\approx 2.2/10$; the observed
+8/10 has $p \approx 10^{-4}$ (strict configuration: expected $1.9/10$,
+$p = 2\times10^{-5}$). Robustness: every cell of the $3\times3$ window grid
+(recent $\in \{2,4,8\}$, baseline $\in \{13,26,52\}$ weeks) detects 7--8/10
+with placebo $p < 4\times10^{-4}$, shorter windows detecting slightly later
+and longer slightly earlier (full grid in Appendix~B); and the
+negative-binomial configuration detects 7/10 at a chance rate of $0.9/10$.
+
+\section{Results and Discussion}
+The central empirical pattern is that \emph{lead time reflects the
+information structure of the event itself}. Anticipatable themes --- ones
+whose build-up is reported before the market-moving moment --- are detected
+weeks early: the COVID market crisis three weeks before the crash, the
+vaccine race eight weeks before Operation Warp Speed was announced, the
+efficacy theme six weeks before the Pfizer readout. Pure shocks --- an
+invasion, a bank run, a strike --- land at the news-flow floor of $+1$ week,
+because no public reporting precedes them. The two misses are coverage-honest
+rather than algorithmic: FTX and OpenAI are barely present in a Nasdaq-equity
+news corpus. One label is worth noting: GameStop is detected in the squeeze
+week but classified \emph{recurring}, since squeeze-adjacent entities had
+prior acceleration episodes --- an honest reflection of the habituation
+bookkeeping rather than an error. Beyond the gold list the system surfaces
+correctly dated discoveries including the 2019 cannabis boom
+(HEXO/Aurora/Tilray, born 2019-03-18), the EV/SPAC wave (Nikola/Nio, born
+2020-06-22) and the stay-at-home complex (Zoom/Kroger/Virgin Galactic, born
+2020-04-06).
+
+% =====================================================================
+\chapter{Experiment 3: Temporal Link Prediction under Point-in-Time Discipline}
+\label{ch:exp3}
+% Marking areas 2 & 4: ML benchmark + critical analysis; contextualises Exp 2.
+\section{Introduction}
+Where Chapter~\ref{ch:exp2} asks \emph{what is emerging}, this chapter asks
+how far the graph's future can be predicted at all at the level of individual
+edges, contextualising the theme system. The benchmark deliberately follows
+the recurrence-baseline critique of \citet{Gastinger2024Recurrence}: the
+training-free baseline is treated as a first-class competitor, uncertainty is
+quantified, and the same benchmark is repeated on all three graph
+constructions as a replication test.
+
+\section{Task and Protocol}
+The task is temporal knowledge-graph forecasting (extrapolation): for each
+test quadruple $(s, r, o, t)$, rank all candidate entities for $(s, r, ?, t)$
+and $(?, r, o, t)$ using only history strictly before week $t$. Performance
+is Mean Reciprocal Rank and Hits@$k$,
+\begin{equation}
+\mathrm{MRR} = \frac{1}{|Q|} \sum_{q \in Q} \frac{1}{\mathrm{rank}_q},
+\qquad
+\mathrm{Hits@}k = \frac{1}{|Q|} \sum_{q \in Q}
+\mathbb{1}[\mathrm{rank}_q \leq k],
+\end{equation}
+averaged over both directions, under the conservative \emph{raw} ranking of
+Section~2.2 and with mean-rank tie handling (ties share the expected rank, so
+count-based baselines are neither inflated nor penalised). Every result is
+decomposed by a key property of the data: a test edge is \emph{recurring} if
+its exact triple appeared before its prediction week and \emph{novel}
+otherwise. On the canonical core 61.6\% of test directions are novel.
+
+\section{Models}
+The temporal model is an RE-GCN-style network \citep{Li2021REGCN}: a
+relational graph convolution over each weekly snapshot folded into a
+recurrent state, with entity representations re-evolved from their base
+embeddings over a trailing window at each prediction time and a decoder
+scoring candidate edges. Hyperparameters are selected by validation-based
+early stopping on each core's own validation weeks (epoch 22 on the canonical
+core), never transplanted across constructions.
+
+\section{Baselines}
+Five baseline families bracket the model. The training-free
+\emph{recurrence} baseline scores a candidate by how often the exact triple
+occurred in prior history \citep{Gastinger2024Recurrence}; \emph{popularity}
+ranks by global historical frequency. Static embeddings --- ComplEx
+\citep{Trouillon2016ComplEx} and DistMult \citep{Yang2015DistMult} --- are
+trained on all pre-test weeks and score structural plausibility independent
+of recurrence. Classical heuristics --- Common Neighbours and Adamic--Adar
+\citep{AdamicAdar2003, LibenNowell2007} --- operate on a trailing twelve-week
+subgraph, with the query entity excluded from its own candidate set. Finally,
+ChronoBERT entity-name embeddings \citep{He2025Chrono} with a lightweight
+trained scorer provide a point-in-time-clean \emph{semantic} baseline.
+Backoff hybrids use the recurrence rank for recurring candidates and a second
+scorer for novel ones.
+
+\section{Evaluation Protocol and Uncertainty}
+All scorers observe strictly pre-$t$ history, with within-week
+update-after-scoring ordering so no same-week information leaks. Confidence
+intervals are 95\% paired bootstrap (1{,}000 resamples over test directions),
+and --- a methodological lesson of this dissertation --- small gaps are
+additionally checked against training-seed replication, because query
+resampling alone conditions on a single training run and understates
+uncertainty (Chapter~\ref{ch:pit}). The full benchmark is run on the 200k
+core, the 600k core and the canonical deduplicated core.
+
+\section{Central Question: Does Temporal Structure Help?}
+Table~\ref{tab:benchmark} reports the canonical-core benchmark.
+
+\begin{table}[ht]
+\centering
+\caption{Link-prediction benchmark on the canonical deduplicated core
+(raw ranking; 95\% bootstrap CIs in brackets where computed).}
+\label{tab:benchmark}
+\begin{tabular}{lrrrr}
+\toprule
+Method & MRR all & MRR recurring & MRR novel & Hits@10 \\
+\midrule
+Recurrence & 0.196 & 0.511 & 0.000 & 0.296 \\
+Popularity & 0.053 & 0.097 & 0.025 & 0.119 \\
+Common Neighbours / Adamic--Adar & 0.025 / 0.029 & 0.054 / 0.062 &
+0.008 & 0.060 \\
+ComplEx & 0.099 & 0.218 & 0.025 [.024, .026] & 0.193 \\
+RE-GCN (early-stopped) & 0.117 & 0.257 & 0.031 & 0.196 \\
+ChronoBERT-2022 & 0.105 & 0.206 & 0.035 [.034, .037] & 0.186 \\
+Backoff (rec $\rightarrow$ RE-GCN) & 0.215 & 0.511 & 0.031 & 0.337 \\
+\textbf{Backoff (rec $\rightarrow$ ChronoBERT)} & \textbf{0.218 [.215,
+.221]} & 0.511 & 0.035 & \textbf{0.342} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Four findings follow. \emph{Recurrence dominates what is predictable}:
+recurring edges reach MRR $\approx 0.5$ while every method sits near a low
+ceiling on novel edges. \emph{Semantic beats structural on novel edges}: the
+ChronoBERT baseline exceeds ComplEx by $+0.011$ MRR
+[95\% CI $+0.009, +0.013$], a gap an order of magnitude above both seed noise
+and the lookahead bound, making the recurrence$\rightarrow$ChronoBERT backoff
+the strongest system. \emph{Temporal structure helps only with density}: on
+the sparse 200k core the temporal network merely matches ComplEx (novel MRR
+0.025 for both), and its score is invariant to shuffling the order of history
+--- but on the denser cores a modest advantage emerges (0.031 vs 0.025 novel
+on the canonical core). This qualified null is reported as a substantive
+finding. \emph{The ranking replicates}: the method ordering ---
+recurrence-backoff best overall; ChronoBERT $>$ RE-GCN $\geq$ ComplEx $\gg$
+heuristics on novel edges --- is identical on all three constructions
+(Appendix~B), across corpus scale, thresholds and deduplication.
+
+\section{Results and Discussion}
+The picture is bimodal: the past is legible, the future is genuinely
+surprising. What recurs can be predicted almost for free, novel formations
+resist every model family tested, and the best available lever on novel edges
+is semantic knowledge of \emph{what an entity is} rather than temporal or
+structural pattern. Cross-construction comparisons of absolute MRR are
+avoided throughout --- raw ranks over candidate sets of 21k--46k entities are
+not commensurable --- so the defensible cross-corpus claims are the novelty
+trajectory (72.4\% $\rightarrow$ 64.0\% $\rightarrow$ 61.6\%) and the
+invariant method ranking. The failure of triadic-closure heuristics
+(novel MRR $\approx 0.008$) is itself informative: the assumptions that hold
+in social networks transfer poorly to a financial co-mention graph. These
+results frame the theme system of Chapter~\ref{ch:exp2}: individual novel
+edges are near-unforecastable, yet their aggregate acceleration is exactly
+where exploitable signal lives.
+
+% =====================================================================
+\chapter{Point-in-Time Integrity}
+\label{ch:pit}
+% Marking area 4: the methodological backbone governing all three experiments.
+\section{Two Kinds of Leakage}
+Two distinct threats are conflated by the umbrella term ``lookahead bias'',
+and this dissertation treats them separately. \emph{Graph and feature
+leakage} is the use, at prediction time $t$, of any data dated after $t$; it
+is a property of the pipeline and can be eliminated by construction.
+\emph{Extractor hindsight} is subtler: the language model that built the
+graph was trained on text postdating the corpus, so its extractions could in
+principle encode knowledge of outcomes. It cannot be eliminated without
+retraining the extractor; it can only be measured and bounded.
+
+\section{Prevented by Design}
+The first threat is addressed by mechanism, not by care: publication-date
+timestamping of every edge (the single most important control); chronological
+train/validation/test splits fixed once; structural masking, so any model at
+time $t$ observes only \Gle; strictly trailing windows and rolling causal
+normalisation in the detection system; conservative raw ranking, so no
+evaluation-time knowledge of other true future facts enters a prediction;
+within-week update-after-scoring ordering; and validation-only tuning. Two
+disclosed exceptions to the trailing-statistics rule are the static template
+blacklist and the train-estimated NB dispersion of Chapter~\ref{ch:exp2},
+both conservative in direction.
+
+\section{Measured, Not Eliminated}
+ICKG is distilled from GPT-4 and is not point-in-time clean. Residual
+hindsight is quantified with four independent checks. (i)
+\emph{Apples-to-apples retraining}: the temporal network trained on identical
+data matches static ComplEx, so no comparison rests on an uneven split. (ii)
+\emph{Time-shuffle placebo}: the temporal model's score is invariant to
+randomising the order of its history snapshots (MRR $0.090 \rightarrow
+0.091$), so the null result is intrinsic to the data rather than a tuning
+artifact. (iii) \emph{Blinded re-extraction}: re-extracting a 300-article
+sample with entity names and dates masked retains the relational structure
+(relation-mix total-variation distance 0.10), confirming text-grounded
+extraction; only the causal ``impact'' relations lose share ($27.5\%
+\rightarrow 21.1\%$), which flags impact-relation analyses --- not link
+prediction --- as entity-dependent. (iv) \emph{Cutoff-controlled ChronoBERT
+comparison} \citep{He2025Chrono}: scoring the same task with two versions of
+the same model differing only in training cutoff (2022, blind to the test
+year, vs 2024) bounds lookahead below measurement resolution. The apparent
+gap ($+0.0010$ MRR at 200k) initially tested significant under the query
+bootstrap, but training-seed replication showed run-to-run noise of the same
+size, and on the canonical core the gap is not significant even before that
+correction ($+0.0005$, 95\% CI $[-0.0009, +0.0019]$). The honest conclusion
+is a bound, not a detection: extractor lookahead is below $\sim$0.002 MRR,
+an order of magnitude smaller than the semantic effect it could be confused
+with. The methodological lesson --- query resampling conditions on a single
+training run and can certify noise as signal --- is reported as a
+contribution in its own right.
+
+% =====================================================================
+\chapter{Discussion and Conclusions}
+\label{ch:conclusions}
+% Marking area 4: critical analysis, weaknesses, extensions.
+\section{Summary of Findings}
+Five findings summarise the dissertation. First, a reproducible,
+point-in-time-clean temporal knowledge graph can be built from public news
+with an open, locally hosted extractor at practical cost, and its dominant
+data-hygiene hazard --- syndication duplication in per-ticker corpora --- can
+be measured and corrected. Second, link-formation velocity, causally scored
+and clustered on the graph, supports a walk-forward theme-discovery system
+that detects 8/10 major 2020--2023 themes at a median lead of $-1$ week,
+far above a placebo chance of $\approx 2/10$ ($p \approx 10^{-4}$), robustly
+across detector families, dispersion assumptions and window choices. Third,
+lead time reflects the information structure of the event: anticipatable
+themes are flagged weeks early, pure shocks at the news-flow floor. Fourth,
+edge-level forecasting is bimodal --- recurring relationships are highly
+predictable, novel ones sit near a low ceiling for every method, temporal
+structure helps only as data density grows, and semantic priors are the best
+lever on novel edges. Fifth, extractor lookahead bias is bounded below
+measurement resolution by a cutoff-controlled comparison.
+
+\section{Strengths and Weaknesses}
+The work's principal strength is the validation discipline around its central
+claim: a frozen gold list with event-anchored windows, a placebo null, three
+burst detectors scored against their own chance levels, dispersion and window
+sensitivity, and replication of the benchmark across three graph
+constructions. Its corresponding weakness is breadth over depth in places:
+the theme system's precision is established at the week level (placebo) but a
+lifeline-level false-discovery audit remains manual future work; and the
+velocity signal is used for discovery, not yet injected as a feature into the
+temporal network, so the feature-ablation form of the velocity question
+remains open.
+
+\section{Limitations and Threats to Validity}
+\emph{Residual extractor hindsight} is bounded, not zero, and causal impact
+relations carry measurable entity-dependence. \emph{Corpus coverage}: a
+Nasdaq-equity news corpus under-reports crypto and private-company themes,
+which is why FTX and ChatGPT are missed --- detection is bounded by what the
+corpus reports. \emph{Duplication}: exact-hash deduplication is a lower
+bound; near-duplicates survive. \emph{GPE sparsity}: country relations are
+thin in a US-centric corpus. \emph{Metric comparability}: absolute raw MRRs
+are not comparable across candidate-set sizes, so cross-construction claims
+are restricted to rankings and novelty rates. \emph{Regime dependence}: the
+gold list is concentrated in 2020--2023; earlier, calmer regimes contribute
+fewer validation events. \emph{Multiple testing}: the gold list and windows
+were frozen before evaluation, but ten events remain a small sample.
+\emph{Static inputs}: the template blacklist and the NB dispersion are
+full-period or train-period statistics, disclosed in
+Chapter~\ref{ch:exp2}.
+
+\section{Future Work}
+Four extensions follow directly. Injecting velocity and acceleration as
+explicit features into the temporal network would answer the feature-ablation
+form of the velocity question. Entity resolution --- shown by the crude-merge
+bound to move novelty by roughly four percentage points --- is the next
+data-quality lever. The detection layer would benefit from a rolling template
+blacklist, hierarchical burst detection, and a lifeline-level false-discovery
+audit. Finally, the FNSPID price series enable a downstream study of whether
+theme leads translate into investable signal; that application is treated
+throughout as a use of the method, not its aim.
+
+% =====================================================================
+% BIBLIOGRAPHY  (Harvard / author-year; verify all details before submission)
+% =====================================================================
+\begin{thebibliography}{Liben-Nowell and Kleinberg, 2007}
+
+\bibitem[Adamic \& Adar(2003)]{AdamicAdar2003}
+Adamic, L. A. \& Adar, E., 2003. Friends and Neighbors on the Web. {\em Social
+Networks}, 25(3), pp. 211--230.
+
+\bibitem[Adams \& MacKay(2007)]{AdamsMacKay2007BOCD}
+Adams, R. P. \& MacKay, D. J. C., 2007. Bayesian Online Changepoint Detection.
+{\em arXiv preprint} arXiv:0710.3742.
+
+\bibitem[Araci(2019)]{Araci2019FinBERT}
+Araci, D., 2019. FinBERT: Financial Sentiment Analysis with Pre-trained
+Language Models. {\em arXiv preprint} arXiv:1908.10063.
+
+\bibitem[Blondel et al.(2008)]{Blondel2008Louvain}
+Blondel, V. D., Guillaume, J.-L., Lambiotte, R. \& Lefebvre, E., 2008. Fast
+Unfolding of Communities in Large Networks. {\em Journal of Statistical
+Mechanics: Theory and Experiment}, P10008. arXiv:0803.0476.
+
+\bibitem[Bordes et al.(2013)]{Bordes2013TransE}
+Bordes, A. et al., 2013. Translating Embeddings for Modeling Multi-relational
+Data. {\em Advances in Neural Information Processing Systems 26 (NeurIPS 2013)}.
+
+\bibitem[Devlin et al.(2019)]{Devlin2019BERT}
+Devlin, J., Chang, M.-W., Lee, K. \& Toutanova, K., 2019. BERT: Pre-training of
+Deep Bidirectional Transformers for Language Understanding. {\em Proceedings of
+NAACL-HLT}. arXiv:1810.04805.
+
+\bibitem[Dong et al.(2024)]{Dong2024FNSPID}
+Dong, Z., Fan, X. \& Peng, Z., 2024. FNSPID: A Comprehensive Financial News
+Dataset in Time Series. {\em Proceedings of the 30th ACM SIGKDD Conference on
+Knowledge Discovery and Data Mining (KDD '24)}. arXiv:2402.06698.
+
+\bibitem[Efron(1979)]{Efron1979Bootstrap}
+Efron, B., 1979. Bootstrap Methods: Another Look at the Jackknife. {\em The
+Annals of Statistics}, 7(1), pp. 1--26.
+
+\bibitem[Gastinger et al.(2024)]{Gastinger2024Recurrence}
+Gastinger, J. et al., 2024. History Repeats Itself: A Baseline for Temporal
+Knowledge Graph Forecasting. {\em Proceedings of the 33rd International Joint
+Conference on Artificial Intelligence (IJCAI)}. arXiv:2404.16726.
+
+\bibitem[He et al.(2025)]{He2025Chrono}
+He, S., Lv, L., Manela, A. \& Wu, J., 2025. Chronologically Consistent Large
+Language Models. {\em arXiv preprint} arXiv:2502.21206.
+
+\bibitem[Hu et al.(2022)]{Hu2022LoRA}
+Hu, E. J. et al., 2022. LoRA: Low-Rank Adaptation of Large Language Models. {\em
+International Conference on Learning Representations (ICLR)}. arXiv:2106.09685.
+
+\bibitem[Jin et al.(2020)]{Jin2020RENET}
+Jin, W., Qu, M., Jin, X. \& Ren, X., 2020. Recurrent Event Network:
+Autoregressive Structure Inference over Temporal Knowledge Graphs. {\em
+Proceedings of EMNLP}. arXiv:1904.05530.
+
+\bibitem[Kleinberg(2003)]{Kleinberg2003Bursty}
+Kleinberg, J., 2003. Bursty and Hierarchical Structure in Streams. {\em Data
+Mining and Knowledge Discovery}, 7(4), pp. 373--397.
+
+\bibitem[Kwon et al.(2023)]{Kwon2023vLLM}
+Kwon, W. et al., 2023. Efficient Memory Management for Large Language Model
+Serving with PagedAttention. {\em Proceedings of the 29th ACM Symposium on
+Operating Systems Principles (SOSP)}. arXiv:2309.06180.
+
+\bibitem[Li \& Sanna Passino(2024)]{Li2024FinDKG}
+Li, X. V. \& Sanna Passino, F., 2024. FinDKG: Dynamic Knowledge Graphs with
+Large Language Models for Detecting Global Trends in Financial Markets. {\em
+Proceedings of the 5th ACM International Conference on AI in Finance (ICAIF
+'24)}. arXiv:2407.10909.
+
+\bibitem[Li et al.(2021)]{Li2021REGCN}
+Li, Z. et al., 2021. Temporal Knowledge Graph Reasoning Based on Evolutional
+Representation Learning. {\em Proceedings of the 44th International ACM SIGIR
+Conference on Research and Development in Information Retrieval}. arXiv:2104.10353.
+
+\bibitem[Liben-Nowell \& Kleinberg(2007)]{LibenNowell2007}
+Liben-Nowell, D. \& Kleinberg, J., 2007. The Link-Prediction Problem for Social
+Networks. {\em Journal of the American Society for Information Science and
+Technology}, 58(7), pp. 1019--1031.
+
+\bibitem[Page(1954)]{Page1954CUSUM}
+Page, E. S., 1954. Continuous Inspection Schemes. {\em Biometrika}, 41(1/2),
+pp. 100--115.
+
+\bibitem[Qwen Team(2024)]{Qwen2024}
+Qwen Team, 2024. Qwen2.5 Technical Report. {\em arXiv preprint} arXiv:2412.15115.
+
+\bibitem[Trouillon et al.(2016)]{Trouillon2016ComplEx}
+Trouillon, T. et al., 2016. Complex Embeddings for Simple Link Prediction. {\em
+Proceedings of the 33rd International Conference on Machine Learning (ICML)}.
+arXiv:1606.06357.
+
+\bibitem[Vaswani et al.(2017)]{Vaswani2017Attention}
+Vaswani, A. et al., 2017. Attention Is All You Need. {\em Advances in Neural
+Information Processing Systems 30 (NeurIPS 2017)}. arXiv:1706.03762.
+
+\bibitem[Vitter(1985)]{Vitter1985Reservoir}
+Vitter, J. S., 1985. Random Sampling with a Reservoir. {\em ACM Transactions on
+Mathematical Software}, 11(1), pp. 37--57.
+
+\bibitem[Yang et al.(2015)]{Yang2015DistMult}
+Yang, B. et al., 2015. Embedding Entities and Relations for Learning and
+Inference in Knowledge Bases. {\em International Conference on Learning
+Representations (ICLR)}. arXiv:1412.6575.
+
+\end{thebibliography}
+
+% =====================================================================
+% APPENDICES
+% =====================================================================
+\appendix
+\chapter{Reproducibility}
+All experiments are scripted and seeded. Extraction ran with vLLM on two RTX
+Pro 6000 GPUs (Chapter~\ref{ch:exp1}); every analysis, including the temporal
+network with validation-based early stopping, the ChronoBERT scorers, the
+bootstrap, the three burst detectors and the full theme system, reproduces on
+a single 6\,GB consumer GPU. The analysis environment is Python 3.12 with
+PyTorch (CUDA), networkx, NumPy, SciPy and pandas. Each graph construction is
+a directory of FinDKG-format flat files (entity, relation and time indices;
+chronologically split quadruple lists; weighted edge-week table); an
+environment variable selects the construction so that every module runs
+unchanged on any of the three. The derived knowledge-graph dataset (triples
+and indices) and the source code are released for replication. Article text
+is not re-redistributed: FNSPID is distributed under CC BY-NC 4.0 and the
+underlying articles remain publisher-copyrighted, so the release instead
+includes the exact FNSPID row identifiers of every sampled article together
+with the seeded sampling scripts, from which both corpora reconstruct
+exactly from the public FNSPID distribution. Fixed constants: weekly bucketing over 365 weeks; splits
+0--254/255--309/310--364; detector gate $z \geq 3$, $O_t \geq 6$; windows
+$r=4$, $b=26$ (defaults); Louvain seed 42; lifeline matching Jaccard
+$\geq 0.3$ with an eight-week gap; NB dispersion $\alpha = 3.75$; bootstrap
+$B = 1{,}000$; placebo draws $100{,}000$.
+\chapter{Additional Results}
+\section*{Cross-construction replication}
+The method ranking of Chapter~\ref{ch:exp3} is identical on all three graph
+constructions; absolute values are not comparable across candidate-set sizes.
+
+\begin{table}[ht]
+\centering
+\caption{Best system and novelty across constructions.}
+\begin{tabular}{lrrr}
+\toprule
+ & 200k core & 600k core & Dedup core \\
+\midrule
+Test novelty & 72.4\% & 64.0\% & 61.6\% \\
+Recurrence MRR & 0.135 & 0.167 & 0.196 \\
+Best backoff MRR / Hits@10 & 0.162 / 0.258 & 0.192 / 0.312 & 0.218 / 0.342 \\
+Novel-edge ranking & \multicolumn{3}{c}{ChronoBERT $>$ RE-GCN $\geq$ ComplEx
+$\gg$ CN/AA (all three)} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section*{Window-sensitivity grid}
+Gold-list detections and placebo $p$-values for all nine window
+configurations (recent $r$, baseline $b$, weeks):
+
+\begin{table}[ht]
+\centering
+\caption{Theme detection across the $3\times3$ window grid.}
+\begin{tabular}{lccc}
+\toprule
+ & $b=13$ & $b=26$ & $b=52$ \\
+\midrule
+$r=2$ & 7/10 ($p=3.9\times10^{-4}$) & 7/10 ($p=2.5\times10^{-4}$) &
+7/10 ($p=2.9\times10^{-4}$) \\
+$r=4$ & 8/10 ($p=1.2\times10^{-4}$) & 8/10 ($p=1.0\times10^{-4}$) &
+8/10 ($p=3.2\times10^{-4}$) \\
+$r=8$ & 8/10 ($p=3.8\times10^{-4}$) & 8/10 ($p=4\times10^{-5}$) &
+8/10 ($p=4\times10^{-5}$) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The $r=8$, $b=26$ cell achieves the earliest detection (median lead $-2$
+weeks; 88\% early-or-on-time); shorter recent windows detect slightly later.
+
+\end{document}

@@ -1,0 +1,12 @@
+embedding 46,026 entity names with manelalab/chrono-bert-v1-20221231
+`torch_dtype` is deprecated! Use `dtype` instead!
+  0/46026
+  5120/46026
+  10240/46026
+  15360/46026
+  20480/46026
+  25600/46026
+  30720/46026
+  35840/46026
+  40960/46026
+saved data/dynamics/linkpred/emb_chrono.npy shape (46026, 768)

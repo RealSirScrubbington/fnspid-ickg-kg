@@ -1,0 +1,18 @@
+[noise] dropped 422 templated entities, 25,688 edge-instances (8.3%)
+device cuda | 46,026 entities | dim 128 hist 8 epochs 21 lr 0.002
+train weeks 1-309 (309) | through_valid=True shuffle_hist=False
+  epoch   0 loss 18.987
+  epoch   3 loss 16.071
+  epoch   6 loss 15.479
+  epoch   9 loss 14.599
+  epoch  12 loss 13.038
+  epoch  15 loss 11.816
+  epoch  18 loss 10.766
+  epoch  20 loss 10.244
+
+                      MRR/all  MRR/recurring  MRR/novel  H10/all
+RE-GCN                 0.0972         0.2821     0.0266   0.1622
+recurrence             0.1347         0.4871     0.0000   0.2045
+backoff(rec->RE-GCN)   0.1539         0.4871     0.0266   0.2444
+
+reference: ComplEx MRR/all 0.082, novel 0.025 | backoff(ComplEx) MRR/all 0.152, H10 0.242

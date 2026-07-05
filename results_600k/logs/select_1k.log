@@ -1,0 +1,26 @@
+corpus Stock_news/nasdaq_exteral_data.csv: 23.2 GB | columns ok
+  sampled 50/1000  (4.0/s, 75 reads)
+  sampled 100/1000  (3.4/s, 166 reads)
+  sampled 150/1000  (3.4/s, 257 reads)
+  sampled 200/1000  (3.3/s, 347 reads)
+  sampled 250/1000  (3.3/s, 433 reads)
+  sampled 300/1000  (3.2/s, 517 reads)
+  sampled 350/1000  (3.4/s, 600 reads)
+  sampled 400/1000  (3.3/s, 685 reads)
+  sampled 450/1000  (3.3/s, 766 reads)
+  sampled 500/1000  (3.3/s, 851 reads)
+  sampled 550/1000  (3.4/s, 936 reads)
+  sampled 600/1000  (3.4/s, 1019 reads)
+  sampled 650/1000  (3.4/s, 1103 reads)
+  sampled 700/1000  (3.4/s, 1190 reads)
+  sampled 750/1000  (3.4/s, 1275 reads)
+  sampled 800/1000  (3.3/s, 1378 reads)
+  sampled 850/1000  (3.3/s, 1454 reads)
+  sampled 900/1000  (3.3/s, 1545 reads)
+  sampled 950/1000  (3.3/s, 1634 reads)
+  sampled 1000/1000  (3.4/s, 1724 reads)
+
+selected 1000 -> data/sample_1k.parquet
+year distribution: {'2017': 82, '2018': 93, '2019': 70, '2020': 83, '2021': 103, '2022': 140, '2023': 429}
+distinct tickers: 602
+words: mean=872 median=693 min=201

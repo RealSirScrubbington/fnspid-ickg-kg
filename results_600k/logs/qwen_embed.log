@@ -1,0 +1,22 @@
+embedding 46,026 entity names with unsloth/Qwen2.5-14B-Instruct
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading checkpoint shards:   0%|          | 0/6 [00:00<?, ?it/s]Loading checkpoint shards:  17%|█▋        | 1/6 [00:01<00:09,  1.96s/it]Loading checkpoint shards:  33%|███▎      | 2/6 [00:04<00:09,  2.28s/it]Loading checkpoint shards:  50%|█████     | 3/6 [00:07<00:07,  2.45s/it]Loading checkpoint shards:  67%|██████▋   | 4/6 [00:09<00:05,  2.59s/it]Loading checkpoint shards:  83%|████████▎ | 5/6 [00:12<00:02,  2.69s/it]Loading checkpoint shards: 100%|██████████| 6/6 [00:14<00:00,  2.29s/it]Loading checkpoint shards: 100%|██████████| 6/6 [00:14<00:00,  2.39s/it]
+  0/46026
+  2560/46026
+  5120/46026
+  7680/46026
+  10240/46026
+  12800/46026
+  15360/46026
+  17920/46026
+  20480/46026
+  23040/46026
+  25600/46026
+  28160/46026
+  30720/46026
+  33280/46026
+  35840/46026
+  38400/46026
+  40960/46026
+  43520/46026
+saved data/dynamics/linkpred/emb_qwen.npy shape (46026, 5120)

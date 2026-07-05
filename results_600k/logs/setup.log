@@ -1,0 +1,36 @@
+[1/5] creating venv (python3.9)
+[2/5] installing torch (cu124)
+[3/5] installing ML stack
+WARNING: There was an error checking the latest version of pip.
+[4/5] verifying torch + CUDA
+torch 2.6.0+cu124 | cuda_avail True
+GPU: NVIDIA GeForce RTX 4070 Ti SUPER | VRAM_GB 16.75 | cc 8.9
+Traceback (most recent call last):
+  File "<stdin>", line 6, in <module>
+  File "/scratch0/dmaruev/fnspid-ickg-kg/.venv/lib64/python3.9/site-packages/bitsandbytes/__init__.py", line 20, in <module>
+    from .nn import modules
+  File "/scratch0/dmaruev/fnspid-ickg-kg/.venv/lib64/python3.9/site-packages/bitsandbytes/nn/__init__.py", line 21, in <module>
+    from .triton_based_modules import (
+  File "/scratch0/dmaruev/fnspid-ickg-kg/.venv/lib64/python3.9/site-packages/bitsandbytes/nn/triton_based_modules.py", line 6, in <module>
+    from bitsandbytes.triton.dequantize_rowwise import dequantize_rowwise
+  File "/scratch0/dmaruev/fnspid-ickg-kg/.venv/lib64/python3.9/site-packages/bitsandbytes/triton/dequantize_rowwise.py", line 36, in <module>
+    def _dequantize_rowwise(
+  File "/scratch0/dmaruev/fnspid-ickg-kg/.venv/lib64/python3.9/site-packages/triton/runtime/autotuner.py", line 368, in decorator
+    return Autotuner(fn, fn.arg_names, configs, key, reset_to_zero, restore_value, pre_hook=pre_hook,
+  File "/scratch0/dmaruev/fnspid-ickg-kg/.venv/lib64/python3.9/site-packages/triton/runtime/autotuner.py", line 130, in __init__
+    self.do_bench = driver.active.get_benchmarker()
+  File "/scratch0/dmaruev/fnspid-ickg-kg/.venv/lib64/python3.9/site-packages/triton/runtime/driver.py", line 23, in __getattr__
+    self._initialize_obj()
+  File "/scratch0/dmaruev/fnspid-ickg-kg/.venv/lib64/python3.9/site-packages/triton/runtime/driver.py", line 20, in _initialize_obj
+    self._obj = self._init_fn()
+  File "/scratch0/dmaruev/fnspid-ickg-kg/.venv/lib64/python3.9/site-packages/triton/runtime/driver.py", line 9, in _create_driver
+    return actives[0]()
+  File "/scratch0/dmaruev/fnspid-ickg-kg/.venv/lib64/python3.9/site-packages/triton/backends/nvidia/driver.py", line 450, in __init__
+    self.utils = CudaUtils()  # TODO: make static
+  File "/scratch0/dmaruev/fnspid-ickg-kg/.venv/lib64/python3.9/site-packages/triton/backends/nvidia/driver.py", line 80, in __init__
+    mod = compile_module_from_src(Path(os.path.join(dirname, "driver.c")).read_text(), "cuda_utils")
+  File "/scratch0/dmaruev/fnspid-ickg-kg/.venv/lib64/python3.9/site-packages/triton/backends/nvidia/driver.py", line 59, in compile_module_from_src
+    cache_path = cache.put(f.read(), f"{name}.so", binary=True)
+  File "/scratch0/dmaruev/fnspid-ickg-kg/.venv/lib64/python3.9/site-packages/triton/runtime/cache.py", line 131, in put
+    f.write(data)
+OSError: [Errno 122] Disk quota exceeded

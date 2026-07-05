@@ -1,0 +1,41 @@
+[noise] dropped 422 templated entities, 25,688 edge-instances (8.3%)
+device cuda | 46,026 entities | dim 128 hist 8 epochs 60 lr 0.002
+  epoch   0 loss 19.324 | valid MRR 0.0262
+  epoch   1 loss 17.461 | valid MRR 0.0417
+  epoch   2 loss 16.327 | valid MRR 0.0483
+  epoch   3 loss 15.657 | valid MRR 0.0541
+  epoch   4 loss 15.245 | valid MRR 0.0578
+  epoch   5 loss 14.896 | valid MRR 0.0565
+  epoch   6 loss 14.591 | valid MRR 0.0614
+  epoch   7 loss 14.356 | valid MRR 0.0609
+  epoch   8 loss 14.185 | valid MRR 0.0624
+  epoch   9 loss 13.911 | valid MRR 0.0655
+  epoch  10 loss 13.714 | valid MRR 0.0701
+  epoch  11 loss 13.338 | valid MRR 0.0674
+  epoch  12 loss 13.012 | valid MRR 0.0784
+  epoch  13 loss 12.677 | valid MRR 0.0754
+  epoch  14 loss 12.283 | valid MRR 0.0723
+  epoch  15 loss 11.983 | valid MRR 0.0769
+  epoch  16 loss 11.672 | valid MRR 0.0781
+  epoch  17 loss 11.360 | valid MRR 0.0788
+  epoch  18 loss 11.162 | valid MRR 0.0791
+  epoch  19 loss 11.029 | valid MRR 0.0760
+  epoch  20 loss 10.865 | valid MRR 0.0818
+  epoch  21 loss 10.722 | valid MRR 0.0828
+  epoch  22 loss 10.554 | valid MRR 0.0789
+  epoch  23 loss 10.428 | valid MRR 0.0823
+  epoch  24 loss 10.253 | valid MRR 0.0812
+  epoch  25 loss 10.154 | valid MRR 0.0787
+  epoch  26 loss 9.985 | valid MRR 0.0777
+  epoch  27 loss 9.854 | valid MRR 0.0811
+  epoch  28 loss 9.720 | valid MRR 0.0814
+  epoch  29 loss 9.597 | valid MRR 0.0787
+  early stop (no valid gain for 8 epochs)
+selected epoch 21 | best valid MRR 0.0828
+
+                      MRR/all  MRR/recurring  MRR/novel  H10/all
+RE-GCN                 0.0731         0.2141     0.0192   0.1191
+recurrence             0.1347         0.4871     0.0000   0.2045
+backoff(rec->RE-GCN)   0.1485         0.4871     0.0192   0.2318
+
+reference: ComplEx MRR/all 0.082, novel 0.025 | backoff(ComplEx) MRR/all 0.152, H10 0.242

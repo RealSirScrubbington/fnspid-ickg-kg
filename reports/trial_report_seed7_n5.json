@@ -1,0 +1,74 @@
+{
+  "tag": "trial",
+  "n_articles": 5,
+  "seed": 7,
+  "precision": "4bit",
+  "max_input_tokens": 1536,
+  "max_new_tokens": 512,
+  "date_range": [
+    "2019-01-02 00:00:00 UTC",
+    "2023-03-30 00:00:00 UTC"
+  ],
+  "success_rate": 1.0,
+  "malformed_rate": 0.0,
+  "mean_valid_triplets_per_article": 15.6,
+  "mean_parsed_triplets_per_article": 15.6,
+  "valid_triplet_fraction": 1.0,
+  "total_valid_triplets": 78,
+  "throughput_art_per_s": 0.029,
+  "projected_build_time": {
+    "10000": "94h27m",
+    "30000": "283h22m",
+    "50000": "472h17m"
+  },
+  "gpe_edge_count": 1,
+  "gpe_edge_density": 0.0128,
+  "distinct_gpe_entities": 1,
+  "entity_type_distribution": {
+    "COMP": 71,
+    "PRODUCT": 24,
+    "SECTOR": 20,
+    "ECON_INDICATOR": 12,
+    "FIN_INSTRUMENT": 11,
+    "ORG": 6,
+    "EVENT": 5,
+    "CONCEPT": 4,
+    "PERSON": 2,
+    "GPE": 1
+  },
+  "relation_type_distribution": {
+    "Operate_In": 20,
+    "Has": 17,
+    "Impact": 10,
+    "Relate_To": 9,
+    "Raise": 8,
+    "Produce": 6,
+    "Invests_In": 2,
+    "Announce": 2,
+    "Negative_Impact_On": 1,
+    "Is_Member_Of": 1,
+    "Decrease": 1,
+    "Positive_Impact_On": 1
+  },
+  "missing_entity_types": [
+    "ORG/GOV",
+    "ORG/REG"
+  ],
+  "sample_triplets": [
+    "(COVID-19 Pandemic, EVENT, Negative_Impact_On, Retail Stocks, FIN_INSTRUMENT)",
+    "(Nordstrom, COMP, Operate_In, Off-Price Business, SECTOR)",
+    "(Nordstrom, COMP, Has, Nordstrom Rack, PRODUCT)",
+    "(Nordstrom, COMP, Has, HauteLook, PRODUCT)",
+    "(Ross Stores, COMP, Operate_In, Off-Price Retail, SECTOR)",
+    "(Ross Stores, COMP, Has, E-commerce Business, PRODUCT)",
+    "(Nordstrom, COMP, Invests_In, Off-Price E-commerce Business, PRODUCT)",
+    "(Nordstrom, COMP, Has, Nordstrom Rack, PRODUCT)",
+    "(Nordstrom, COMP, Has, Online Off-Price Business, PRODUCT)",
+    "(Nordstrom, COMP, Has, Full-Line Stores, PRODUCT)",
+    "(Nordstrom, COMP, Has, Full-Line E-commerce Business, PRODUCT)",
+    "(Nordstrom, COMP, Has, Real Estate, PRODUCT)",
+    "(Nordstrom, COMP, Has, Debt, FIN_INSTRUMENT)",
+    "(Nordstrom, COMP, Has, Revolving Credit Facility, FIN_INSTRUMENT)",
+    "(Nordstrom, COMP, Has, Seattle Flagship, PRODUCT)"
+  ]
+}

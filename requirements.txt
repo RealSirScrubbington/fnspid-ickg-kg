@@ -1,0 +1,15 @@
+# Install torch FIRST from the CUDA index, then the rest:
+#   pip install torch --index-url https://download.pytorch.org/whl/cu124
+#   pip install -r requirements.txt
+# (torch is intentionally not pinned here so the CUDA wheel is used.)
+transformers>=4.40
+accelerate>=0.30
+bitsandbytes>=0.43        # 4-bit nf4; has native Windows wheels
+peft>=0.11                # ICKG-v3.2 is a LoRA adapter on Mistral-7B
+datasets>=2.19
+huggingface_hub>=0.23
+pandas>=2.0
+pyarrow>=15
+requests>=2.31
+sentencepiece>=0.2        # LlamaTokenizer (tokenizer.model)
+protobuf>=4

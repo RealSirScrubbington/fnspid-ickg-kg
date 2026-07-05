@@ -1,0 +1,41 @@
+[nb] dispersion alpha = 3.748 (method of moments, 384 active entities, train weeks only)
+=== [nb] 102 theme lifelines (97 EMERGING / 5 recurring) over 119 active weeks (z>=3.0, obs>=6, top-8/wk) ===
+########## FINAL EVAL: lenient / strict / nb ##########
+=== LENIENT config: lead time vs frozen gold list (birth window event-13..+8wk; negative lead = detected EARLY) ===
+detected 8/10  |  median lead -1wk  |  early-or-on-time 62%
+expected detections by chance: 2.2/10  |  observed: 8  |  P(random >= observed) = 0.0001
+=== STRICT config: lead time vs frozen gold list (birth window event-13..+8wk; negative lead = detected EARLY) ===
+detected 8/10  |  median lead -1wk  |  early-or-on-time 62%
+expected detections by chance: 1.9/10  |  observed: 8  |  P(random >= observed) = 2e-05
+=== NB config: lead time vs frozen gold list (birth window event-13..+8wk; negative lead = detected EARLY) ===
+detected 7/10  |  median lead +0wk  |  early-or-on-time 57%
+expected detections by chance: 0.9/10  |  observed: 7  |  P(random >= observed) = 0
+########## GRID EVAL ##########
+=== R2B13 config: lead time vs frozen gold list (birth window event-13..+8wk; negative lead = detected EARLY) ===
+detected 7/10  |  median lead +0wk  |  early-or-on-time 71%
+expected detections by chance: 2.0/10  |  observed: 7  |  P(random >= observed) = 0.00039
+=== R2B26 config: lead time vs frozen gold list (birth window event-13..+8wk; negative lead = detected EARLY) ===
+detected 7/10  |  median lead +0wk  |  early-or-on-time 71%
+expected detections by chance: 1.9/10  |  observed: 7  |  P(random >= observed) = 0.00025
+=== R2B52 config: lead time vs frozen gold list (birth window event-13..+8wk; negative lead = detected EARLY) ===
+detected 7/10  |  median lead +0wk  |  early-or-on-time 71%
+expected detections by chance: 1.9/10  |  observed: 7  |  P(random >= observed) = 0.00029
+=== R4B13 config: lead time vs frozen gold list (birth window event-13..+8wk; negative lead = detected EARLY) ===
+detected 8/10  |  median lead -1wk  |  early-or-on-time 62%
+expected detections by chance: 2.2/10  |  observed: 8  |  P(random >= observed) = 0.00012
+=== R4B26 config: lead time vs frozen gold list (birth window event-13..+8wk; negative lead = detected EARLY) ===
+detected 8/10  |  median lead -1wk  |  early-or-on-time 62%
+expected detections by chance: 2.2/10  |  observed: 8  |  P(random >= observed) = 0.0001
+=== R4B52 config: lead time vs frozen gold list (birth window event-13..+8wk; negative lead = detected EARLY) ===
+detected 8/10  |  median lead -1wk  |  early-or-on-time 62%
+expected detections by chance: 2.5/10  |  observed: 8  |  P(random >= observed) = 0.00032
+=== R8B13 config: lead time vs frozen gold list (birth window event-13..+8wk; negative lead = detected EARLY) ===
+detected 8/10  |  median lead -0wk  |  early-or-on-time 62%
+expected detections by chance: 2.8/10  |  observed: 8  |  P(random >= observed) = 0.00038
+=== R8B26 config: lead time vs frozen gold list (birth window event-13..+8wk; negative lead = detected EARLY) ===
+detected 8/10  |  median lead -2wk  |  early-or-on-time 88%
+expected detections by chance: 2.1/10  |  observed: 8  |  P(random >= observed) = 4e-05
+=== R8B52 config: lead time vs frozen gold list (birth window event-13..+8wk; negative lead = detected EARLY) ===
+detected 8/10  |  median lead -1wk  |  early-or-on-time 62%
+expected detections by chance: 2.0/10  |  observed: 8  |  P(random >= observed) = 4e-05
+FINAL_DONE

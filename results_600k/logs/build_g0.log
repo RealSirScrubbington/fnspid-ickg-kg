@@ -1,0 +1,122 @@
+[extract] input=100800 done=0 todo=100800 masked=False
+Fetching 10 files:   0%|          | 0/10 [00:00<?, ?it/s]Fetching 10 files: 100%|██████████| 10/10 [00:00<00:00, 828.28it/s]
+WARNING 06-20 22:02:34 [config.py:71] Support for Transformers v4 is deprecated. The Transformers v4 codepath will become unmaintained in vLLM v0.22.0 and will be removed in vLLM v0.24.0. Please upgrade to Transformers v5: pip install --upgrade transformers
+[extract] loading vLLM: base=unsloth/Qwen2.5-14B-Instruct adapter=victorlxh/ICKG-v4.2 tp=1 dtype=bfloat16
+(EngineCore pid=55963) Loading safetensors checkpoint shards:   0% Completed | 0/6 [00:00<?, ?it/s]
+(EngineCore pid=55963) Loading safetensors checkpoint shards:  17% Completed | 1/6 [01:07<05:36, 67.27s/it]
+(EngineCore pid=55963) Loading safetensors checkpoint shards:  33% Completed | 2/6 [02:11<04:22, 65.66s/it]
+(EngineCore pid=55963) Loading safetensors checkpoint shards:  50% Completed | 3/6 [03:18<03:18, 66.01s/it]
+(EngineCore pid=55963) Loading safetensors checkpoint shards:  67% Completed | 4/6 [04:21<02:09, 64.81s/it]
+(EngineCore pid=55963) Loading safetensors checkpoint shards:  83% Completed | 5/6 [05:21<01:03, 63.29s/it]
+(EngineCore pid=55963) Loading safetensors checkpoint shards: 100% Completed | 6/6 [06:21<00:00, 62.20s/it]
+(EngineCore pid=55963) Loading safetensors checkpoint shards: 100% Completed | 6/6 [06:21<00:00, 63.65s/it]
+(EngineCore pid=55963) 
+(EngineCore pid=55963) WARNING 06-20 22:09:49 [utils.py:279] Using default LoRA kernel configs
+(EngineCore pid=55963) 2026-06-20 22:09:52,381 - INFO - autotuner.py:622 - flashinfer.jit: [Autotuner]: Autotuning process starts ...
+(EngineCore pid=55963) 2026-06-20 22:09:52,416 - INFO - autotuner.py:641 - flashinfer.jit: [Autotuner]: Autotuning process ends
+(EngineCore pid=55963) Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):   0%|          | 0/102 [00:00<?, ?it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):   1%|          | 1/102 [00:00<00:10,  9.44it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):   3%|▎         | 3/102 [00:00<00:08, 12.19it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):   5%|▍         | 5/102 [00:00<00:07, 12.87it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):   7%|▋         | 7/102 [00:00<00:07, 13.10it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):   9%|▉         | 9/102 [00:00<00:07, 13.28it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  11%|█         | 11/102 [00:00<00:06, 13.39it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  13%|█▎        | 13/102 [00:00<00:06, 13.47it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  15%|█▍        | 15/102 [00:01<00:06, 13.56it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  17%|█▋        | 17/102 [00:01<00:06, 13.94it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  19%|█▊        | 19/102 [00:01<00:05, 14.55it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  21%|██        | 21/102 [00:01<00:05, 15.04it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  23%|██▎       | 23/102 [00:01<00:05, 15.40it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  25%|██▍       | 25/102 [00:01<00:04, 15.68it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  26%|██▋       | 27/102 [00:01<00:04, 15.91it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  28%|██▊       | 29/102 [00:02<00:04, 16.05it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  30%|███       | 31/102 [00:02<00:04, 16.06it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  32%|███▏      | 33/102 [00:02<00:04, 16.53it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  34%|███▍      | 35/102 [00:02<00:06, 11.13it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  36%|███▋      | 37/102 [00:02<00:05, 12.74it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  38%|███▊      | 39/102 [00:02<00:04, 14.20it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  40%|████      | 41/102 [00:02<00:03, 15.40it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  42%|████▏     | 43/102 [00:02<00:03, 16.37it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  44%|████▍     | 45/102 [00:03<00:03, 17.14it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  46%|████▌     | 47/102 [00:03<00:03, 17.71it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  48%|████▊     | 49/102 [00:03<00:02, 18.18it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  50%|█████     | 51/102 [00:03<00:02, 18.52it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  52%|█████▏    | 53/102 [00:03<00:02, 18.92it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  54%|█████▍    | 55/102 [00:03<00:02, 19.19it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  56%|█████▌    | 57/102 [00:03<00:02, 19.41it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  58%|█████▊    | 59/102 [00:03<00:02, 19.57it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  61%|██████    | 62/102 [00:03<00:01, 20.15it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  64%|██████▎   | 65/102 [00:04<00:02, 15.80it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  66%|██████▌   | 67/102 [00:04<00:02, 12.40it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  68%|██████▊   | 69/102 [00:04<00:03, 10.68it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  71%|███████   | 72/102 [00:04<00:02, 13.45it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  74%|███████▎  | 75/102 [00:04<00:01, 15.56it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  76%|███████▋  | 78/102 [00:05<00:01, 17.65it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  79%|███████▉  | 81/102 [00:05<00:01, 18.95it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  82%|████████▏ | 84/102 [00:05<00:00, 20.53it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  85%|████████▌ | 87/102 [00:05<00:00, 21.23it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  88%|████████▊ | 90/102 [00:05<00:00, 22.23it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  91%|█████████ | 93/102 [00:05<00:00, 21.66it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  94%|█████████▍| 96/102 [00:05<00:00, 22.91it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  97%|█████████▋| 99/102 [00:05<00:00, 23.10it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE): 100%|██████████| 102/102 [00:06<00:00, 11.89it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE): 100%|██████████| 102/102 [00:06<00:00, 15.63it/s]
+(EngineCore pid=55963) Capturing CUDA graphs (decode, FULL):   0%|          | 0/102 [00:00<?, ?it/s]Capturing CUDA graphs (decode, FULL):   1%|          | 1/102 [00:00<00:10,  9.38it/s]Capturing CUDA graphs (decode, FULL):   3%|▎         | 3/102 [00:00<00:08, 11.94it/s]Capturing CUDA graphs (decode, FULL):   5%|▍         | 5/102 [00:00<00:07, 12.60it/s]Capturing CUDA graphs (decode, FULL):   7%|▋         | 7/102 [00:00<00:07, 12.88it/s]Capturing CUDA graphs (decode, FULL):   9%|▉         | 9/102 [00:00<00:07, 13.08it/s]Capturing CUDA graphs (decode, FULL):  11%|█         | 11/102 [00:00<00:06, 13.21it/s]Capturing CUDA graphs (decode, FULL):  13%|█▎        | 13/102 [00:01<00:06, 13.35it/s]Capturing CUDA graphs (decode, FULL):  15%|█▍        | 15/102 [00:01<00:06, 13.25it/s]Capturing CUDA graphs (decode, FULL):  17%|█▋        | 17/102 [00:01<00:06, 13.68it/s]Capturing CUDA graphs (decode, FULL):  19%|█▊        | 19/102 [00:01<00:05, 14.44it/s]Capturing CUDA graphs (decode, FULL):  21%|██        | 21/102 [00:01<00:05, 15.00it/s]Capturing CUDA graphs (decode, FULL):  23%|██▎       | 23/102 [00:01<00:05, 15.47it/s]Capturing CUDA graphs (decode, FULL):  25%|██▍       | 25/102 [00:01<00:04, 15.81it/s]Capturing CUDA graphs (decode, FULL):  26%|██▋       | 27/102 [00:01<00:04, 16.12it/s]Capturing CUDA graphs (decode, FULL):  28%|██▊       | 29/102 [00:02<00:04, 16.34it/s]Capturing CUDA graphs (decode, FULL):  30%|███       | 31/102 [00:02<00:04, 16.53it/s]Capturing CUDA graphs (decode, FULL):  32%|███▏      | 33/102 [00:02<00:04, 17.09it/s]Capturing CUDA graphs (decode, FULL):  34%|███▍      | 35/102 [00:02<00:03, 17.85it/s]Capturing CUDA graphs (decode, FULL):  37%|███▋      | 38/102 [00:02<00:03, 19.02it/s]Capturing CUDA graphs (decode, FULL):  40%|████      | 41/102 [00:02<00:03, 19.15it/s]Capturing CUDA graphs (decode, FULL):  43%|████▎     | 44/102 [00:02<00:02, 19.83it/s]Capturing CUDA graphs (decode, FULL):  46%|████▌     | 47/102 [00:02<00:02, 19.74it/s]Capturing CUDA graphs (decode, FULL):  49%|████▉     | 50/102 [00:03<00:02, 20.25it/s]Capturing CUDA graphs (decode, FULL):  52%|█████▏    | 53/102 [00:03<00:02, 20.27it/s]Capturing CUDA graphs (decode, FULL):  55%|█████▍    | 56/102 [00:03<00:02, 20.90it/s]Capturing CUDA graphs (decode, FULL):  58%|█████▊    | 59/102 [00:03<00:02, 20.91it/s]Capturing CUDA graphs (decode, FULL):  61%|██████    | 62/102 [00:03<00:01, 21.47it/s]Capturing CUDA graphs (decode, FULL):  64%|██████▎   | 65/102 [00:03<00:01, 21.57it/s]Capturing CUDA graphs (decode, FULL):  67%|██████▋   | 68/102 [00:03<00:01, 22.99it/s]Capturing CUDA graphs (decode, FULL):  70%|██████▉   | 71/102 [00:03<00:01, 23.55it/s]Capturing CUDA graphs (decode, FULL):  73%|███████▎  | 74/102 [00:04<00:01, 24.64it/s]Capturing CUDA graphs (decode, FULL):  75%|███████▌  | 77/102 [00:04<00:01, 24.81it/s]Capturing CUDA graphs (decode, FULL):  78%|███████▊  | 80/102 [00:04<00:00, 25.78it/s]Capturing CUDA graphs (decode, FULL):  81%|████████▏ | 83/102 [00:04<00:00, 25.87it/s]Capturing CUDA graphs (decode, FULL):  84%|████████▍ | 86/102 [00:04<00:00, 26.77it/s]Capturing CUDA graphs (decode, FULL):  87%|████████▋ | 89/102 [00:04<00:00, 26.64it/s]Capturing CUDA graphs (decode, FULL):  90%|█████████ | 92/102 [00:04<00:00, 27.34it/s]Capturing CUDA graphs (decode, FULL):  93%|█████████▎| 95/102 [00:04<00:00, 27.57it/s]Capturing CUDA graphs (decode, FULL):  97%|█████████▋| 99/102 [00:05<00:00, 28.45it/s]Capturing CUDA graphs (decode, FULL): 100%|██████████| 102/102 [00:05<00:00, 20.02it/s]
+WARNING 06-20 22:10:08 [input_processor.py:157] vLLM has deprecated support for supporting different tokenizers for different LoRAs. By default, vLLM uses base model's tokenizer. If you are using a LoRA with its own tokenizer, consider specifying `--tokenizer [lora_path]` to use the LoRA tokenizer.
+(EngineCore pid=55963) WARNING 06-20 22:10:08 [jit_monitor.py:103] Triton kernel JIT compilation during inference: _compute_slot_mapping_kernel. This causes a latency spike; consider extending warmup to cover this shape/config.
+  1000/100800  1.94 art/s  (chunk valid=17978)
+  2000/100800  1.97 art/s  (chunk valid=17088)
+  3000/100800  2.01 art/s  (chunk valid=17120)
+  4000/100800  2.01 art/s  (chunk valid=17586)
+  5000/100800  2.01 art/s  (chunk valid=17851)
+  6000/100800  2.01 art/s  (chunk valid=17540)
+  7000/100800  2.02 art/s  (chunk valid=17566)
+  8000/100800  2.01 art/s  (chunk valid=17572)
+  9000/100800  2.01 art/s  (chunk valid=17369)
+  10000/100800  2.02 art/s  (chunk valid=17292)
+  11000/100800  2.02 art/s  (chunk valid=17509)
+  12000/100800  2.02 art/s  (chunk valid=17559)
+  13000/100800  2.03 art/s  (chunk valid=16910)
+  14000/100800  2.04 art/s  (chunk valid=16191)
+  15000/100800  2.05 art/s  (chunk valid=16138)
+  16000/100800  2.06 art/s  (chunk valid=17332)
+  17000/100800  2.06 art/s  (chunk valid=17304)
+  18000/100800  2.06 art/s  (chunk valid=17324)
+  19000/100800  2.05 art/s  (chunk valid=18778)
+  20000/100800  2.05 art/s  (chunk valid=18043)
+  21000/100800  2.04 art/s  (chunk valid=17832)
+  22000/100800  2.04 art/s  (chunk valid=18152)
+  23000/100800  2.04 art/s  (chunk valid=17991)
+  24000/100800  2.04 art/s  (chunk valid=17364)
+  25000/100800  2.04 art/s  (chunk valid=16491)
+  26000/100800  2.04 art/s  (chunk valid=17470)
+  27000/100800  2.04 art/s  (chunk valid=17594)
+  28000/100800  2.05 art/s  (chunk valid=16220)
+  29000/100800  2.05 art/s  (chunk valid=17277)
+  30000/100800  2.04 art/s  (chunk valid=18210)
+  31000/100800  2.04 art/s  (chunk valid=17160)
+  32000/100800  2.04 art/s  (chunk valid=18749)
+  33000/100800  2.04 art/s  (chunk valid=17734)
+  34000/100800  2.04 art/s  (chunk valid=18042)
+  35000/100800  2.04 art/s  (chunk valid=17881)
+  36000/100800  2.05 art/s  (chunk valid=17911)
+  37000/100800  2.04 art/s  (chunk valid=19250)
+  38000/100800  2.04 art/s  (chunk valid=18182)
+  39000/100800  2.05 art/s  (chunk valid=17757)
+  40000/100800  2.05 art/s  (chunk valid=18555)
+  41000/100800  2.05 art/s  (chunk valid=17809)
+  42000/100800  2.05 art/s  (chunk valid=19227)
+  43000/100800  2.04 art/s  (chunk valid=19062)
+  44000/100800  2.04 art/s  (chunk valid=18076)
+  45000/100800  2.04 art/s  (chunk valid=18387)
+  46000/100800  2.04 art/s  (chunk valid=19106)
+  47000/100800  2.04 art/s  (chunk valid=20460)
+  48000/100800  2.03 art/s  (chunk valid=21980)
+  49000/100800  2.03 art/s  (chunk valid=21364)
+  50000/100800  2.02 art/s  (chunk valid=20785)
+  51000/100800  2.02 art/s  (chunk valid=20908)
+  52000/100800  2.01 art/s  (chunk valid=20643)
+  53000/100800  2.01 art/s  (chunk valid=20488)
+  54000/100800  2.00 art/s  (chunk valid=21490)
+  55000/100800  1.99 art/s  (chunk valid=23367)
+  56000/100800  1.99 art/s  (chunk valid=21346)
+  57000/100800  1.98 art/s  (chunk valid=20841)
+  58000/100800  1.98 art/s  (chunk valid=18906)
+  59000/100800  1.98 art/s  (chunk valid=18932)
+  60000/100800  1.98 art/s  (chunk valid=19321)
+  61000/100800  1.98 art/s  (chunk valid=18740)
+  62000/100800  1.98 art/s  (chunk valid=20134)
+  63000/100800  1.98 art/s  (chunk valid=18354)
+  64000/100800  1.98 art/s  (chunk valid=19346)
+  65000/100800  1.98 art/s  (chunk valid=19521)
+  66000/100800  1.98 art/s  (chunk valid=18856)
+  67000/100800  1.98 art/s  (chunk valid=18565)
+  68000/100800  1.98 art/s  (chunk valid=17853)
+  69000/100800  1.98 art/s  (chunk valid=17839)
+  70000/100800  1.98 art/s  (chunk valid=18653)
+  71000/100800  1.98 art/s  (chunk valid=18643)
+  72000/100800  1.98 art/s  (chunk valid=17424)
+  73000/100800  1.98 art/s  (chunk valid=18319)
+  74000/100800  1.98 art/s  (chunk valid=18482)
+  75000/100800  1.98 art/s  (chunk valid=19246)
+  76000/100800  1.98 art/s  (chunk valid=19141)
+  77000/100800  1.98 art/s  (chunk valid=19480)
+  78000/100800  1.98 art/s  (chunk valid=18167)
+  79000/100800  1.98 art/s  (chunk valid=18826)
+  80000/100800  1.98 art/s  (chunk valid=19151)
+  81000/100800  1.97 art/s  (chunk valid=19302)
+  82000/100800  1.97 art/s  (chunk valid=19671)
+  83000/100800  1.97 art/s  (chunk valid=19387)
+  84000/100800  1.97 art/s  (chunk valid=19171)
+  85000/100800  1.97 art/s  (chunk valid=18989)
+  86000/100800  1.97 art/s  (chunk valid=19035)
+  87000/100800  1.97 art/s  (chunk valid=18720)
+  88000/100800  1.96 art/s  (chunk valid=19499)
+  89000/100800  1.96 art/s  (chunk valid=18971)
+  90000/100800  1.96 art/s  (chunk valid=19374)
+  91000/100800  1.96 art/s  (chunk valid=19434)
+  92000/100800  1.96 art/s  (chunk valid=19508)
+  93000/100800  1.96 art/s  (chunk valid=18797)
+  94000/100800  1.96 art/s  (chunk valid=18618)
+  95000/100800  1.96 art/s  (chunk valid=17916)
+  96000/100800  1.96 art/s  (chunk valid=16910)
+  97000/100800  1.96 art/s  (chunk valid=17243)
+  98000/100800  1.96 art/s  (chunk valid=17169)
+  99000/100800  1.96 art/s  (chunk valid=16430)
+  100000/100800  1.96 art/s  (chunk valid=17859)
+  100800/100800  1.96 art/s  (chunk valid=15361)
+[extract] done 100800 articles in 855.6 min

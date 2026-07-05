@@ -1,0 +1,7 @@
+downloading base: unsloth/Qwen2.5-14B-Instruct (safetensors) ...
+Fetching 15 files:   0%|          | 0/15 [00:00<?, ?it/s]Fetching 15 files:   7%|▋         | 1/15 [00:00<00:04,  2.88it/s]Fetching 15 files:  20%|██        | 3/15 [00:00<00:01,  7.28it/s]Fetching 15 files:  20%|██        | 3/15 [00:19<00:01,  7.28it/s]Fetching 15 files:  33%|███▎      | 5/15 [06:47<17:26, 104.66s/it]Fetching 15 files: 100%|██████████| 15/15 [06:47<00:00, 27.16s/it]
+base -> /cs/student/projects3/csml/2025/dmaruev/fnspid-ickg-kg/cache/hf/hub/models--unsloth--Qwen2.5-14B-Instruct/snapshots/facfb1bad6443964128be460ff6c98928a4ad4ab
+downloading adapter: victorlxh/ICKG-v4.2 ...
+Fetching 10 files:   0%|          | 0/10 [00:00<?, ?it/s]Fetching 10 files:  10%|█         | 1/10 [00:00<00:03,  2.94it/s]Fetching 10 files:  40%|████      | 4/10 [00:08<00:13,  2.30s/it]Fetching 10 files: 100%|██████████| 10/10 [00:08<00:00,  1.16it/s]
+adapter -> /cs/student/projects3/csml/2025/dmaruev/fnspid-ickg-kg/cache/hf/hub/models--victorlxh--ICKG-v4.2/snapshots/85dd9e8ddd7a0ecc0f9e28b44977f15afc00521c
+DOWNLOAD_DONE

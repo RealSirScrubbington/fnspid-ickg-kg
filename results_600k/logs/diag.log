@@ -1,0 +1,394 @@
+Fetching 10 files:   0%|          | 0/10 [00:00<?, ?it/s]Fetching 10 files: 100%|██████████| 10/10 [00:00<00:00, 6326.25it/s]
+WARNING 06-20 21:13:37 [config.py:71] Support for Transformers v4 is deprecated. The Transformers v4 codepath will become unmaintained in vLLM v0.22.0 and will be removed in vLLM v0.24.0. Please upgrade to Transformers v5: pip install --upgrade transformers
+(EngineCore pid=49961) Loading safetensors checkpoint shards:   0% Completed | 0/6 [00:00<?, ?it/s]
+(EngineCore pid=49961) Loading safetensors checkpoint shards:  17% Completed | 1/6 [00:00<00:01,  2.64it/s]
+(EngineCore pid=49961) Loading safetensors checkpoint shards:  33% Completed | 2/6 [00:00<00:01,  2.45it/s]
+(EngineCore pid=49961) Loading safetensors checkpoint shards:  50% Completed | 3/6 [00:01<00:01,  2.45it/s]
+(EngineCore pid=49961) Loading safetensors checkpoint shards:  67% Completed | 4/6 [00:01<00:00,  2.44it/s]
+(EngineCore pid=49961) Loading safetensors checkpoint shards:  83% Completed | 5/6 [00:02<00:00,  2.44it/s]
+(EngineCore pid=49961) Loading safetensors checkpoint shards: 100% Completed | 6/6 [00:02<00:00,  2.48it/s]
+(EngineCore pid=49961) Loading safetensors checkpoint shards: 100% Completed | 6/6 [00:02<00:00,  2.47it/s]
+(EngineCore pid=49961) 
+(EngineCore pid=49961) WARNING 06-20 21:13:59 [utils.py:279] Using default LoRA kernel configs
+(EngineCore pid=49961) 2026-06-20 21:14:01,136 - INFO - autotuner.py:622 - flashinfer.jit: [Autotuner]: Autotuning process starts ...
+(EngineCore pid=49961) 2026-06-20 21:14:01,165 - INFO - autotuner.py:641 - flashinfer.jit: [Autotuner]: Autotuning process ends
+(EngineCore pid=49961) Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):   0%|          | 0/102 [00:00<?, ?it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):   1%|          | 1/102 [00:00<00:10,  9.58it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):   3%|▎         | 3/102 [00:00<00:08, 12.21it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):   5%|▍         | 5/102 [00:00<00:07, 12.86it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):   7%|▋         | 7/102 [00:00<00:07, 13.07it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):   9%|▉         | 9/102 [00:00<00:07, 13.24it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  11%|█         | 11/102 [00:00<00:06, 13.34it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  13%|█▎        | 13/102 [00:00<00:06, 13.41it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  15%|█▍        | 15/102 [00:01<00:06, 13.49it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  17%|█▋        | 17/102 [00:01<00:06, 13.86it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  19%|█▊        | 19/102 [00:01<00:05, 14.47it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  21%|██        | 21/102 [00:01<00:05, 14.95it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  23%|██▎       | 23/102 [00:01<00:05, 15.29it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  25%|██▍       | 25/102 [00:01<00:04, 15.57it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  26%|██▋       | 27/102 [00:01<00:04, 15.81it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  28%|██▊       | 29/102 [00:02<00:04, 15.95it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  30%|███       | 31/102 [00:02<00:04, 16.06it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  32%|███▏      | 33/102 [00:02<00:04, 16.48it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  34%|███▍      | 35/102 [00:02<00:04, 14.32it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  36%|███▋      | 37/102 [00:02<00:04, 15.45it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  38%|███▊      | 39/102 [00:02<00:03, 16.39it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  40%|████      | 41/102 [00:02<00:03, 17.06it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  42%|████▏     | 43/102 [00:02<00:03, 17.58it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  44%|████▍     | 45/102 [00:02<00:03, 17.98it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  46%|████▌     | 47/102 [00:03<00:03, 18.24it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  48%|████▊     | 49/102 [00:03<00:02, 18.50it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  50%|█████     | 51/102 [00:03<00:02, 18.67it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  52%|█████▏    | 53/102 [00:03<00:02, 18.94it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  54%|█████▍    | 55/102 [00:03<00:02, 19.12it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  56%|█████▌    | 57/102 [00:03<00:02, 19.28it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  58%|█████▊    | 59/102 [00:03<00:02, 19.38it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  60%|█████▉    | 61/102 [00:03<00:02, 19.54it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  62%|██████▏   | 63/102 [00:03<00:01, 19.59it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  64%|██████▎   | 65/102 [00:03<00:01, 19.68it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  66%|██████▌   | 67/102 [00:04<00:01, 18.97it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  68%|██████▊   | 69/102 [00:04<00:01, 18.50it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  71%|███████   | 72/102 [00:04<00:01, 20.34it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  74%|███████▎  | 75/102 [00:04<00:01, 20.83it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  76%|███████▋  | 78/102 [00:04<00:01, 21.77it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  79%|███████▉  | 81/102 [00:04<00:00, 21.81it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  82%|████████▏ | 84/102 [00:04<00:00, 22.57it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  85%|████████▌ | 87/102 [00:04<00:00, 22.48it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  88%|████████▊ | 90/102 [00:05<00:00, 22.99it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  91%|█████████ | 93/102 [00:05<00:00, 22.69it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  94%|█████████▍| 96/102 [00:05<00:00, 23.51it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE):  97%|█████████▋| 99/102 [00:05<00:00, 23.47it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE): 100%|██████████| 102/102 [00:05<00:00, 18.16it/s]Capturing CUDA graphs (mixed prefill-decode, PIECEWISE): 100%|██████████| 102/102 [00:05<00:00, 17.72it/s]
+(EngineCore pid=49961) Capturing CUDA graphs (decode, FULL):   0%|          | 0/102 [00:00<?, ?it/s]Capturing CUDA graphs (decode, FULL):   1%|          | 1/102 [00:00<00:10,  9.54it/s]Capturing CUDA graphs (decode, FULL):   3%|▎         | 3/102 [00:00<00:08, 11.98it/s]Capturing CUDA graphs (decode, FULL):   5%|▍         | 5/102 [00:00<00:07, 12.62it/s]Capturing CUDA graphs (decode, FULL):   7%|▋         | 7/102 [00:00<00:07, 12.89it/s]Capturing CUDA graphs (decode, FULL):   9%|▉         | 9/102 [00:00<00:07, 13.10it/s]Capturing CUDA graphs (decode, FULL):  11%|█         | 11/102 [00:00<00:06, 13.22it/s]Capturing CUDA graphs (decode, FULL):  13%|█▎        | 13/102 [00:01<00:06, 13.37it/s]Capturing CUDA graphs (decode, FULL):  15%|█▍        | 15/102 [00:01<00:06, 13.45it/s]Capturing CUDA graphs (decode, FULL):  17%|█▋        | 17/102 [00:01<00:06, 13.85it/s]Capturing CUDA graphs (decode, FULL):  19%|█▊        | 19/102 [00:01<00:05, 14.53it/s]Capturing CUDA graphs (decode, FULL):  21%|██        | 21/102 [00:01<00:05, 15.04it/s]Capturing CUDA graphs (decode, FULL):  23%|██▎       | 23/102 [00:01<00:05, 15.46it/s]Capturing CUDA graphs (decode, FULL):  25%|██▍       | 25/102 [00:01<00:04, 15.78it/s]Capturing CUDA graphs (decode, FULL):  26%|██▋       | 27/102 [00:01<00:04, 16.06it/s]Capturing CUDA graphs (decode, FULL):  28%|██▊       | 29/102 [00:02<00:04, 16.25it/s]Capturing CUDA graphs (decode, FULL):  30%|███       | 31/102 [00:02<00:04, 16.41it/s]Capturing CUDA graphs (decode, FULL):  32%|███▏      | 33/102 [00:02<00:04, 16.96it/s]Capturing CUDA graphs (decode, FULL):  34%|███▍      | 35/102 [00:02<00:03, 17.72it/s]Capturing CUDA graphs (decode, FULL):  37%|███▋      | 38/102 [00:02<00:03, 18.92it/s]Capturing CUDA graphs (decode, FULL):  39%|███▉      | 40/102 [00:02<00:03, 19.19it/s]Capturing CUDA graphs (decode, FULL):  42%|████▏     | 43/102 [00:02<00:03, 19.21it/s]Capturing CUDA graphs (decode, FULL):  45%|████▌     | 46/102 [00:02<00:02, 19.86it/s]Capturing CUDA graphs (decode, FULL):  48%|████▊     | 49/102 [00:03<00:02, 19.74it/s]Capturing CUDA graphs (decode, FULL):  51%|█████     | 52/102 [00:03<00:02, 20.44it/s]Capturing CUDA graphs (decode, FULL):  54%|█████▍    | 55/102 [00:03<00:02, 20.39it/s]Capturing CUDA graphs (decode, FULL):  57%|█████▋    | 58/102 [00:03<00:02, 21.01it/s]Capturing CUDA graphs (decode, FULL):  60%|█████▉    | 61/102 [00:03<00:01, 20.88it/s]Capturing CUDA graphs (decode, FULL):  63%|██████▎   | 64/102 [00:03<00:01, 21.42it/s]Capturing CUDA graphs (decode, FULL):  66%|██████▌   | 67/102 [00:03<00:01, 22.09it/s]Capturing CUDA graphs (decode, FULL):  69%|██████▊   | 70/102 [00:03<00:01, 23.44it/s]Capturing CUDA graphs (decode, FULL):  72%|███████▏  | 73/102 [00:04<00:01, 23.75it/s]Capturing CUDA graphs (decode, FULL):  75%|███████▍  | 76/102 [00:04<00:01, 24.77it/s]Capturing CUDA graphs (decode, FULL):  77%|███████▋  | 79/102 [00:04<00:00, 24.77it/s]Capturing CUDA graphs (decode, FULL):  80%|████████  | 82/102 [00:04<00:00, 25.72it/s]Capturing CUDA graphs (decode, FULL):  83%|████████▎ | 85/102 [00:04<00:00, 25.76it/s]Capturing CUDA graphs (decode, FULL):  86%|████████▋ | 88/102 [00:04<00:00, 26.57it/s]Capturing CUDA graphs (decode, FULL):  89%|████████▉ | 91/102 [00:04<00:00, 26.37it/s]Capturing CUDA graphs (decode, FULL):  93%|█████████▎| 95/102 [00:04<00:00, 27.20it/s]Capturing CUDA graphs (decode, FULL):  97%|█████████▋| 99/102 [00:05<00:00, 27.98it/s]Capturing CUDA graphs (decode, FULL): 100%|██████████| 102/102 [00:05<00:00, 19.90it/s]
+WARNING 06-20 21:14:15 [input_processor.py:157] vLLM has deprecated support for supporting different tokenizers for different LoRAs. By default, vLLM uses base model's tokenizer. If you are using a LoRA with its own tokenizer, consider specifying `--tokenizer [lora_path]` to use the LoRA tokenizer.
+(EngineCore pid=49961) WARNING 06-20 21:14:15 [jit_monitor.py:103] Triton kernel JIT compilation during inference: _compute_slot_mapping_kernel. This causes a latency spike; consider extending warmup to cover this shape/config.
+==========================================================================================
+TICKER=BNS  parsed=0  raw_len=1988
+```json
+[
+    [
+        "Bank of Nova Scotia",
+        "COMP",
+        "Operate_In",
+        "Canada",
+        "GPE"
+    ],
+    [
+        "Bank of Nova Scotia",
+        "COMP",
+        "Operate_In",
+        "Global Banking and Markets",
+        "SECTOR"
+    ],
+    [
+        "Bank of Nova Scotia",
+        "COMP",
+        "Operate_In",
+        "Pacific Alliance",
+        "SECTOR"
+    ],
+    [
+        "Bank of Nova Scotia",
+        "COMP",
+        "Operate_In",
+        "International Banking",
+        "SECTOR"
+    ],
+    [
+        "Bank of Nova Scotia",
+        "COMP",
+        "Operate_In",
+        "Retail Loans",
+        "SECTOR"
+    ],
+    [
+        "Bank of Nova Scotia",
+        "COMP",
+        "Operate_In",
+        "Commercial Loans",
+        "SECTOR"
+    ],
+    [
+        "Bank of Nova Scotia",
+        "COMP",
+        "Operate_In",
+        "Net Interest Margins",
+        "ECON_INDICATOR"
+    ],
+    [
+        "Bank of Nova Scotia",
+        "COMP",
+        "Operate_In",
+        "Government Stimulus Measures",
+        "CONCEPT"
+    ],
+    [
+        "Bank of Nova Scotia",
+        "COMP",
+        "Operate_In",
+        "Loan Payments",
+        "CONCEPT"
+    ],
+    [
+        "Bank of Nova Scotia",
+        "COMP",
+        "Operate_In",
+        "Impaired Loans",
+        "CONCEPT"
+    ],
+    [
+        "Bank of Nova Scotia",
+        "COMP",
+        "Operate_In",
+        "Provisions for C
+==========================================================================================
+TICKER=DJCB  parsed=22  raw_len=2442
+[('First Trust Industrials/Producer Durables AlphaDEX ETF', 'FIN_INSTRUMENT', 'Operate_In', 'Industrials ETFs', 'SECTOR'), ('First Trust Industrials/Producer Durables AlphaDEX ETF', 'FIN_INSTRUMENT', 'Control', 'StrataQuant Industrials Index', 'ECON_INDICATOR'), ('StrataQuant Industrials Index', 'ECON_INDICATOR', 'Relate_To', 'Russell 1000 Index', 'ECON_INDICATOR'), ('First Trust Industrials/Producer Durables AlphaDEX ETF', 'FIN_INSTRUMENT', 'Raise', '18.69%', 'ECON_INDICATOR'), ('First Trust Industrials/Producer Durables AlphaDEX ETF', 'FIN_INSTRUMENT', 'Raise', '13.44%', 'ECON_INDICATOR'), ('First Trust Industrials/Producer Durables AlphaDEX ETF', 'FIN_INSTRUMENT', 'Raise', '45.72', 'ECON_INDICATOR'), ('First Trust Industrials/Producer Durables AlphaDEX ETF', 'FIN_INSTRUMENT', 'Raise', '62.05', 'ECON_INDICATOR'), ('First Trust Industrials/Producer Durables AlphaDEX ETF', 'FIN_INSTRUMENT', 'Raise', '1.24', 'ECON_INDICATOR'), ('First Trust Industrials/Producer Durables AlphaDEX ETF', 'FIN_INSTRUMENT', 'Raise', '21.01%', 'ECON_INDICATOR'), ('First Trust Industrials/Producer Durables AlphaDEX ETF', 'FIN_INSTRUMENT', 'Raise', '130', 'ECON_INDICATOR'), ('First Trust Industrials/Producer Durables AlphaDEX ETF', 'FIN_INSTRUMENT', 'Raise', '15.57%', 'ECON_INDICATOR'), ('First Trust Industrials/Producer Durables AlphaDEX ETF', 'FIN_INSTRUMENT', 'Raise', 'Builders Firstsource, Inc.', 'C
+==========================================================================================
+TICKER=DHCNL  parsed=0  raw_len=3472
+```json
+[
+    [
+        "TJX Companies",
+        "COMP",
+        "Operate_In",
+        "Retail Business",
+        "SECTOR"
+    ],
+    [
+        "TJX Companies",
+        "COMP",
+        "Has",
+        "T.J. Maxx",
+        "ORG"
+    ],
+    [
+        "TJX Companies",
+        "COMP",
+        "Has",
+        "Marshalls",
+        "ORG"
+    ],
+    [
+        "TJX Companies",
+        "COMP",
+        "Has",
+        "HomeGoods",
+        "ORG"
+    ],
+    [
+        "TJX Companies",
+        "COMP",
+        "Has",
+        "Sierra",
+        "ORG"
+    ],
+    [
+        "TJX Companies",
+        "COMP",
+        "Has",
+        "Homesense",
+        "ORG"
+    ],
+    [
+        "T.J. Maxx",
+        "ORG",
+        "Relate_To",
+        "Low Prices",
+        "CONCEPT"
+    ],
+    [
+        "T.J. Maxx",
+        "ORG",
+        "Relate_To",
+        "Marshalls",
+        "ORG"
+    ],
+    [
+        "T.J. Maxx",
+        "ORG",
+        "Relate_To",
+        "HomeGoods",
+        "ORG"
+    ],
+    [
+        "T.J. Maxx",
+        "ORG",
+        "Relate_To",
+        "Sierra",
+        "ORG"
+    ],
+    [
+        "T.J. Maxx",
+        "ORG",
+        "Relate_To",
+        "Homesense",
+        "ORG"
+    ],
+    [
+        "T.J. Maxx",
+        "ORG",
+        "Relate_To",
+        "TJX Companies",
+        "COMP"
+    ],
+    [
+        "T.J. Maxx",
+        "ORG",
+        "Relate_To",
+        "Online Sites",
+        "ORG"
+    ],
+    [
+  
+==========================================================================================
+TICKER=BSMR  parsed=13  raw_len=933
+[('Gold', 'PRODUCT', 'Relate_To', 'U.S. Dollar', 'ECON_INDICATOR'), ('Gold', 'PRODUCT', 'Relate_To', 'Treasury Yields', 'ECON_INDICATOR'), ('Powell', 'PERSON', 'Announce', 'Stagflation', 'CONCEPT'), ('SPDR Gold Trust', 'ORG', 'Raise', 'Gold Holdings', 'PRODUCT'), ('U.S. Dollar', 'ECON_INDICATOR', 'Decrease', 'Gold Prices', 'PRODUCT'), ('U.S. 10-year Treasury Yields', 'ECON_INDICATOR', 'Decrease', 'Peak Levels', 'ECON_INDICATOR'), ('Fed Chair Jerome Powell', 'PERSON', 'Announce', 'Inflation Outlook', 'CONCEPT'), ('Heraeus analysts', 'ORG', 'Relate_To', 'Higher Interest Rates', 'ECON_INDICATOR'), ('SPDR Gold Trust', 'ORG', 'Raise', 'Gold Holdings', 'PRODUCT'), ('Gold', 'PRODUCT', 'Relate_To', 'Economic Indicators', 'ECON_INDICATOR'), ('Gold', 'PRODUCT', 'Relate_To', 'Technical Analysis', 'CONCEPT'), ('Gold', 'PRODUCT', 'Relate_To', 'Support Area', 'CONCEPT'), ('Gold', 'PRODUCT', 'Relate_To', 'Resistance Zone', 'CONCEPT')]
+==========================================================================================
+TICKER=ARTLW  parsed=17  raw_len=1372
+[('United States Steel', 'COMP', 'Operate_In', 'Steel - Producers Industry', 'SECTOR'), ('United States Steel', 'COMP', 'Positive_Impact_On', 'Stock Value', 'FIN_INSTRUMENT'), ('United States Steel', 'COMP', 'Relate_To', 'Zacks Basic Materials Sector', 'SECTOR'), ('United States Steel', 'COMP', 'Relate_To', 'Zacks Steel - Producers Industry', 'SECTOR'), ('United States Steel', 'COMP', 'Has', 'Value Score', 'CONCEPT'), ('United States Steel', 'COMP', 'Has', 'Growth Score', 'CONCEPT'), ('United States Steel', 'COMP', 'Has', 'Momentum Score', 'CONCEPT'), ('United States Steel', 'COMP', 'Has', 'VGM Score', 'CONCEPT'), ('United States Steel', 'COMP', 'Has', 'Zacks Rank', 'CONCEPT'), ('Ryerson Holding Corporation', 'COMP', 'Operate_In', 'Steel - Producers Industry', 'SECTOR'), ('Ryerson Holding Corporation', 'COMP', 'Positive_Impact_On', 'Stock Value', 'FIN_INSTRUMENT'), ('Ryerson Holding Corporation', 'COMP', 'Relate_To', 'Zacks Basic Materials Sector', 'SECTOR'), ('Ryerson Holding Corporation', 'COMP', 'Relate_To', 'Zacks Steel - Producers Industry', 'SECTOR'), ('Ryerson Holding Corporation', 'COMP', 'Has', 'Value Score', 'CONCEPT'), ('Ryerson Holding Corporation', 'COMP', 'Has', 'Growth Score', 'CONCEPT'), ('Ryerson Holding Corporation', 'COMP', 'Has', 'Momentum Score', 'CONCEPT'), ('Ryerson Holding Corporation', 'COMP', 'Has', 'Zacks Rank', 'CONCEPT')]
+==========================================================================================
+TICKER=AAPL  parsed=12  raw_len=916
+[('Zacks Equity Research', 'ORG', 'Announce', 'CONSOL Energy', 'COMP'), ('Zacks Equity Research', 'ORG', 'Announce', 'Whirlpool Corp.', 'COMP'), ('Zacks Equity Research', 'ORG', 'Announce', 'Apple AAPL', 'COMP'), ('Zacks Equity Research', 'ORG', 'Announce', 'Tesla TSLA', 'COMP'), ('Zacks Equity Research', 'ORG', 'Announce', 'Meta META', 'COMP'), ('Zacks Coal Industry', 'SECTOR', 'Positive_Impact_On', 'CONSOL Energy', 'COMP'), ('CONSOL Energy', 'COMP', 'Operate_In', 'Coal Industry', 'SECTOR'), ('CONSOL Energy', 'COMP', 'Positive_Impact_On', 'Zacks Rank #1 (Strong Buy)', 'CONCEPT'), ('Whirlpool Corp.', 'COMP', 'Operate_In', 'Household Appliances Industry', 'SECTOR'), ('Whirlpool Corp.', 'COMP', 'Negative_Impact_On', 'Zacks Rank #5 (Strong Sell)', 'CONCEPT'), ('Apple AAPL', 'COMP', 'Positive_Impact_On', 'Stock Market', 'FIN_INSTRUMENT'), ('Apple AAPL', 'COMP', 'Negative_Impact_On', 'Inflation', 'CONCEPT')]
+==========================================================================================
+TICKER=DGRO  parsed=4  raw_len=288
+[('iShares Core Dividend Growth ETF', 'FIN_INSTRUMENT', 'Raise', '57.32', 'ECON_INDICATOR'), ('ENHABIT INC', 'COMP', 'Raise', '16.00', 'ECON_INDICATOR'), ('Fuller Company', 'COMP', 'Raise', '80.80', 'ECON_INDICATOR'), ('Scotts Miracle-Gro Co', 'COMP', 'Raise', '95.71', 'ECON_INDICATOR')]
+==========================================================================================
+TICKER=YGYIP  parsed=0  raw_len=3798
+```json
+[
+    [
+        "Tesla",
+        "COMP",
+        "Operate_In",
+        "Automotive - Domestic",
+        "SECTOR"
+    ],
+    [
+        "Tesla",
+        "COMP",
+        "Operate_In",
+        "Auto-Tires-Trucks",
+        "SECTOR"
+    ],
+    [
+        "Tesla",
+        "COMP",
+        "Relate_To",
+        "Zacks Consensus Estimates",
+        "CONCEPT"
+    ],
+    [
+        "Tesla",
+        "COMP",
+        "Relate_To",
+        "Zacks Rank",
+        "CONCEPT"
+    ],
+    [
+        "Tesla",
+        "COMP",
+        "Relate_To",
+        "Zacks Industry Rank",
+        "CONCEPT"
+    ],
+    [
+        "Tesla",
+        "COMP",
+        "Relate_To",
+        "Zacks Top 10 Stocks",
+        "CONCEPT"
+    ],
+    [
+        "Tesla",
+        "COMP",
+        "Relate_To",
+        "Zacks Investment Research",
+        "ORG"
+    ],
+    [
+        "Tesla",
+        "COMP",
+        "Relate_To",
+        "Nasdaq",
+        "ORG"
+    ],
+    [
+        "Tesla",
+        "COMP",
+        "Relate_To",
+        "S&P 500",
+        "FIN_INSTRUMENT"
+    ],
+    [
+        "Tesla",
+        "COMP",
+        "Relate_To",
+        "Forward P/E ratio",
+        "ECON_INDICATOR"
+    ],
+    [
+        "Tesla",
+        "COMP",
+        "Relate_To",
+        "PEG ratio",
+        "ECON_INDICATOR"
+    ],
+    [
+        "Tesla",
+        "COMP",
+        "Relate_To",
+        "Automotive - Domestic industry",
+        "SECTOR"
+    ],
+    [
+   
+==========================================================================================
+TICKER=TXN  parsed=38  raw_len=4730
+[('Texas Instruments Incorporated', 'COMP', 'Operate_In', 'Analog Segment', 'SECTOR'), ('Texas Instruments Incorporated', 'COMP', 'Operate_In', 'Embedded Processing Segment', 'SECTOR'), ('Texas Instruments Incorporated', 'COMP', 'Operate_In', 'Industrial Market', 'SECTOR'), ('Texas Instruments Incorporated', 'COMP', 'Operate_In', 'Automotive Industry', 'SECTOR'), ('Texas Instruments Incorporated', 'COMP', 'Operate_In', 'Personal Electronics Space', 'SECTOR'), ('Texas Instruments Incorporated', 'COMP', 'Positive_Impact_On', 'Texas Instruments Incorporated Price and EPS Surprise', 'CONCEPT'), ('Texas Instruments Incorporated', 'COMP', 'Positive_Impact_On', 'Texas Instruments Incorporated Quote', 'CONCEPT'), ('Texas Instruments Incorporated', 'COMP', 'Positive_Impact_On', 'Texas Instruments Incorporated Earnings ESP', 'CONCEPT'), ('Texas Instruments Incorporated', 'COMP', 'Positive_Impact_On', 'Texas Instruments Incorporated Zacks Rank', 'CONCEPT'), ('Texas Instruments Incorporated', 'COMP', 'Positive_Impact_On', 'Texas Instruments Incorporated Earnings Beat', 'CONCEPT'), ('Texas Instruments Incorporated', 'COMP', 'Positive_Impact_On', 'Texas Instruments Incorporated Earnings Surprise', 'CONCEPT'), ('Texas Instruments Incorporated', 'COMP', 'Positive_Impact_On', 'Texas Instruments Incorporated Earnings ESP', 'CONCEPT'), ('Texas Instruments Incorporated', 'COMP', 'Positive_Impact_O
+==========================================================================================
+TICKER=NOK  parsed=10  raw_len=682
+[('Apple', 'COMP', 'Operate_In', 'Wireless Market', 'SECTOR'), ('Apple', 'COMP', 'Introduce', '5G iPhone', 'PRODUCT'), ('Apple', 'COMP', 'Positive_Impact_On', '5G Stocks', 'FIN_INSTRUMENT'), ('AT&T', 'COMP', 'Operate_In', 'Wireless Market', 'SECTOR'), ('AT&T', 'COMP', 'Introduce', '5G Wireless Service', 'PRODUCT'), ('AT&T', 'COMP', 'Positive_Impact_On', '5G Stocks', 'FIN_INSTRUMENT'), ('Cisco Systems', 'COMP', 'Operate_In', 'Internet Infrastructure', 'SECTOR'), ('Cisco Systems', 'COMP', 'Introduce', 'Cloud-to-Client Approach', 'CONCEPT'), ('Cisco Systems', 'COMP', 'Positive_Impact_On', '5G Stocks', 'FIN_INSTRUMENT'), ('Intel', 'COMP', 'Operate_In', 'PC Business', 'SECTOR')]
+==========================================================================================
+TICKER=GDX  parsed=31  raw_len=2620
+[('iShares MSCI Emerging Index Fund', 'FIN_INSTRUMENT', 'Decrease', '0.7%', 'ECON_INDICATOR'), ('SPDR S&P 500', 'FIN_INSTRUMENT', 'Decrease', '0.4%', 'ECON_INDICATOR'), ('VanEck Vectors Gold Miners ETF', 'FIN_INSTRUMENT', 'Raise', '0.4%', 'ECON_INDICATOR'), ('Invesco QQQ Trust, Series 1', 'FIN_INSTRUMENT', 'Decrease', '0.4%', 'ECON_INDICATOR'), ('iShares China Large-Cap ETF', 'FIN_INSTRUMENT', 'Decrease', '1.3%', 'ECON_INDICATOR'), ('US Federal Reserve', 'ORG/REG', 'Announce', 'Policy Announcement', 'EVENT'), ('FOMC', 'ORG/REG', 'Control', 'Federal Funds Target Rate Band', 'ECON_INDICATOR'), ('FOMC', 'ORG/REG', 'Impact', 'Rate Hikes', 'ECON_INDICATOR'), ('FOMC', 'ORG/REG', 'Impact', '2020', 'ECON_INDICATOR'), ('Weekly Jobless Claims', 'ECON_INDICATOR', 'Impact', '221,000', 'ECON_INDICATOR'), ('March Philly Fed Business Outlook', 'ECON_INDICATOR', 'Impact', '13.7', 'ECON_INDICATOR'), ('Index of Leading Economic Indicators', 'ECON_INDICATOR', 'Impact', '0.1%', 'ECON_INDICATOR'), ('Darden Restaurants', 'COMP', 'Produce', 'Q3 Fiscal 2019 Adjusted Diluted Earnings Per Share', 'ECON_INDICATOR'), ('Darden Restaurants', 'COMP', 'Produce', 'Sales for the Quarter', 'ECON_INDICATOR'), ('Darden Restaurants', 'COMP', 'Raise', 'Guidance for Fiscal 2019', 'ECON_INDICATOR'), ('Select Financial Sector SPDRs', 'FIN_INSTRUMENT', 'Decrease', '0.8%', 'ECON_INDICATOR'), ('Direxion Daily Financial Bu
+==========================================================================================
+TICKER=MCHX  parsed=0  raw_len=1262
+```json
+[
+    [
+        "Marchex",
+        "COMP",
+        "Operate_In",
+        "Internet - Services",
+        "SECTOR"
+    ],
+    [
+        "Marchex",
+        "COMP",
+        "Produce",
+        "Loss",
+        "ECON_INDICATOR"
+    ],
+    [
+        "Marchex",
+        "COMP",
+        "Produce",
+        "Revenues",
+        "ECON_INDICATOR"
+    ],
+    [
+        "Marchex",
+        "COMP",
+        "Relate_To",
+        "Zacks Rank",
+        "CONCEPT"
+    ],
+    [
+        "Marchex",
+        "COMP",
+        "Relate_To",
+        "Zacks Internet - Services",
+        "SECTOR"
+    ],
+    [
+        "Marchex",
+        "COMP",
+        "Relate_To",
+        "Zacks Computer and Technology",
+        "SECTOR"
+    ],
+    [
+        "Scientific Industries Inc.",
+        "COMP",
+        "Operate_In",
+        "Zacks Computer and Technology",
+        "SECTOR"
+    ],
+    [
+        "Scientific Industries Inc.",
+        "COMP",
+        "Produce",
+        "Loss",
+        "ECON_INDICATOR"
+    ],
+    [
+        "Scientific Industries Inc.",
+        "COMP",
+        "Produce",
+        "Revenues",
+        "ECON_INDICATOR"
+    ],
+    [
+        "Scientific Industries Inc.",
+        "COMP",
+        "Relate_To",
+        "Zacks Computer and Technology",
+        "SECTOR"
+    ]
+]
+```
+==========================================================================================
+TICKER=CWH  parsed=35  raw_len=3034
+[('U.S. stock markets', 'FIN_INSTRUMENT', 'Positive_Impact_On', 'Economy', 'CONCEPT'), ('News Corp Class A', 'COMP', 'Positive_Impact_On', 'S&P 500', 'FIN_INSTRUMENT'), ('News Corp Class B', 'COMP', 'Positive_Impact_On', 'S&P 500', 'FIN_INSTRUMENT'), ('Noble Energy Inc', 'COMP', 'Positive_Impact_On', 'S&P 500', 'FIN_INSTRUMENT'), ('Motorola Solutions Inc', 'COMP', 'Negative_Impact_On', 'S&P 500', 'FIN_INSTRUMENT'), ('Fortinet Inc', 'COMP', 'Negative_Impact_On', 'S&P 500', 'FIN_INSTRUMENT'), ('Cognizant Technology Solutions Corp', 'COMP', 'Negative_Impact_On', 'S&P 500', 'FIN_INSTRUMENT'), ('Camping World Holdings Inc', 'COMP', 'Positive_Impact_On', 'NYSE', 'FIN_INSTRUMENT'), ('American Axle & Manufacturing Holdings Inc', 'COMP', 'Positive_Impact_On', 'NYSE', 'FIN_INSTRUMENT'), ('Timkensteel Corp', 'COMP', 'Positive_Impact_On', 'NYSE', 'FIN_INSTRUMENT'), ('AG Mortgage Investment Trust Inc', 'COMP', 'Negative_Impact_On', 'NYSE', 'FIN_INSTRUMENT'), ('GTT Communications Inc', 'COMP', 'Negative_Impact_On', 'NYSE', 'FIN_INSTRUMENT'), ('Protagonist Therapeutics Inc', 'COMP', 'Positive_Impact_On', 'Nasdaq', 'FIN_INSTRUMENT'), ('Everspin Technologies Inc', 'COMP', 'Positive_Impact_On', 'Nasdaq', 'FIN_INSTRUMENT'), ('Wisekey International Holding AG', 'COMP', 'Positive_Impact_On', 'Nasdaq', 'FIN_INSTRUMENT'), ('Turtle Beach Corp', 'COMP', 'Negative_Impact_On', 'Nasdaq', 'FIN_INSTRUMENT')
+==========================================================================================
+TICKER=AMZN  parsed=10  raw_len=796
+[('AMAZON.COM, INC.', 'COMP', 'Operate_In', 'Retail (Specialty)', 'SECTOR'), ('AMAZON.COM, INC.', 'COMP', 'Relate_To', 'P/B Growth Investor model', 'CONCEPT'), ('AMAZON.COM, INC.', 'COMP', 'Relate_To', 'Partha Mohanram', 'PERSON'), ('Partha Mohanram', 'PERSON', 'Is_Member_Of', 'University of Toronto', 'ORG/GOV'), ('Partha Mohanram', 'PERSON', 'Is_Member_Of', 'Columbia Business School', 'ORG/GOV'), ('Partha Mohanram', 'PERSON', 'Relate_To', 'Separating Winners from Losers among Low Book-to-Market Stocks using Financial Statement Analysis', 'CONCEPT'), ('Validea', 'ORG', 'Relate_To', 'Warren Buffett', 'PERSON'), ('Validea', 'ORG', 'Relate_To', 'Benjamin Graham', 'PERSON'), ('Validea', 'ORG', 'Relate_To', 'Peter Lynch', 'PERSON'), ('Validea', 'ORG', 'Relate_To', 'Martin Zweig', 'PERSON')]
+==========================================================================================
+TICKER=QTRX  parsed=48  raw_len=3419
+[('Align Technology', 'COMP', 'Operate_In', 'International Markets', 'GPE'), ('Invisalign Clear Aligner', 'PRODUCT', 'Relate_To', 'Global Malocclusion Treatment Space', 'SECTOR'), ('Align Technology', 'COMP', 'Invests_In', 'Invisalign System', 'PRODUCT'), ('Align Technology', 'COMP', 'Operate_In', 'Africa', 'GPE'), ('Align Technology', 'COMP', 'Operate_In', 'Latin America', 'GPE'), ('Align Technology', 'COMP', 'Operate_In', 'Wroclaw, Poland', 'GPE'), ('Align Technology', 'COMP', 'Operate_In', 'Mexico', 'GPE'), ('Align Technology', 'COMP', 'Operate_In', 'China', 'GPE'), ('Align Technology', 'COMP', 'Operate_In', 'Poland', 'GPE'), ('Align Technology', 'COMP', 'Operate_In', 'Americas', 'GPE'), ('Align Technology', 'COMP', 'Operate_In', 'APAC', 'GPE'), ('Align Technology', 'COMP', 'Operate_In', 'EMEA', 'GPE'), ('Align Technology', 'COMP', 'Operate_In', 'Teen Segment', 'SECTOR'), ('Align Technology', 'COMP', 'Operate_In', 'Orthodontic Case Starts', 'SECTOR'), ('Align Technology', 'COMP', 'Operate_In', 'Influencer and Creator-Centric Campaigns', 'CONCEPT'), ('Align Technology', 'COMP', 'Operate_In', 'Marshall Martin', 'PERSON'), ('Align Technology', 'COMP', 'Operate_In', 'Rally Shaw', 'PERSON'), ('Align Technology', 'COMP', 'Operate_In', 'Jeremy Lin', 'PERSON'), ('Align Technology', 'COMP', 'Operate_In', 'Invisalign Treatment', 'PRODUCT'), ('Align Technology', 'COMP', 'Operate_In', '
+SAVED data/diag_raw.jsonl

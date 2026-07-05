@@ -1,0 +1,8 @@
+[build] cleaning vLLM zombies
+[build] GPU0 used=29 MiB
+[build] GPU1 used=29 MiB
+[build] data/subset_600k.parquet -> data/tripl_600k_{0,1}.csv  (chunk=1000, max_new=1280)
+[build] g0 pid=23451  g1 pid=23452  (logs: data/tripl_600k_g0.log / data/tripl_600k_g1.log)
+[build] g0 finished rc=0
+[build] g1 finished rc=0
+BUILD_DONE rc=0

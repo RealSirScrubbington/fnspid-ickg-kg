@@ -1,0 +1,8 @@
+[build] cleaning vLLM zombies
+[build] GPU0 used=29 MiB
+[build] GPU1 used=29 MiB
+[build] launching 2 data-parallel shards over data/subset_200k.parquet (chunk=1000, max_new=1280)
+[build] g0 pid=55698  g1 pid=55699  (logs: build_g0.log / build_g1.log)
+[build] g0 finished rc=0
+[build] g1 finished rc=0
+BUILD_DONE rc=0
