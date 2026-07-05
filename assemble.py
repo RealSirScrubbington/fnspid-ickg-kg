@@ -23,11 +23,13 @@ ALIASES: dict[str, str] = {}
 
 
 def norm_entity(s) -> str:
+    """Whitespace-collapsed surface form, alias-mapped by lowercase key (original casing kept)."""
     s = " ".join(str(s).split()).strip()           # collapse all whitespace (TSV-safe)
     return ALIASES.get(s.lower(), s)
 
 
 def bucket_start(dt: pd.Series, res: str) -> pd.Series:
+    """Start timestamp of the week/fortnight/month bucket containing each date."""
     if res == "week":
         return dt.dt.to_period("W").dt.start_time
     if res == "month":
@@ -39,6 +41,9 @@ def bucket_start(dt: pd.Series, res: str) -> pd.Series:
 
 
 def main() -> None:
+    """Merge the shard CSVs, normalise entities/relations/types, bucket by publication date,
+    integer-encode, split chronologically by time-step, write the FinDKG flat files, and
+    round-trip validate the output."""
     ap = argparse.ArgumentParser()
     ap.add_argument("--inputs", nargs="+", required=True)
     ap.add_argument("--outdir", required=True)
@@ -110,6 +115,8 @@ def main() -> None:
 
 
 def _validate(out, n_ent, n_rel, n_ts, ntr, nva, nte, t_tr, t_va) -> None:
+    """Re-read the written files and assert row counts, id ranges, and split time ordering
+    (no future edges in earlier splits)."""
     e = sum(1 for _ in (out / "entity2id.txt").open(encoding="utf-8"))
     r = sum(1 for _ in (out / "relation2id.txt").open(encoding="utf-8"))
     ts = sum(1 for _ in (out / "time2date.txt").open(encoding="utf-8"))

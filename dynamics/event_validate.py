@@ -43,6 +43,9 @@ GOLD = [  # (event_date, KG entity name, label) -- listed independent of our res
 
 
 def main():
+    """Score the gold events against all three detectors: recall (burst overlaps event +/-W)
+    read against each detector's dilated flagged-week coverage as the chance level, timing
+    error at the local formation peak, and a permutation test on global velocity."""
     kg = load_core(drop_noise=True)
     ev = formation_events(kg)
     M = entity_week_matrix(ev, kg.n_entities, kg.n_times)
@@ -50,10 +53,12 @@ def main():
             .rolling(8, center=True, min_periods=1).mean().to_numpy())
 
     def event_week(dstr):
+        """Week id whose bucket start is closest to the event date."""
         d = pd.Timestamp(dstr)
         return int(min(range(kg.n_times), key=lambda t: abs((kg.times[t] - d).days)))
 
     def find_entity(name):
+        """Entity id for a gold name (exact match first, else substring; most active wins), or None."""
         ids = [i for i, n in kg.id2name.items() if str(n) == name] or \
               [i for i, n in kg.id2name.items() if name.lower() in str(n).lower()]
         return max(ids, key=lambda i: M[i].sum()) if ids else None

@@ -31,9 +31,11 @@ class CoreKG:
     splits: dict                 # 'train'/'valid'/'test' -> (lo_time, hi_time)  half-open
 
     def date(self, t: int) -> str:
+        """ISO date of the week-bucket start for time id t."""
         return self.times.get(t, pd.NaT).date().isoformat()
 
     def split_of(self, t: int) -> str:
+        """Name of the split ('train'/'valid'/'test') whose half-open range contains week t."""
         for name, (lo, hi) in self.splits.items():
             if lo <= t < hi:
                 return name
@@ -42,6 +44,10 @@ class CoreKG:
 
 def load_core(path: str | None = None, train_frac: float = 0.70, valid_frac: float = 0.15,
               drop_noise: bool = False, drop_relations: set | None = None, verbose: bool = True) -> CoreKG:
+    """Load a FinDKG-format core directory into a CoreKG.
+
+    Optionally drops templated noise entities and/or named relations BEFORE any analysis sees
+    them. Splits are chronological fractions of the week axis (half-open [lo, hi) ranges)."""
     path = path or os.environ.get("KG_CORE_PATH", "data/kg_core")   # env switch: e.g. data/kg_600k_core
     p = Path(path)
     ent = pd.read_csv(p / "entity2id.txt", sep="\t", header=None, names=["name", "id", "type", "tid"],

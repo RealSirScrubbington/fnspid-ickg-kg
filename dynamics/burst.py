@@ -158,6 +158,9 @@ def bocd_bursts(counts, hazard=1 / 100.0, a0=1.0, b0=1.0):
 
 
 def main():
+    """Run all three detectors on the global formation series (with pairwise week-level
+    agreement), Kleinberg on each relation and each eligible entity (burst_catalog.csv),
+    and save the global-burst figure."""
     kg = load_core(drop_noise=True)
     ev = formation_events(kg)
     idx = pd.RangeIndex(kg.n_times, name="time")

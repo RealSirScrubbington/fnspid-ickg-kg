@@ -48,6 +48,7 @@ def pop_rank(sorted_asc: np.ndarray, c: float, n: int) -> float:
 
 
 class Meter:
+    """Accumulates per-query ranks into MRR and Hits@1/3/10 (row() returns the summary dict)."""
     def __init__(self):
         self.rr = []; self.h1 = 0; self.h3 = 0; self.h10 = 0; self.n = 0
     def add(self, rank):
@@ -58,6 +59,9 @@ class Meter:
 
 
 def main():
+    """Single chronological sweep over all weeks: test weeks are scored against counts
+    accumulated from weeks < t only, and counts are updated AFTER each week is scored
+    (strict PIT). Writes baseline_results.csv."""
     kg = load_core(drop_noise=True)
     N = kg.n_entities
     e = kg.edges.sort_values("time")
@@ -85,6 +89,7 @@ def main():
                 s_rec = group_rank(gs, s, N); s_pop = pop_rank(sa_s, subjpop[s], N)
                 meters["recurrence"].add(s_rec); meters["popularity"].add(s_pop)
                 meters["backoff"].add(s_rec if gs.get(s, 0) > 0 else s_pop)
+        # fold week t into history only AFTER it has been scored (week t never sees itself)
         if wk is not None:
             for s, r, o in wk:
                 sro[(s, r)][o] += 1; ors[(o, r)][s] += 1

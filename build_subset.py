@@ -16,6 +16,8 @@ csv.field_size_limit(10**8)  # some FNSPID article bodies exceed the 128 KB csv 
 
 
 def main() -> None:
+    """Scan the FNSPID CSV once, reservoir-sample qualifying articles per month (fixed seed),
+    and write the subset parquet + the exact selected fnspid row-id list."""
     ap = argparse.ArgumentParser()
     ap.add_argument("--per-month", type=int, default=2400, help="reservoir size per YYYY-MM")
     ap.add_argument("--seed", type=int, default=42)
@@ -76,6 +78,7 @@ def main() -> None:
         if len(b) < args.per_month:
             b.append(rec)
         else:
+            # standard reservoir replacement: keep rec with prob per_month/seen[m]
             j = rng.randint(0, seen[m] - 1)
             if j < args.per_month:
                 b[j] = rec

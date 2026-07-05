@@ -69,6 +69,9 @@ def ranks_from_csr(R, true_ids, n, query_ids=None):
 
 
 def main():
+    """Chronological sweep: for each test week, build A/WA from the trailing K-week window
+    (edges with time < t only), rank CN/AA/recurrence and the hybrids, then update the counts
+    and window AFTER the week is scored (strict PIT). Writes temporal_heur_results.csv."""
     kg = load_core(drop_noise=True)
     N = kg.n_entities
     test_lo = kg.splits["test"][0]

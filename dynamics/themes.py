@@ -93,6 +93,10 @@ def template_ids(kg):
 
 
 def main():
+    """Walk the weeks forward: at each t select accelerating entities (trailing surprise on
+    history <= t), cluster them on the trailing co-occurrence subgraph, match clusters to
+    theme lifelines, and write the per-week and lifeline CSVs. All walk-forward state
+    (habituation, ubiquity) is updated only AFTER week t is processed."""
     ap = argparse.ArgumentParser()
     ap.add_argument("--strict", action="store_true",
                     help="also exclude walk-forward-ubiquitous entities from candidacy")
@@ -150,6 +154,7 @@ def main():
         cand = np.where(keep)[0]
 
         def book():
+            """Record week t's candidates in the habituation state (last_pass / n_episodes)."""
             # habituation bookkeeping runs for EVERY week (audit fix: earlier 'continue' paths
             # skipped it, corrupting last_pass/n_episodes on cluster-less weeks); a pass more than
             # RECENT weeks after the previous one starts a NEW episode
@@ -201,6 +206,7 @@ def main():
                 # screens, index complexes) whose anchors re-accelerate every quarter classify as
                 # recurring even though their rotating company cast looks fresh.
                 def prior_eps(e):
+                    """Distinct acceleration episodes of e strictly BEFORE the ongoing one."""
                     return n_episodes[e] - (1 if (t - last_pass[e]) <= a.recent else 0)
                 tot_x = float(sum(excess[e] for e in members))
                 fresh = float(sum(excess[e] for e in members if prior_eps(e) < 2) / max(tot_x, 1e-9))

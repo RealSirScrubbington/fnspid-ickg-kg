@@ -25,6 +25,10 @@ SUBSETS = ["all", "recurring", "novel"]
 
 
 def main():
+    """Train ComplEx once (weeks < test_lo), precompute its test-quad ranks, then sweep the
+    weeks chronologically: recurrence/popularity ranks use only counts from weeks < t, each
+    quad is tagged recurring/novel, and counts update AFTER the week is scored (strict PIT).
+    Writes unified_results.csv."""
     kg = load_core(drop_noise=True)
     N = kg.n_entities
     test_lo = kg.splits["test"][0]
@@ -64,6 +68,7 @@ def main():
                 for m, (ro, rs) in pairs.items():
                     for grp in ("all", sub):
                         meters[(m, grp)].add(ro); meters[(m, grp)].add(rs)
+        # history update AFTER scoring (PIT)
         if wk is not None:
             for s, r, o in wk:
                 sro[(s, r)][o] += 1; ors[(o, r)][s] += 1

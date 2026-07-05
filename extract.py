@@ -43,10 +43,12 @@ def mask_article(body: str, ticker: str = "", names: list[str] | None = None) ->
 
 
 def build_prompt(body: str, max_chars: int) -> str:
+    """Insert the (truncated) article body into the verbatim FinDKG/ICKG prompt."""
     return ICKG_PROMPT.replace("<input_text>", (body or "")[:max_chars])
 
 
 def load_subset(path: str) -> pd.DataFrame:
+    """Read the article subset (parquet/json/jsonl); requires id/date/body, defaults ticker/publisher."""
     p = Path(path)
     df = pd.read_parquet(p) if p.suffix == ".parquet" else pd.read_json(p, lines=p.suffix == ".jsonl")
     needed = {"id", "date", "body"}
@@ -60,12 +62,16 @@ def load_subset(path: str) -> pd.DataFrame:
 
 
 def done_ids(stats_path: Path) -> set[str]:
+    """Article ids already checkpointed in the stats file (lets a rerun resume, not redo)."""
     if not stats_path.exists():
         return set()
     return {json.loads(l)["id"] for l in stats_path.read_text().splitlines() if l.strip()}
 
 
 def main() -> None:
+    """Batched vLLM extraction with per-chunk checkpointing: skips articles already recorded
+    in .stats.jsonl, then appends the triplet CSV and stats after every chunk, so a killed
+    run loses at most one chunk."""
     ap = argparse.ArgumentParser(description="vLLM ICKG extraction (checkpointed)")
     ap.add_argument("--input", required=True)
     ap.add_argument("--out", required=True, help="triplets parquet (checkpointed alongside .stats.jsonl)")
@@ -159,6 +165,8 @@ def _append_csv(path: Path, rows: list[dict]) -> None:
 
 
 def report(out_path: Path, stats_path: Path, args) -> None:
+    """Print the Stage-1 quality report (success/malformed rates, type/relation dists) from
+    the triplet CSV + stats file."""
     stats = [json.loads(l) for l in stats_path.read_text().splitlines() if l.strip()]
     df = pd.read_csv(out_path) if out_path.exists() else pd.DataFrame(columns=TRIPLET_COLS)
     valid = df[df["valid"].astype(str).str.lower() == "true"]

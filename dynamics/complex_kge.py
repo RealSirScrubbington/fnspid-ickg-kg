@@ -24,6 +24,7 @@ DEV = "cuda" if torch.cuda.is_available() else "cpu"
 
 
 class ComplEx(nn.Module):
+    """ComplEx (Trouillon et al. 2016) with full-vocabulary (1-N) scoring heads."""
     def __init__(self, n_ent, n_rel, d):
         super().__init__()
         self.Ere = nn.Embedding(n_ent, d); self.Eim = nn.Embedding(n_ent, d)
@@ -49,6 +50,7 @@ def ranks(scores, true):
 
 
 def metrics(rk):
+    """MRR and Hits@1/3/10 summary dict from a tensor of ranks."""
     rk = rk.float()
     return dict(MRR=(1 / rk).mean().item(), H1=(rk <= 1).float().mean().item(),
                 H3=(rk <= 3).float().mean().item(), H10=(rk <= 10).float().mean().item(), n=rk.numel())
@@ -104,6 +106,8 @@ def test_ranks(model, te: pd.DataFrame):
 
 
 def main():
+    """Train on pre-test weeks, rank all test quads, and merge the ComplEx row into
+    baseline_results.csv (replacing any previous ComplEx entry)."""
     kg = load_core(drop_noise=True)
     model = train(kg)
     te = test_triples(kg)

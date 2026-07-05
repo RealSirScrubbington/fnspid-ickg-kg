@@ -43,6 +43,8 @@ print(f"{a.name}: embeddings {tuple(Et.shape)}", flush=True)
 
 
 class Scorer(nn.Module):
+    """Frozen LM embeddings -> linear projection -> DistMult relation operator.
+    Only the projection, relation table and temperature train; Et stays fixed."""
     def __init__(self):
         super().__init__()
         self.proj = nn.Linear(d_lm, a.dim, bias=False)
@@ -97,6 +99,7 @@ by_week = {t: g[["subj", "rel", "obj"]].to_numpy() for t, g in e.groupby("time")
 sro = defaultdict(lambda: defaultdict(int)); ors = defaultdict(lambda: defaultdict(int))
 BK = f"backoff(rec->{a.name})"
 meters = {(mm, g): Meter() for mm in (a.name, "recurrence", BK) for g in ("all", "recurring", "novel")}
+# chronological sweep: test weeks scored with counts from weeks < t; counts update after scoring
 for t in range(kg.n_times):
     wk = by_week.get(t)
     if wk is not None and t >= test_lo:

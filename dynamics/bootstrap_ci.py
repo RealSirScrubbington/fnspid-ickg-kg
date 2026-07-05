@@ -59,6 +59,9 @@ def text_ranks(emb_path, kg, te, dim=256, epochs=40, lr=2e-3, batch=512):
 
 
 def main():
+    """Collect per-test-direction reciprocal ranks for every method under the standard PIT
+    sweep (recurrence counts update AFTER each week is scored), then report bootstrap MRR CIs
+    and PAIRED gap CIs (same resample indexes both methods) on all/novel subsets."""
     torch.manual_seed(0)   # reproducibility (audit fix: text-scorer init/batch order were unseeded)
     kg = load_core(drop_noise=True)
     N = kg.n_entities; test_lo = kg.splits["test"][0]
@@ -87,6 +90,7 @@ def main():
                     rr["backoff(rec->ComplEx)"].append(1 / (rec_r if seen else cx_r))
                     rr["backoff(rec->ChronoBERT)"].append(1 / (rec_r if seen else c22))
                     novel.append(not seen)
+        # history update AFTER scoring (PIT)
         if wk is not None:
             for s, r, o in wk:
                 sro[(s, r)][o] += 1; ors[(o, r)][s] += 1
@@ -95,11 +99,13 @@ def main():
     novel = np.array(novel); allmask = np.ones(len(novel), bool)
 
     def ci(vals, mask):
+        """Mean of vals over the masked pool with its 95% bootstrap CI."""
         pool = np.where(mask)[0]
         bs = np.array([vals[rng.choice(pool, pool.size)].mean() for _ in range(B)])
         return vals[pool].mean(), np.percentile(bs, 2.5), np.percentile(bs, 97.5)
 
     def gap(a, b, mask):
+        """Paired mean difference a - b with its 95% bootstrap CI (one resample, both methods)."""
         pool = np.where(mask)[0]
         bs = np.array([(a[s] - b[s]).mean() for s in (rng.choice(pool, pool.size) for _ in range(B))])
         return (a[pool] - b[pool]).mean(), np.percentile(bs, 2.5), np.percentile(bs, 97.5)

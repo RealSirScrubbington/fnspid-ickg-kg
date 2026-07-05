@@ -14,6 +14,9 @@ from ickg_kg.schema import RELATION2ID
 
 
 def main() -> None:
+    """Threshold edges by weight, iterate the entity-degree filter to a fixed point,
+    re-index survivors by frequency (low ids = frequent), re-split chronologically on the
+    UNCHANGED time axis, and write the core FinDKG files."""
     ap = argparse.ArgumentParser()
     ap.add_argument("--kg", default="data/kg")
     ap.add_argument("--out", default="data/kg_core")

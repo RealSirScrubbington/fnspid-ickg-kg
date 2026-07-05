@@ -41,9 +41,12 @@ class REGCN(nn.Module):
         self.shuffle = False                                # placebo: randomize history order
 
     def init_state(self):
+        """Evolution start state: normalized tanh of the static base embeddings E0."""
         return F.normalize(torch.tanh(self.E0), dim=1)
 
     def evolve(self, H, ed):
+        """One weekly evolution step: degree-normalized relational messages (forward +
+        inverse), a residual conv layer, then a GRU update; returns the new normalized H."""
         s, rel, o = ed
         msg_o = H[s] * self.Rel[rel]                         # forward messages -> object
         msg_s = H[o] * self.Rel[rel + self.R]               # inverse messages -> subject
@@ -56,6 +59,7 @@ class REGCN(nn.Module):
         conv = self.drop(F.relu(self.Wn(agg) + self.Ws(H)))
         return F.normalize(self.gru(conv, H), dim=1)
 
+    # DistMult decoder over the evolved embeddings; inverse-relation embeddings serve (?, r, o)
     def score_obj(self, H, s, rel):
         return self.scale * ((H[s] * self.Rel[rel]) @ H.t())
     def score_sub(self, H, o, rel):
@@ -89,6 +93,10 @@ def valid_mrr(model, week, lo, hi, hist):
 
 
 def main():
+    """Train RE-GCN on weeks < test_lo (early-stopped on valid MRR, or fixed epochs with
+    --through-valid), then walk the test weeks: facts at t are scored from embeddings evolved
+    over weeks < t only, and the recurrence history updates AFTER each week is scored (PIT).
+    Writes regcn_results.csv with the novel/recurring split."""
     import argparse
     from collections import defaultdict
     from dynamics.linkpred import group_rank
@@ -128,6 +136,7 @@ def main():
           f"shuffle_hist={a.shuffle_hist}", flush=True)
 
     def train_step():
+        """One epoch over the training weeks (truncated BPTT via embed_at); returns mean loss."""
         model.train(); tot = 0.0
         for t in train_times:
             H = model.embed_at(week, t, a.hist)
@@ -166,6 +175,7 @@ def main():
     sro = defaultdict(lambda: defaultdict(int)); ors = defaultdict(lambda: defaultdict(int)); seen = set()
 
     def add_week(ed):
+        """Fold a week's edges into the recurrence counts and the seen-(s,r,o) set."""
         for s, r, o in zip(*(x.tolist() for x in ed)):
             sro[(s, r)][o] += 1; ors[(o, r)][s] += 1; seen.add((s, r, o))
 
@@ -191,6 +201,7 @@ def main():
                                      ("backoff(rec->RE-GCN)", rec if sq else gnn)):
                     for g in ("all", grp):
                         meters[(nm, g)].add(po); meters[(nm, g)].add(ps)
+            # history update AFTER scoring week t (PIT)
             add_week(ed)
 
     rows = {}

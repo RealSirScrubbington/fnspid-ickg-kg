@@ -116,3 +116,40 @@ source-grounding are the available controls. Full entity resolution remains the 
   per-article relation skew (e.g. over-use of `Operate_In`) is inherent extractor noise.
 - **Licensing** — ICKG + FNSPID are non-commercial/research; source article text is **not**
   redistributed (only ids + extracted triplets).
+
+---
+
+## Code map (for readers)
+
+Everything runs from the repo root; `KG_CORE_PATH` selects the graph construction
+(default `data/kg_core`; canonical: `data/kg_600k_dedup_core`).
+
+### Pipeline (thesis Chapter 3 / Experiment 1)
+| module | what it does |
+|---|---|
+| `build_subset.py` | one streaming pass over FNSPID; per-month reservoir sampling (fixed seed) -> time-stratified article subset |
+| `extract.py` | ICKG-v4.2 via vLLM -> raw typed triples; dual-format parser (JSON + Python tuples); CSV-append checkpointing (resumable) |
+| `assemble.py` | triples -> FinDKG flat files: weekly buckets, chronological 70/15/15 splits, weighted edge-weeks |
+| `build_core.py` | denoised core: edge-weight + entity-degree thresholds (fixed-point), re-indexed and re-split |
+
+### Dynamics (thesis Chapters 4-6 / Experiments 2-3)
+| module | what it does | thesis |
+|---|---|---|
+| `dynamics/loader.py` | loads a core into time-indexed structures; `drop_noise=True` removes templated-media entities | 3.8 |
+| `dynamics/eda.py` | descriptive weekly aggregates | 4 |
+| `dynamics/velocity.py` | descriptive velocity/acceleration (centred windows) + per-entity z leaderboards | 4.2 |
+| `dynamics/burst.py` | three burst detectors: Kleinberg, CUSUM, BOCD (Gamma-Poisson, back-dated onsets) | 4.4 |
+| `dynamics/event_validate.py` | 18-event recovery, per detector vs its chance level (dilated coverage) | 4.4 |
+| `dynamics/themes.py` | THE HEADLINE: walk-forward theme detector (trailing Poisson/NB surprise -> Louvain -> lifelines; template + habituation controls; `--strict`, `--nb`, window flags) | 4.3-4.6 |
+| `dynamics/themes_eval.py` | frozen 10-event gold list: lead times + 100k-draw placebo control (tags as argv) | 4.7 |
+| `dynamics/linkpred.py` / `linkpred_eval.py` | PIT ranking harness (raw ranks, mean-rank ties, update-after-scoring) + recurrence/popularity/backoff baselines | 5 |
+| `dynamics/complex_kge.py` | ComplEx/DistMult trained on weeks < test only | 5.4 |
+| `dynamics/temporal_heur.py` | Common-Neighbours / Adamic-Adar on trailing subgraph (query excluded from candidates) | 5.4 |
+| `dynamics/regcn.py` | RE-GCN-style temporal GNN; validation-based early stopping per core | 5.3 |
+| `dynamics/text_embed.py` / `text_linkpred.py` | ChronoBERT/Qwen name embeddings + PIT-clean semantic scorer | 5.4, 6 |
+| `dynamics/bootstrap_ci.py` | paired bootstrap CIs + the ChronoBERT cutoff (lookahead) comparison | 5.5, 6 |
+| `dynamics/resolve_check.py` | crude entity-resolution sensitivity bound (resolution itself is out of scope) | 3.8 |
+| `dynamics/figures.py` | regenerates every thesis figure (vector PDF) with one command | all |
+
+Scratch/pilot scripts in the root (`trial.py`, `smoke_test.py`, `measure_*.py`, ...) are
+retained for provenance and are not part of the analysis path.

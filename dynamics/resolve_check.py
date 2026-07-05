@@ -17,12 +17,15 @@ SUFFIX = re.compile(r"\b(inc|corp|corporation|co|ltd|limited|llc|plc|group|holdi
 
 
 def keynorm(s):
+    """Light canonical key: lowercase, strip punctuation and corporate suffixes."""
     s = re.sub(r"[.,'\"&]", "", str(s).lower().strip())
     key = re.sub(r"\s+", " ", SUFFIX.sub(" ", s)).strip()
     return key or s   # suffix-only names ("Co", "The Group") must NOT merge into one pseudo-entity
 
 
 def eval_recurrence(edges, n_ent, n_times, test_lo):
+    """Recurrence-baseline MRR on `edges` under the standard PIT sweep (counts from weeks < t,
+    updated AFTER each week is scored). Returns (test novelty rate, MRR by all/recurring/novel)."""
     by_week = {t: g[["subj", "rel", "obj"]].to_numpy() for t, g in edges.groupby("time")}
     sro = defaultdict(lambda: defaultdict(int)); ors = defaultdict(lambda: defaultdict(int))
     meters = {g: Meter() for g in ("all", "recurring", "novel")}
@@ -46,6 +49,7 @@ def eval_recurrence(edges, n_ent, n_times, test_lo):
 
 
 def main():
+    """Compare test novelty and recurrence MRR before/after the crude surface-form merge."""
     kg = load_core(drop_noise=True)
     test_lo = kg.splits["test"][0]
     nov0, mrr0 = eval_recurrence(kg.edges, kg.n_entities, kg.n_times, test_lo)

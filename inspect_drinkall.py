@@ -1,3 +1,4 @@
+"""One-off exploratory script: profile the Drinkall financial-news dataset (field coverage, body lengths, dates, dupes) as a candidate corpus. Not part of the pipeline."""
 import json, lzma, urllib.request, statistics, collections
 from pathlib import Path
 

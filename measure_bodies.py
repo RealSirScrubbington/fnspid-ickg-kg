@@ -1,3 +1,4 @@
+"""One-off exploratory script: random-offset sample raw FNSPID rows to measure Article body-length coverage (informed the min-words subset filter). Not part of the pipeline."""
 import sys, random, statistics, time
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))

@@ -16,6 +16,8 @@ OUT.mkdir(parents=True, exist_ok=True)
 
 
 def weekly_aggregates(kg) -> pd.DataFrame:
+    """Per-week activity/formation/growth table. Returns (df indexed by week, first) where
+    `first` holds each relationship's first-appearance row (formation = min time per (s,r,o))."""
     e = kg.edges
     idx = pd.RangeIndex(kg.n_times, name="time")
 
@@ -44,6 +46,7 @@ def weekly_aggregates(kg) -> pd.DataFrame:
 
 
 def relation_mix(kg) -> pd.DataFrame:
+    """Week x relation-name matrix of edge-instance counts."""
     e = kg.edges
     idx = pd.RangeIndex(kg.n_times, name="time")
     mix = e.groupby(["time", "rel"]).size().unstack(fill_value=0).reindex(idx, fill_value=0)
@@ -52,12 +55,14 @@ def relation_mix(kg) -> pd.DataFrame:
 
 
 def shade_splits(ax, kg):
+    """Shade the train/valid/test week ranges as background bands on ax."""
     colors = {"train": "#e8f0fe", "valid": "#fff3e0", "test": "#fde8e8"}
     for name, (lo, hi) in kg.splits.items():
         ax.axvspan(lo, hi - 1, color=colors[name], alpha=0.6, zorder=0)
 
 
 def main():
+    """Print the summary stats, save weekly_stats.csv and the 4-panel overview figure."""
     kg = load_core(drop_noise=True)   # align with every other dynamics analysis (audit fix)
     df, first = weekly_aggregates(kg)
     mix = relation_mix(kg)
