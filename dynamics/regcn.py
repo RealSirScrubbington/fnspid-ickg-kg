@@ -30,7 +30,7 @@ DEV = "cuda" if torch.cuda.is_available() else "cpu"
 
 
 class REGCN(nn.Module):
-    def __init__(self, n_ent, n_rel, d, drop=DROP):
+    def __init__(self, n_ent, n_rel, d, drop=DROP, feat_dim=0):
         super().__init__()
         self.N, self.R = n_ent, n_rel
         self.E0 = nn.Parameter(torch.empty(n_ent, d)); nn.init.xavier_normal_(self.E0)
@@ -39,14 +39,21 @@ class REGCN(nn.Module):
         self.gru = nn.GRUCell(d, d); self.drop = nn.Dropout(drop)
         self.scale = nn.Parameter(torch.tensor(8.0))        # logit temperature (normalized embs)
         self.shuffle = False                                # placebo: randomize history order
+        # velocity-feature ablation: per-entity trailing velocity statistics injected at every
+        # snapshot step through a learned projection. feat_dim=0 leaves the baseline arm
+        # bit-identical to the original model (no extra parameters).
+        self.Wf = nn.Linear(feat_dim, d) if feat_dim else None
+        self.feat = None                                    # [N, T, feat_dim] tensor, set by main()
 
     def init_state(self):
         """Evolution start state: normalized tanh of the static base embeddings E0."""
         return F.normalize(torch.tanh(self.E0), dim=1)
 
-    def evolve(self, H, ed):
+    def evolve(self, H, ed, w=None):
         """One weekly evolution step: degree-normalized relational messages (forward +
-        inverse), a residual conv layer, then a GRU update; returns the new normalized H."""
+        inverse), a residual conv layer, then a GRU update; returns the new normalized H.
+        With velocity features enabled, the snapshot week's trailing velocity statistics
+        (strictly <= w, hence < prediction time) enter the conv pre-activation."""
         s, rel, o = ed
         msg_o = H[s] * self.Rel[rel]                         # forward messages -> object
         msg_s = H[o] * self.Rel[rel + self.R]               # inverse messages -> subject
@@ -56,7 +63,10 @@ class REGCN(nn.Module):
         ones = torch.ones(len(s), device=H.device)
         deg.index_add_(0, o, ones); deg.index_add_(0, s, ones)
         agg = agg / deg.clamp(min=1).unsqueeze(1)
-        conv = self.drop(F.relu(self.Wn(agg) + self.Ws(H)))
+        pre = self.Wn(agg) + self.Ws(H)
+        if self.Wf is not None and w is not None:
+            pre = pre + self.Wf(self.feat[:, w])
+        conv = self.drop(F.relu(pre))
         return F.normalize(self.gru(conv, H), dim=1)
 
     # DistMult decoder over the evolved embeddings; inverse-relation embeddings serve (?, r, o)
@@ -73,7 +83,7 @@ class REGCN(nn.Module):
         if self.shuffle:
             random.shuffle(ws)                         # placebo: destroy chronological order
         for w in ws:
-            H = self.evolve(H, week[w])
+            H = self.evolve(H, week[w], w)
         return H
 
 
@@ -112,6 +122,13 @@ def main():
                     help="train on train+valid (apples-to-apples vs ComplEx), fixed epochs, no early stop")
     ap.add_argument("--shuffle-hist", action="store_true",
                     help="placebo: shuffle the order of history snapshots (kills chronological signal)")
+    ap.add_argument("--velocity-features", action="store_true",
+                    help="ablation arm: inject per-entity trailing velocity statistics "
+                         "(log1p recent formations, log1p baseline, surprise z) at every snapshot")
+    ap.add_argument("--tag", default="", help="suffix for the results CSV (ablation bookkeeping)")
+    ap.add_argument("--dump-topk", type=int, default=0,
+                    help="also dump top-K candidate ids per test query (worked-example error "
+                         "analysis); 0 = off, behaviour unchanged")
     ap.add_argument("--seed", type=int, default=0)
     a = ap.parse_args()
     random.seed(a.seed); torch.manual_seed(a.seed)
@@ -126,8 +143,29 @@ def main():
     print(f"device {DEV} | {N:,} entities | dim {a.dim} hist {a.hist} epochs {a.epochs} lr {a.lr}")
 
     valid_lo = kg.splits["valid"][0]
-    model = REGCN(N, R, a.dim, a.drop).to(DEV)
+    model = REGCN(N, R, a.dim, a.drop, feat_dim=3 if a.velocity_features else 0).to(DEV)
     model.shuffle = a.shuffle_hist
+    if a.velocity_features:
+        # Trailing velocity features, identical machinery to the theme detector: recent 4-week
+        # formation count O_w, scaled 26-week baseline E_w, surprise z_w. Windows end AT the
+        # snapshot week w; embed_at only visits weeks < prediction time, so features stay PIT.
+        from dynamics.velocity import formation_events, entity_week_matrix
+        r_win, b_win = 4, 26
+        M = entity_week_matrix(formation_events(kg), N, kg.n_times)
+        cs = np.concatenate([np.zeros((N, 1)), np.cumsum(M, axis=1)], axis=1)
+        feat = np.zeros((N, kg.n_times, 3), dtype=np.float32)
+        for w in range(kg.n_times):
+            lo_r = max(0, w + 1 - r_win)
+            lo_b = max(0, lo_r - b_win)
+            O = cs[:, w + 1] - cs[:, lo_r]
+            E = (cs[:, lo_r] - cs[:, lo_b]) * (r_win / b_win)
+            z = (O - E) / np.sqrt(E + 1.0)
+            feat[:, w, 0] = np.log1p(O)
+            feat[:, w, 1] = np.log1p(E)
+            feat[:, w, 2] = np.clip(z, -10.0, 10.0) / 10.0
+        model.feat = torch.tensor(feat, device=DEV)
+        print(f"[ablation] velocity features ON: {feat.shape}, "
+              f"{model.feat.element_size() * model.feat.nelement() / 1e6:.0f} MB on {DEV}")
     opt = torch.optim.Adam(model.parameters(), lr=a.lr, weight_decay=a.wd)
     ce = nn.CrossEntropyLoss()
     hi = test_lo if a.through_valid else valid_lo
@@ -183,6 +221,8 @@ def main():
         ed = week.get(t)
         if ed is not None:
             add_week(ed)
+    dump_ro, dump_rs, dump_nov = [], [], []   # per-query ranks for paired arm-vs-arm bootstraps
+    dump_tko, dump_tks = [], []               # optional top-K candidates (--dump-topk)
     with torch.no_grad():
         for t in range(test_lo, kg.n_times):
             ed = week.get(t)
@@ -190,8 +230,16 @@ def main():
                 continue
             s, rel, o = ed
             H = model.embed_at(week, t, a.hist)
-            ro = ranks(model.score_obj(H, s, rel), o).cpu().numpy()
-            rs = ranks(model.score_sub(H, o, rel), s).cpu().numpy()
+            sc_o = model.score_obj(H, s, rel)
+            sc_s = model.score_sub(H, o, rel)
+            ro = ranks(sc_o, o).cpu().numpy()
+            rs = ranks(sc_s, s).cpu().numpy()
+            dump_ro.append(ro); dump_rs.append(rs)
+            if a.dump_topk:
+                dump_tko.append(torch.topk(sc_o, a.dump_topk, dim=1).indices.cpu().numpy())
+                dump_tks.append(torch.topk(sc_s, a.dump_topk, dim=1).indices.cpu().numpy())
+            dump_nov.append(np.array([(si, ri, oi) not in seen
+                                      for si, ri, oi in zip(s.tolist(), rel.tolist(), o.tolist())]))
             for i, (si, ri, oi) in enumerate(zip(s.tolist(), rel.tolist(), o.tolist())):
                 sq = (si, ri, oi) in seen
                 grp = "recurring" if sq else "novel"
@@ -209,7 +257,14 @@ def main():
         rows[m] = {f"MRR/{g}": meters[(m, g)].row()["MRR"] for g in ("all", "recurring", "novel")}
         rows[m]["H10/all"] = meters[(m, "all")].row()["H10"]
     res = pd.DataFrame(rows).T
-    res.to_csv(OUT / "regcn_results.csv")
+    res.to_csv(OUT / f"regcn_results{('_' + a.tag) if a.tag else ''}.csv")
+    if a.tag:   # per-query ranks in test-week order (identical across arms -> paired tests)
+        extra = {}
+        if a.dump_topk:
+            extra = {"topk_o": np.concatenate(dump_tko), "topk_s": np.concatenate(dump_tks)}
+        np.savez_compressed(OUT / f"regcn_ranks_{a.tag}.npz",
+                            ro=np.concatenate(dump_ro), rs=np.concatenate(dump_rs),
+                            novel=np.concatenate(dump_nov), **extra)
     with pd.option_context("display.float_format", lambda v: f"{v:.4f}"):
         print("\n" + res.to_string())
     print("\nreference: ComplEx MRR/all 0.082, novel 0.025 | backoff(ComplEx) MRR/all 0.152, H10 0.242")

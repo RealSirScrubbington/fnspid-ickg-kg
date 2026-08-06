@@ -49,7 +49,7 @@ title = ParagraphStyle("T", parent=ss["Title"], fontSize=18, textColor=NAVY, spa
 sub = ParagraphStyle("S", parent=ss["Normal"], fontSize=10.5, textColor=colors.HexColor("#555"), alignment=TA_CENTER, spaceAfter=2)
 s.append(Paragraph("Temporal Financial Knowledge Graph", title))
 s.append(Paragraph("Construction (FNSPID to ICKG to FinDKG) and Dynamics Analysis", sub))
-s.append(Paragraph("MSc Computational Statistics &amp; Machine Learning, UCL &nbsp;|&nbsp; Project report (200k + 600k) &nbsp;|&nbsp; 29 June 2026", sub))
+s.append(Paragraph("MSc Computational Statistics &amp; Machine Learning, UCL &nbsp;|&nbsp; Project report (200k + 600k) &nbsp;|&nbsp; 9 July 2026", sub))
 s.append(Spacer(1, 6)); s.append(HRFlowable(width="100%", thickness=1, color=NAVY)); s.append(Spacer(1, 8))
 
 s.append(Paragraph("Executive summary", H1))
@@ -62,15 +62,19 @@ s.append(P("<b>Headline finding:</b> the dynamics are <b>descriptively rich but 
            "burst detection recover real market events to the correct week (the COVID crash, the Pfizer vaccine "
            "readout, the GameStop squeeze, the 2023 UAW strike), yet no model &mdash; static embedding or temporal "
            "GNN &mdash; can forecast <i>novel</i> relationships beyond a low ceiling. The past is legible; the future "
-           "is genuinely surprising. This conclusion survives three independent robustness checks, including a direct "
-           "probe of the knowledge-cutoff-leakage concern."))
+           "is genuinely surprising. This conclusion survives four independent robustness checks, including a direct "
+           "probe of the knowledge-cutoff-leakage concern. A velocity-feature ablation completes the picture: "
+           "injecting the theme detector's burst statistics into the temporal model significantly <i>degrades</i> "
+           "forecasting &mdash; velocity is a detection signal, not a forecasting feature."))
 s.append(P("<b>Scale-up (Section 6):</b> a 3x larger 600k-article rebuild confirms this ceiling is partly a "
            "data-density artifact &mdash; denser sampling cuts test novelty 72% to 64% (61.6% after deduplication), "
            "and surfaces a small temporal-model advantage that was absent at 200k."))
 s.append(P("<b>Headline system (Section 7):</b> a walk-forward <b>emerging-theme detector</b> built on link-formation "
            "velocity &mdash; the project's central deliverable. Scored against a frozen 10-event gold list it detects "
            "8/10 major 2020&ndash;2023 themes, flagging anticipatable ones weeks early (COVID &minus;3 wk, the vaccine "
-           "race &minus;8 wk) and shock events at the news-flow floor (+1 wk)."))
+           "race &minus;8 wk) and shock events at the news-flow floor (+1 wk). A blind, validated lifeline-level "
+           "audit puts the high-recall stream's precision at 37.9%, and an audit-driven template-filtered "
+           "configuration raises it to 44.7% with recall unchanged."))
 
 s.append(Paragraph("1.&nbsp;&nbsp;Objective &amp; scope", H1))
 s.append(P("Goal: produce a reproducible, PIT-clean temporal financial KG as the substrate for a thesis on the "
@@ -135,7 +139,7 @@ s.append(table([
 s.append(Spacer(1, 6))
 s += figure("data/dynamics/velocity/velocity_overview.png",
             "Fig 2. Global edge-formation velocity & acceleration (left); sharpest-burst entity trajectories (right).")
-s.append(Paragraph("3.3&nbsp;&nbsp;Burst detection (two detectors)", H2))
+s.append(Paragraph("3.3&nbsp;&nbsp;Burst detection (three detectors)", H2))
 s.append(P("Two complementary detectors are run. A <b>Kleinberg</b> 2-state model extracts discrete burst intervals: "
            "globally the spring-2020 COVID crash and the fall-2020 peak; the entity catalogue (3,286 bursts over 2,003 "
            "entities) recovers correctly-timed windows &mdash; Pfizer (vaccine), Inflation (2021-11 to 2023-01), Boeing "
@@ -177,7 +181,8 @@ s.append(P("The signal is <b>bimodal</b>: recurring relationships are highly pre
 s.append(Paragraph("4.&nbsp;&nbsp;Key findings", H1))
 s.append(B("<b>Descriptively rich (systematically validated).</b> On a curated list of 18 major 2017-2023 events "
            "(compiled independently of the results), burst detection recovers <b>89%</b> (16/18) with <b>median "
-           "1-week timing</b> (75% within 3 weeks) &mdash; not cherry-picked anecdotes. The two misses (negative oil "
+           "1-week timing</b> (75% within 3 weeks) &mdash; not cherry-picked anecdotes (the chance-controlled "
+           "per-detector account on the canonical core is in Section 3.3). The two misses (negative oil "
            "prices, FTX) are thin-coverage entities whose local peaks still align but fall below the burst-significance "
            "threshold. Events are entity-localised: global velocity is not significantly elevated at event weeks (p=0.18)."))
 s.append(B("<b>Forecasting-hard.</b> 72% of relationships are novel and near-unforecastable; recurrence dominates "
@@ -218,8 +223,8 @@ s.append(P("<b>Lookahead bias (ChronoBERT cutoff test).</b> Following He et al. 
            "Qwen-14B embedding scored higher (novel 0.0405), but that gap is model capacity, not lookahead. The "
            "cutoff-controlled design remains the strongest of the four checks. <b>Bonus (robust to seeds):</b> the "
            "PIT-clean ChronoBERT embeddings beat structural ComplEx on novel edges by ~+0.011&ndash;0.013 MRR &mdash; "
-           "an order of magnitude above both the lookahead bound and seed noise &mdash; and are the study's best "
-           "novel-edge predictor; the recurrence->ChronoBERT backoff is the best overall system."))
+           "an order of magnitude above seed noise and roughly five times the lookahead bound &mdash; and are the "
+           "study's best novel-edge predictor; the recurrence->ChronoBERT backoff is the best overall system."))
 s.append(P("<b>Structural-only re-run.</b> Re-running velocity and burst with the 5 causal 'impact' relations removed "
            "leaves the core event recovery intact (GameStop 2021-01-25, Boeing 2020-07-20, and the global velocity peak "
            "all identical; COVID within a week) &mdash; confirming the temporal signal is text-anchored, not carried by "
@@ -258,8 +263,19 @@ s.append(B("<b>Duplication audit &rarr; the canonical core.</b> FNSPID stores on
 s.append(B("<b>A temporal-model advantage emerges with scale.</b> On the denser graph RE-GCN beats static ComplEx on "
            "novel edges (0.034 +/- 0.001 over 3 seeds vs 0.028 [CI 0.028, 0.029]) &mdash; an edge <i>absent</i> at "
            "200k, where they tied at 0.025. (A paired per-query test is the fully rigorous comparison; the seed-range "
-           "separation is indicative.) Event recovery rose to <b>94%</b> (17/18) on the anecdote-free gold list; a "
-           "crude resolution pass cuts 600k novelty further to 60%."))
+           "separation is indicative.) Event recovery on the anecdote-free gold list also improved with density; "
+           "the chance-controlled three-detector account on the canonical core (Section 3.3) reaches a union recall "
+           "of 18/18. A crude resolution pass cuts 600k novelty further to 60%."))
+s.append(B("<b>Velocity features do not transfer to forecasting (ablation, canonical core).</b> The theme detector's "
+           "three trailing per-entity statistics (log1p observed, log1p expected, clipped surprise z; its exact "
+           "4-week/26-week machinery) were injected into RE-GCN's weekly evolution step through a learned projection "
+           "&mdash; 2 arms x 3 seeds, identical hyperparameters and early stopping, the baseline arm bit-identical to "
+           "the benchmark model (3-seed mean 0.120 all / 0.031 novel reproduces its entry). Paired per-query bootstrap "
+           "(49,620 test directions): the features <b>significantly degrade</b> forecasting &mdash; MRR &minus;0.015 "
+           "[&minus;0.016, &minus;0.014] overall, &minus;0.009 [&minus;0.010, &minus;0.008] on novel edges, gaps far "
+           "above the seed spread (&lt;= 0.008). Burst statistics announce <i>that</i> an entity is active, not "
+           "<i>which</i> link will form: <b>velocity is a detection signal, not a forecasting feature</b> (one "
+           "integration design tested)."))
 s += figure("results_600k/global_bursts_600k.png",
             "Fig 4. 600k global bursts: Kleinberg discrete events (shaded) vs two CUSUM macro-regimes (hatched) &mdash; "
             "the 2019-2022 COVID-to-inflation era and the 2023 AI surge.")
@@ -301,7 +317,7 @@ s.append(P("<b>8/10 detected, median lead &minus;1 week</b> &mdash; and the stru
            "glut appear in the graph weeks before the market event), while <b>shock events land at the news-flow "
            "floor</b> (+1 week for an invasion, a bank run, a strike &mdash; nothing in prior public news predicts "
            "them). The system's lead time reflects the information structure of the event itself. The two misses are "
-           "coverage-honest: FTX and OpenAI are barely present in a Nasdaq-equity news corpus. Discovered themes "
+           "coverage-honest: FTX and OpenAI are barely present in a US-equity news corpus. Discovered themes "
            "beyond the gold list include the 2019 cannabis boom (HEXO/Aurora/Tilray, born 2019-03-18), the EV/SPAC "
            "wave (Nikola/Nio, born 2020-06-22), and the stay-at-home complex (Zoom/Kroger/Virgin Galactic, born "
            "2020-04-06)."))
@@ -313,11 +329,24 @@ s.append(P("<b>Placebo control.</b> Applying the same detection criterion to <i>
 s.append(P("<b>Statistical robustness.</b> Two further checks harden the detector. <b>Overdispersion:</b> weekly "
            "formation counts are strongly super-Poisson (negative-binomial dispersion &alpha; = 3.75, method of "
            "moments on training weeks only), so a NB-variance variant was run: it is the high-precision "
-           "configuration (101 lifelines vs 401; 7/10 detected at median +0 weeks; chance rate 0.9/10, p &asymp; 0), "
+           "configuration (102 lifelines vs 401; 7/10 detected at median +0 weeks; chance rate 0.9/10, p &asymp; 0), "
            "with the Poisson-floor default as the high-recall configuration &mdash; the gold-list conclusion holds "
            "under both. <b>Window sensitivity:</b> every cell of a 3&times;3 grid (recent 2/4/8 weeks &times; "
            "baseline 13/26/52 weeks) detects 7&ndash;8/10 with placebo p &lt; 4&times;10<super>-4</super>; shorter "
            "windows detect slightly later, longer slightly earlier. Detection is not a window artifact."))
+s.append(P("<b>Lifeline-level precision audit (supervisor-requested).</b> The placebo establishes week-level "
+           "precision; a blind audit measures the discovery stream itself. Every EMERGING lifeline was packaged with "
+           "its members, birth month and provenance headlines (top articles with opening text; no detector scores) "
+           "and classified REAL / TEMPLATE / INCOHERENT by a locally hosted Qwen2.5-14B judge, validated by 11/11 "
+           "known controls and 93% binary agreement with a 14-pack human-labelled subset. Results: <b>lenient 37.9% "
+           "REAL</b> [Wilson 95% 32.5&ndash;43.7], strict 42.9%, NB 37.1% (with the <i>highest</i> template share, "
+           "44% &mdash; event-level specificity and stream purity are distinct properties), and a new "
+           "<b>template-filtered arm at 44.7%</b> [38.6&ndash;50.9]: removing template-fingerprinted <i>articles</i> "
+           "(25.1% of corpus) from the detector substrate keeps every real discovery (109 vs 107) and the full "
+           "gold-list result (8/10, &minus;1 wk, p = 5&times;10<super>-5</super>) while cutting template lifelines "
+           "from 86 to 54. Structural cohesion alone cannot certify quality &mdash; boilerplate binds <i>denser</i> "
+           "than real news &mdash; so the semantic (judged) layer is the primary instrument; post-hoc structural "
+           "filters saturate near 50% precision."))
 
 s.append(Paragraph("8.&nbsp;&nbsp;Limitations", H1))
 s.append(B("<b>Extractor cutoff.</b> Hindsight is excluded for link prediction (above) but causal-impact relations "

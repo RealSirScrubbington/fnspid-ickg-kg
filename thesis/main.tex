@@ -22,6 +22,12 @@
 \usepackage{booktabs}            % professional tables
 \usepackage{caption}
 \usepackage{subcaption}          % subfigures (modern replacement for subfigure)
+\usepackage{tikz}                % pipeline diagram (Fig. in Ch. 3)
+\usepackage{algorithm}           % walk-forward detector pseudocode (Ch. 4)
+\usepackage{algpseudocode}
+% Chapter microabstracts: indented on both margins (supervisor request).
+\newenvironment{microabstract}{\begin{quotation}\noindent}{\end{quotation}}
+\usetikzlibrary{arrows.meta,positioning}
 %\usepackage[backend=bibtex]{biblatex} % alternative bibliography backend
 
 \pagestyle{plain}
@@ -124,106 +130,111 @@ this has been indicated in the dissertation.
 \begin{abstract}
 \addcontentsline{toc}{chapter}{Abstract}
 % ===================== ABSTRACT (inlined) ============================
+This dissertation presents original research on the dynamics of a
+financial knowledge graph built from public news: how fast relationships between
+companies, sectors, countries and themes form (velocity), how that rate
+changes (acceleration), and whether that signal predicts what forms next.
 A knowledge graph represents entities and the relationships between them; a
 time-indexed knowledge graph additionally records when each relationship forms,
-making its dynamics measurable. This dissertation studies the dynamics of a
-financial knowledge graph built from public news: how fast relationships between
-companies, sectors, countries and themes form (\emph{velocity}), how that rate
-changes (\emph{acceleration}), and whether that signal predicts what forms next.
+making its dynamics measurable.
 The hypothesis is that the rate at which entities become connected leads which
 connections form, treated as a graph-native question under strict point-in-time
-integrity. The work comprises three experiments, which constitute its original
-research and are discussed in Section~1.3.
+integrity. 
 
-\textbf{Experiment 1: Building the Time-Indexed Knowledge Graph.} The substrate
-is constructed by running the open-source ICKG extractor (ICKG-v4.2, a LoRA
-adapter on Qwen-2.5-14B-Instruct distilled from GPT-4) over the FNSPID full-text
-news corpus, producing FinDKG-compatible quadruples (subject, relation, object,
-time) over twelve entity and fifteen relation types, with themes realised as
-CONCEPT and EVENT nodes and every edge timestamped by publication date. Two
-corpus scales are built (201{,}600 and 604{,}800 time-stratified articles; 0\%
-malformed output; $\sim$18.5 valid triples per article), and a syndication audit
-shows that 10--24\% of corpus articles are verbatim duplicates, motivating a
-deduplicated core of 21{,}216 entities and 212{,}294 edge-weeks that serves as
-the canonical graph.
+The work comprises three experiments:
 
-\textbf{Experiment 2: Velocity, Bursts, and Walk-Forward Theme Discovery.} This
-experiment --- the dissertation's central contribution --- defines and
-measures the rate and acceleration of new-edge
-formation per node, relation and theme (trailing-window, past-only
-Poisson-surprise normalisation), detects bursts with three independent detectors
-(Kleinberg's automaton, the CUSUM control chart, and Bayesian online
-changepoint detection), and clusters
-co-accelerating entities on their recent co-occurrence subgraph into
-\emph{themes}, tracked week-over-week into lifelines whose birth dates are the
-dates the system would have flagged each theme live. Against a frozen
-ten-event gold list the system detects 8/10 major 2020--2023 themes at a median
-lead of $-1$~week --- anticipatable themes early (the COVID market crisis
-$-3$~weeks, the vaccine race $-8$) and pure shock events at the news-flow floor
-($+1$) --- and a 100{,}000-draw placebo control shows that random event weeks
-would score $\sim$2/10 ($p \approx 10^{-4}$).
+\textbf{Experiment 1: Building the Time-Indexed Knowledge Graph.} The
+substrate is constructed by running an open-source LLM extractor over the
+FNSPID news corpus at two time-stratified scales, producing a
+FinDKG-compatible temporal knowledge graph; a syndication-duplication
+audit motivates the deduplicated core on which every headline analysis
+runs.
 
-\textbf{Experiment 3: Temporal Link Prediction under Point-in-Time Discipline.}
-The third experiment maps what is and is not forecastable at the
-individual-edge level. An RE-GCN-style temporal graph network is evaluated
-against the static embeddings ComplEx and DistMult, the classical Adamic--Adar
-and Common-Neighbours heuristics, a training-free recurrence baseline, and a
-ChronoBERT point-in-time-clean semantic baseline, by MRR and Hits@$k$ under a
-conservative raw-ranking protocol with a recurring/novel decomposition,
-bootstrap confidence intervals and seed replication. Recurring relationships
-are highly predictable while genuinely novel ones sit near a low ceiling for
-every method; the strongest system is a recurrence$\rightarrow$ChronoBERT
-backoff; the method ranking replicates across all three graph constructions;
-and the temporal network's advantage over static structure appears only as data
-density grows. This qualified null result for temporal structure is reported as
-a substantive finding, and a cutoff-controlled ChronoBERT comparison bounds
-extractor lookahead bias below measurement resolution ($<0.002$ MRR).
+\textbf{Experiment 2: Velocity, Bursts, and Walk-Forward Theme Discovery.}
+A walk-forward system is created that
+scores each entity's link-formation acceleration causally, clusters
+co-accelerating entities into themes, and tracks them into dated
+lifelines. Against a frozen ten-event gold list it detects 8/10 major
+2020--2023 themes at a median lead of $-1$~week (placebo expectation
+$\sim$2/10, $p \approx 10^{-4}$), and its discovery stream is audited
+for precision, template-filtered, and distilled into a lightweight
+judge.
 
-The contributions to science, discussed further in Section~1.4, are as follows.
+\textbf{Experiment 3: Temporal Link Prediction under Point-in-Time
+Discipline.} The third experiment maps what is and is not forecastable
+at the individual-edge level, benchmarking a temporal graph network
+against static, heuristic, recurrence and semantic baselines under a
+raw-ranking protocol. Edge-level forecasting proves bimodal: recurring
+relationships are highly predictable while novel ones sit near a low
+ceiling, and the detector's own velocity signal degrades forecasting
+when injected into the network, so velocity is a detection signal
+rather than a forecasting feature.
 
-\textbf{A built, leakage-controlled temporal knowledge graph} in
-FinDKG-compatible quadruple format, with themes as CONCEPT and EVENT nodes and a
+The dissertation makes four contributions:
+
+\textbf{1. Leakage-controlled temporal knowledge graph} in
+FinDKG-compatible format, with themes as CONCEPT and EVENT nodes and a
 reproducible point-in-time audit trail, where graph and feature leakage are
 prevented by design and extractor hindsight is measured rather than assumed away.
 
-\textbf{A validated walk-forward theme-discovery system}: a definition and
+\textbf{2. Validated walk-forward theme-discovery system}: a definition and
 measurement of link-formation velocity and acceleration on a temporal knowledge
-graph, a dual-detector burst account of emergence, and a causal
+graph, a three-detector burst account of emergence, and a causal
 theme-discovery system with data-driven noise controls, validated by lead time
-against a frozen gold list and by a placebo control.
+against a frozen gold list and by a placebo control, audited for
+lifeline-level precision by a validated language-model judge, refined by
+an audit-driven template-article filter at no cost to recall, and
+distilled into a deployable lightweight judge.
 
-\textbf{A decisive, replicated benchmark of edge-level predictability}:
+\textbf{3. Decisive, replicated benchmark of edge-level predictability}:
 establishing that, under point-in-time discipline, recurrence dominates,
 a temporal graph network improves on static structure only as data density
-grows, and a recurrence$\rightarrow$ChronoBERT backoff is the strongest system
---- with the method ranking replicated across three graph constructions and
-extractor lookahead bias bounded below measurement resolution.
+grows, and a recurrence$\rightarrow$ChronoBERT backoff is the strongest system,
+with the method ranking replicated across three graph constructions,
+extractor lookahead bias bounded below measurement resolution, and a
+velocity-feature ablation showing that the detection signal does not transfer
+to edge-level forecasting.
 
-\textbf{An open, reproducible methodology and dataset}: source code and the
-derived knowledge-graph dataset (triples and indices only; no article text is
-redistributed), released to enable replication and extension.
+\textbf{4. GitHub repository provides source code and methodology},
+together with the derived knowledge-graph dataset (triples and indices
+only; no article text is redistributed), released to enable replication.
 % =====================================================================
 \end{abstract}
 
 \chapter*{Impact Statement}
 \addcontentsline{toc}{chapter}{Impact Statement}
-The contributions to industry of this dissertation complement its contributions
-to science. The method produces a systematic, auditable signal for detecting
-emerging investment themes early, before they are widely reported: because every
-edge is timestamped by publication date and evaluated under strict point-in-time
-discipline, the signal is suitable for production use by quantitative asset
-managers, where it can complement existing factor models rather than replace
-them. Velocity and burst detection on a temporal financial
-knowledge graph extends naturally to risk and compliance applications such as
-early detection of contagion in counterparty networks, ESG-controversy
-monitoring, and sector-rotation or macro-regime timing. By building the graph
-from open data with an open-source extractor and releasing both the code and the
-derived knowledge-graph dataset (no source article text is redistributed), the
-work lowers the barrier for practitioners and
-regulators to reproduce and extend these capabilities, and demonstrates that
-open tooling under disciplined point-in-time evaluation can rival closed,
-vendor-supplied alternatives. Any direct investment application is treated as a
-downstream use of the method rather than its aim.
+\textbf{Experiment 1: Building the Time-Indexed Knowledge Graph.} By
+building the substrate from open
+data with an open-source extractor, and by releasing the code and the
+derived knowledge-graph dataset (no source article text is
+redistributed), the work lowers the barrier for practitioners and
+regulators to reproduce and extend these capabilities, and demonstrates
+that open tooling under disciplined point-in-time evaluation can rival
+closed, vendor-supplied alternatives.
+
+\textbf{Experiment 2: Velocity, Bursts, and Walk-Forward Theme Discovery.}
+The walk-forward detector
+produces a systematic, auditable signal for detecting emerging
+investment themes before they are widely reported: because every edge is
+timestamped by publication date and evaluated under strict point-in-time
+discipline, the signal is suitable for production use by quantitative
+asset managers, complementing existing factor models rather than
+replacing them. Velocity and burst detection on a temporal financial
+knowledge graph extend naturally to risk and compliance applications
+such as early detection of contagion in counterparty networks,
+ESG-controversy monitoring, and sector-rotation or macro-regime timing.
+
+\textbf{Experiment 3: Temporal Link Prediction under Point-in-Time
+Discipline.} The edge-level benchmark tells
+practitioners what such graphs can and cannot deliver: recurring
+relationships are predictable, genuinely novel ones are close to
+unforecastable, and burst signals belong in detection rather than in
+forecasting models. This calibration of expectations, together with the
+point-in-time evaluation discipline it rests on, transfers to any
+financial machine-learning pipeline built on news-derived data.
+
+Any direct investment application is treated throughout as a downstream
+use of the method rather than its aim.
 
 \tableofcontents
 \listoffigures
@@ -240,37 +251,39 @@ downstream use of the method rather than its aim.
 \chapter{Introduction}
 % Marking area 1 (Background, Aims & Organisation). Introduction written
 % in the structure of the Batrinca (2016) UCL thesis.
-This chapter introduces the research and its motivation, states the objectives,
-describes the three experiments that constitute the dissertation, lists the
-contributions to science, and finishes with the structure of the thesis.
+\begin{microabstract}
+This chapter introduces the research. It states the motivations and
+objectives, briefly describes the three experiments, lists the
+contributions to science and to industry, and finishes with the
+structure of the thesis.
+\end{microabstract}
 
 \section{Research Motivations}
 Investment themes reshape markets, but they are usually recognised only once
-they have been widely reported. By the time a theme such as generative AI,
-GLP-1 therapeutics or onshoring is named in commentary and research notes, the
-attention-based indicators that analysts watch: headline counts, search
-interest, and sentiment scores have already reacted, and much of the
+they have been widely reported. By the time a theme such as generative AI is named in commentary and research notes, the
+attention-based indicators that analysts watch (headline counts, search
+interest, sentiment scores) have already reacted, and much of the
 informational advantage has dissipated. The relationships among companies,
 sectors, countries and themes, however, begin to change before a theme is
 named: firms are linked to a new concept, concepts are linked to one another,
 and the density of those connections grows. If that structural change can be
-observed as it happens, the \emph{rate} at which relationships form may
-anticipate what attention-based indicators only confirm after the fact.
+observed as it happens, the rate at which relationships form may
+anticipate what attention-based indicators only confirm after an event occurs.
 
 Existing financial knowledge graphs are not well suited to answering this
 question. They are largely static or transductive, scoring whether a relation
 plausibly exists rather than when and how quickly relations form, and they
 rarely audit point-in-time correctness, which is the central threat to validity
-in any financial study. This dissertation therefore asks a single question:
-does the velocity of relationship formation, measured on a graph built under
-strict point-in-time discipline, carry information about which relationships
-form next?
+in any financial study. This dissertation therefore investigates whether
+the velocity of relationship formation, measured on a graph built under
+strict point-in-time discipline, carries information about which relationships
+form next.
 
 We measure and characterise the velocity signal by defining it, smoothing it
 without looking ahead, and detecting when it bursts; we then use that signal to
 discover emerging themes as they form, and separately benchmark how far
 individual future links can be predicted at all, against strong baselines and
-with honest evaluation.
+evaluate the results.
 
 \section{Research Objectives}
 \label{sec:objectives}
@@ -280,14 +293,14 @@ conditions strict enough that a positive result could be trusted. To this end a
 time-indexed knowledge graph is built from public financial news; the velocity
 and acceleration of edge formation are defined and measured; emerging themes are
 detected as bursts in that signal and validated against known episodes; and the
-predictive value of velocity is tested in a temporal link-prediction model
-evaluated against strong baselines.
+forecastability of individual future links is benchmarked against strong
+baselines.
 
 Point-in-time integrity is the central methodological commitment, and the work
 distinguishes two kinds of leakage. Graph and feature leakage are prevented by
 design: every edge is dated by the article's publication date rather than by the
-date of the event it describes, which is the single most important control, together
-with chronological train/validation/test splits, structural masking (at time
+date of the event it describes, which is the single most important control.
+Alongside it stand chronological train/validation/test splits, structural masking (at time
 $t$ the model observes only edges with timestamp $\leq t$), rolling causal
 normalisation, a conservative raw-ranking evaluation, within-week
 update-after-scoring ordering, and validation-only hyperparameter and threshold
@@ -316,39 +329,67 @@ open-source ICKG extractor (ICKG-v4.2, a LoRA adapter on Qwen-2.5-14B-Instruct
 distilled from GPT-4) is run over the FNSPID full-text news corpus to produce
 FinDKG-compatible quadruples (subject, relation, object, time) over twelve entity
 and fifteen relation types, with themes realised as CONCEPT and EVENT nodes and
-every edge timestamped by publication date. The graph is built at two corpus
+every edge timestamped by publication date. Extraction is clean at scale
+(0\% malformed output; $\sim$18.5 valid triples per article). The graph
+is built at two corpus
 scales (201{,}600 and 604{,}800 time-stratified articles), and a data-hygiene
 audit shows that 10--24\% of corpus articles are verbatim syndication
-duplicates whose removal halves the denoised core; the deduplicated core is
-adopted as the canonical graph and the smaller corpus retained as a replication
-sample. This experiment is deliberately scoped as bounded infrastructure for
-the studies that follow.
+duplicates whose removal halves the denoised core; the deduplicated core
+(21{,}216 entities, 212{,}294 edge-weeks) is adopted as the canonical
+graph and the smaller corpus retained as a replication
+sample.
 
 \item \textbf{Edge-Formation Velocity, Burst Detection, and Walk-Forward Theme
-Discovery.} The second experiment contains the dissertation's central
-contribution. It formally defines and
-measures the rate and acceleration of new-edge formation per node, relation and
+Discovery.} The second experiment formally defines and
+measures the rate and acceleration of new-edge formation per node, relation, and
 theme using trailing-window, past-only Poisson-surprise normalisation; it
 detects bursts with three independent detectors (Kleinberg's automaton, the
 CUSUM control chart, and Bayesian online changepoint detection) so that
-detected episodes are not an artifact of one algorithm; and it clusters co-accelerating entities on their recent
+detected episodes are not an artefact of one algorithm; and it clusters co-accelerating entities on their recent
 co-occurrence subgraph into themes, tracked week-over-week into lifelines whose
 birth week is the date the system would have flagged the theme live. Two
 data-driven noise controls (template-article fingerprinting and a habituation
 score separating emerging themes from recurring rituals) require no hand
 curation. Detections are validated against a frozen ten-event gold list with
 event-anchored birth windows, and specificity is established with a
-100{,}000-draw placebo control.
+100{,}000-draw placebo control: the system detects 8/10 major 2020--2023
+themes at a median lead of $-1$~week against a placebo expectation of
+$\sim$2/10 ($p \approx 10^{-4}$), with anticipatable themes coming early
+(the COVID market crisis $-3$~weeks, the vaccine race $-8$) while pure
+shocks sit at the news-flow floor ($+1$). A lifeline-level precision audit, judged
+blind against source articles by a validated locally hosted language model,
+measures the share of genuine storylines in the full discovery stream across
+four configurations, putting the high-recall stream's precision at
+37.9\% and raising it to 44.7\% under an audit-driven template filter
+with the gold-list result unchanged. The
+audit's labels are then reused twice, as a fine-tuned lightweight judge
+that passes the same validation gate as its teacher, and as stream
+filters whose recall cost the gold-list machinery prices directly.
 
 \item \textbf{Temporal Link Prediction under Point-in-Time Discipline.} The
 third experiment maps what is and is not forecastable at the individual-edge
 level, contextualising the theme system. An RE-GCN-style temporal graph network
-is evaluated against ComplEx and DistMult static embeddings, Common-Neighbours
+is evaluated against the ComplEx static embedding, Common-Neighbours
 and Adamic--Adar heuristics, a training-free recurrence baseline and a
 ChronoBERT semantic baseline, using MRR and Hits@$k$ under a conservative
 raw-ranking protocol with a recurring/novel decomposition, bootstrap confidence
 intervals and seed replication; the same benchmark is run on all three graph
-constructions to test replication. A null result is itself a valid finding.
+constructions to test replication. Recurring relationships prove highly
+predictable while genuinely novel ones sit near a low ceiling for every
+method; the strongest system is a recurrence$\rightarrow$ChronoBERT
+backoff; the temporal network's advantage over static structure appears
+only as data density grows, a qualified null reported as a substantive
+finding; and a cutoff-controlled comparison bounds extractor lookahead
+bias below measurement resolution ($<0.002$ MRR). A velocity-feature
+ablation then injects
+the detector's burst statistics into the temporal network, testing whether
+the discovery signal doubles as a forecasting feature; a complementary
+retraining on the template-filtered graph tests whether extraction-layer
+cleaning propagates to forecasting. The ablation significantly degrades
+forecasting on every subset, and the retraining shows per-edge skill
+barely moving while the aggregate benchmark falls: velocity is a
+detection signal rather than a forecasting feature, and template noise
+inflates apparent forecastability.
 \end{enumerate}
 
 \section{Contributions to Science}
@@ -367,51 +408,84 @@ bias affecting any per-ticker news corpus.
 
 \item \textbf{A validated walk-forward theme-discovery system.} A definition
 and measurement of link-formation velocity and acceleration on a temporal
-knowledge graph; a dual-detector burst account of emergence; and a causal
+knowledge graph; a three-detector burst account of emergence; and a causal
 theme-discovery system (acceleration $\rightarrow$ community clustering
 $\rightarrow$ tracked lifelines, with data-driven noise controls) validated by
 lead time against a frozen gold list of ten documented episodes and by a
-placebo control --- with the finding that lead time reflects the information
-structure of the event: anticipatable themes are detected weeks early, shock
-events at the news-flow floor.
+placebo control. The finding is that lead time reflects the information
+structure of the event: anticipatable themes are detected weeks early and
+shock events sit at the news-flow floor. The discovery stream is further
+audited at the lifeline level by a blind, control-validated language-model
+judge anchored to hand-labelled subsets, and an audit-driven configuration
+that filters template articles from the substrate raises stream precision
+from 37.9\% to 44.7\% with the gold-list result unchanged. The audit is
+made operational by a distilled judge and by label-driven filters whose
+recall cost is measured on the same frozen gold list.
 
 \item \textbf{A decisive, replicated benchmark of edge-level predictability.}
 Establishing that, under point-in-time discipline, recurrence dominates what is
 predictable, genuinely novel edges sit near a low ceiling for every method, a
 temporal graph network improves on static structure only as data density grows,
-and a recurrence$\rightarrow$ChronoBERT backoff is the strongest system ---
-with the method ranking replicated across three graph constructions, and
-extractor lookahead bias bounded below measurement resolution by a
-cutoff-controlled comparison.
+and a recurrence$\rightarrow$ChronoBERT backoff is the strongest system;
+the method ranking replicates across three graph constructions, and
+extractor lookahead bias is bounded below measurement resolution by a
+cutoff-controlled comparison. A velocity-feature ablation shows that the
+detection signal significantly degrades edge-level forecasting when injected
+into the temporal network: velocity is a detection signal, not a forecasting
+feature. A substrate-level retraining shows, by paired comparison on
+shared test queries, that template noise inflates apparent
+forecastability without changing per-edge skill.
 
-\item \textbf{An open, reproducible methodology and dataset.} Source code and
-the derived knowledge-graph dataset (no source article text), released to
-enable replication and extension.
+\item \textbf{A GitHub repository provides source code and methodology.}
+The repository releases the source code and the derived knowledge-graph
+dataset (no source article text), enabling replication and extension.
 \end{enumerate}
+
+In industry terms, the same three experiments contribute an open,
+reproducible graph substrate; an auditable early theme signal with risk
+and compliance extensions; and a calibration of what edge-level
+prediction can and cannot deliver. The Impact Statement states these
+contributions per experiment.
 
 \section{Thesis Structure}
 \label{sec:structure}
-Chapter~\ref{ch:background} reviews the relevant literature on financial
-knowledge graphs, large-language-model relation extraction, temporal-graph
-representation learning, time encoding, burst and change-point detection, and
-point-in-time evaluation. Chapter~\ref{ch:exp1} presents Experiment~1, the
-construction of the time-indexed knowledge graph, including the extraction
-trial. Chapter~\ref{ch:exp2} presents Experiment~2, the definition and
-validation of edge-formation velocity, burst detection, and the walk-forward
-theme-discovery system. Chapter~\ref{ch:exp3} presents Experiment~3, the
-temporal link-prediction benchmark and its replication across graph
-constructions. Chapter~\ref{ch:pit} gathers
-the point-in-time integrity framework that governs all three experiments.
-Chapter~\ref{ch:conclusions} discusses the findings, their limitations and
-threats to validity, and directions for future work.
+\textbf{Chapter~\ref{ch:background} (Background and Literature Review)}
+reviews the six strands the work draws on: financial knowledge graphs
+and their construction with large language models, knowledge-graph
+embeddings, temporal knowledge-graph forecasting, classical
+link-prediction heuristics, burst and change-point detection, and
+point-in-time integrity.
+
+\textbf{Chapter~\ref{ch:exp1} (Experiment 1)} presents the construction
+of the time-indexed knowledge graph: the corpus and its subsetting, the
+extraction, edge construction, the syndication-duplication audit, the
+chronological splits, and the noise controls.
+
+\textbf{Chapter~\ref{ch:exp2} (Experiment 2)} presents the walk-forward
+theme-discovery system: velocity and surprise scoring, burst detection,
+clustering into tracked lifelines, validation against the frozen gold
+list with a placebo control, and the lifeline-level precision audit
+with its filters and distilled judge.
+
+\textbf{Chapter~\ref{ch:exp3} (Experiment 3)} presents the temporal
+link-prediction benchmark, its replication across the three graph
+constructions, the velocity-feature ablation, the error anatomy, and
+the retraining on the template-filtered substrate.
+
+\textbf{Chapter~\ref{ch:conclusions} (Discussion and Conclusions)}
+gathers the point-in-time framework that governs all three experiments
+(leakage prevented by design, extractor hindsight measured by four
+checks), summarises the findings, weighs strengths against weaknesses,
+states the limitations and threats to validity, and sets out future
+work.
 
 % =====================================================================
 \chapter{Background and Literature Review}
 \label{ch:background}
 % Marking area 1: literature context + extra-curricular reading.
-This chapter situates the dissertation within the prior work on which it draws.
-The research sits at the intersection of several literatures, and this review
-organises them into six strands: the construction of financial knowledge graphs
+\begin{microabstract}
+This chapter discusses the background literature and work on which the dissertation draws. This review is
+organised into six strands: the construction of financial knowledge graphs
 with large language models, which supplies the substrate; the static
 knowledge-graph embeddings that serve as link-prediction baselines; the temporal
 knowledge-graph forecasting models, together with the recent recurrence-baseline
@@ -421,20 +495,55 @@ change-points in event streams, which underpins the emergence analysis; and the
 point-in-time integrity and lookahead-bias considerations that govern any
 financial study built on a pretrained language model. Each strand is reviewed in
 turn and related to the experiments that follow.
+\end{microabstract}
 
 \section{Financial Knowledge Graphs and LLM-Based Construction}
-A knowledge graph encodes entities and the typed relationships between them. A
-temporal, or dynamic, knowledge graph additionally records the time at which each
-relationship holds, so that the graph can be reconstructed at any past instant
-and its evolution studied over time. This temporal property is central to the
-present work, since the dissertation is concerned not with whether a relationship
-exists but with how quickly relationships form.
+A knowledge graph encodes entities and the typed relationships between them.
+Formally, a knowledge graph is a triple $G = (\mathcal{E}, \mathcal{R},
+\mathcal{F})$, where $\mathcal{E}$ is the entity set, $\mathcal{R}$ the
+relation set, and $\mathcal{F} \subseteq \mathcal{E} \times \mathcal{R}
+\times \mathcal{E}$ a set of facts $(s, r, o)$ read as subject, relation,
+object. A temporal, or dynamic, knowledge graph additionally records the
+time at which each relationship holds: facts become quadruples
+$(s, r, o, t)$, and the graph observable at time $t$ is
+\begin{equation}
+G_t = (\mathcal{E}, \mathcal{R}, \mathcal{F}_t), \qquad
+\mathcal{F}_t = \{ (s_i, r_i, o_i, t_i) : t_i < t \},
+\label{eq:dkg}
+\end{equation}
+so that the graph can be reconstructed at any past instant and its
+evolution studied over time. Every point-in-time constraint is a statement about Equation~\ref{eq:dkg}: a quantity
+computed at week $t$ may depend on $\mathcal{F}_t$ only. This temporal
+property is central because we are not concerned with whether a relationship
+exists but with how quickly relationships form. Figure~\ref{fig:kgexample} shows a
+fragment of such a graph in the ontology used throughout this work.
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[
+  ent/.style={rectangle, draw, rounded corners, align=center,
+    font=\small, inner sep=5pt},
+  rel/.style={font=\scriptsize, midway, fill=white, inner sep=1.5pt}]
+\node[ent] (openai) at (0, 0) {OpenAI\\ \scriptsize COMP};
+\node[ent] (chatgpt) at (5.6, 0) {ChatGPT\\ \scriptsize PRODUCT};
+\node[ent] (msft) at (0, -2.2) {Microsoft\\ \scriptsize COMP};
+\node[ent] (ai) at (5.6, -2.2) {Artificial Intelligence\\ \scriptsize CONCEPT};
+\draw[->] (openai) -- node[rel] {Introduce, $t_1$} (chatgpt);
+\draw[->] (msft) -- node[rel] {Invests\_In, $t_2$} (openai);
+\draw[->] (chatgpt) -- node[rel] {Relate\_To, $t_3$} (ai);
+\end{tikzpicture}
+\caption{A fragment of a temporal financial knowledge graph in the
+ontology used here: typed entities connected by typed, dated relations.
+Each edge is one quadruple $(s, r, o, t)$ of
+Equation~\ref{eq:dkg}.}
+\label{fig:kgexample}
+\end{figure}
 
 The most directly relevant system in the financial domain is FinDKG, introduced
 by \citet{Li2024FinDKG}. FinDKG defines a fixed ontology of twelve entity types
 and fifteen relation types, together with a standard temporal knowledge-graph
 file format comprising entity and relation index files, a time index, and
-chronologically split lists of quadruples. Crucially for this dissertation, the
+chronologically split lists of quadruples. The
 authors also release the Integrated Contextual Knowledge Graph (ICKG) relation
 extractor, an open large-language-model extractor fine-tuned for the task of
 knowledge-graph construction. This research adopts the FinDKG ontology and
@@ -443,8 +552,30 @@ consuming the released FinDKG graph, so that the choice of corpus, the time
 resolution, and the point-in-time discipline all remain under the author's
 control.
 
-Building the graph by extraction rather than consuming a pre-built one makes the
-dissertation a consumer of several lines of recent language-model research. The
+ICKG is produced by
+knowledge distillation: a small set of open financial news articles
+(5{,}000 in the published pipeline) is labelled by GPT-4 under an
+ontology-constrained extraction prompt, quality-filtered, and used to
+fine-tune an open base model \citep{Li2024FinDKG}. The paper documents
+version 3.2 on a Mistral-7B base; the later v4.2 release employed here
+is the same extractor line rebuilt on the larger instruction-tuned
+Qwen-2.5 base. Distillation from a frontier model is what makes the
+extractor open and locally hostable, but it also means the extractor
+inherits GPT-4's knowledge of events, and that residual hindsight
+channel is measured directly in Section~\ref{ch:pit} rather than assumed
+away.
+The FinDKG authors analyse
+their graph with an attention-based temporal network, KGTransformer,
+which injects entity-type information into the attention mechanism, and
+they detect trends by tracking the graph centrality of a named
+entity through rolling snapshot graphs, demonstrated on COVID-19 and on
+an AI-themed portfolio. The theme layer of Chapter~\ref{ch:exp2} asks
+the converse question: surfacing emerging themes without naming
+them in advance, as groups of co-accelerating entities, under
+walk-forward discipline and with lead-time validation against a frozen
+event list and a placebo control rather than descriptive inspection.
+
+The
 ICKG release employed here is a Low-Rank Adaptation (LoRA) adapter, in the sense
 of \citet{Hu2022LoRA}, applied to the instruction-tuned Qwen-2.5 model
 \citep{Qwen2024}. LoRA fine-tunes a small set of injected low-rank matrices while
@@ -452,7 +583,7 @@ freezing the base weights, which makes a fixed and fully documented extractor
 practical to host locally. A local, fixed extractor is preferred to a frontier
 model accessed through a commercial application-programming interface (API)
 precisely because its knowledge cutoff is controllable and documented, a property
-that matters for the point-in-time argument developed in Chapter~\ref{ch:pit}.
+that matters for the point-in-time argument developed in Section~\ref{ch:pit}.
 High-throughput extraction over the corpus relies on vLLM \citep{Kwon2023vLLM},
 whose PagedAttention memory manager enables efficient batched generation on the
 available hardware. The corpus itself is FNSPID \citep{Dong2024FNSPID}, which
@@ -461,25 +592,46 @@ series for the S\&P~500 universe over the period 1999 to 2023; of these, the
 present work uses only the full-text news component.
 
 \section{Knowledge-Graph Embeddings and Link-Prediction Baselines}
-Predicting which links a knowledge graph will contain is known as the
-link-prediction problem, and the strongest non-temporal baselines for it
+\label{sec:kgembed}
+The strongest non-temporal baselines for predicting which links a knowledge graph will contain
 originate in the static knowledge-graph-embedding literature. The translational
 model TransE, proposed by \citet{Bordes2013TransE}, represents a relation as a
-translation between the vector embeddings of its subject and object entities. As
-important for the present work as the model itself is the evaluation protocol
+translation between the vector embeddings of its subject and object entities,
+scoring a candidate triple by
+\begin{equation}
+\phi_{\mathrm{TransE}}(s, r, o) = -\lVert \mathbf{e}_s + \mathbf{w}_r -
+\mathbf{e}_o \rVert,
+\label{eq:transe}
+\end{equation}
+so that a true triple's object embedding lies close to its subject's
+embedding translated by the relation vector. Every embedding model in
+this dissertation shares the template this established: a scoring
+function over candidate triples, trained so that observed triples
+outscore corrupted ones, with prediction by ranking every candidate
+entity under the score. As
+important as the model itself is the evaluation protocol
 that accompanied it: the filtered entity-ranking procedure, reported through Mean
 Reciprocal Rank (MRR) and Hits@$k$ over corrupted candidate entities, which has
 since become the standard means of assessing link prediction and is adopted
-throughout this dissertation --- in its conservative \emph{raw} (unfiltered)
+throughout in its unfiltered
 form, so that no evaluation-time knowledge of other true future facts enters a
 prediction; this deflates absolute scores relative to the filtered convention
 and is the stricter choice under point-in-time discipline. Two later models refine the scoring function.
 DistMult \citep{Yang2015DistMult} scores a triple with a bilinear diagonal form,
 and ComplEx \citep{Trouillon2016ComplEx} extends this idea to complex-valued
 embeddings, whose Hermitian product is able to represent both symmetric and
-antisymmetric relations. Because these models score the structural plausibility
+antisymmetric relations. Their scoring functions are
+\begin{equation}
+\phi_{\mathrm{DistMult}}(s, r, o) = \langle \mathbf{e}_s, \mathbf{w}_r,
+\mathbf{e}_o \rangle, \qquad
+\phi_{\mathrm{ComplEx}}(s, r, o) = \operatorname{Re} \langle \mathbf{e}_s,
+\mathbf{w}_r, \overline{\mathbf{e}_o} \rangle,
+\label{eq:scoring}
+\end{equation}
+with real embeddings in the first case and complex in the second; the
+conjugation is what lets ComplEx represent asymmetric relations. Because these models score the structural plausibility
 of a triple independently of whether it has recurred in the past, they are
-informative baselines on genuinely novel edges, and it is in exactly this role
+informative baselines on novel edges, and it is in this role
 that they are used in Experiment~3.
 
 \section{Temporal Knowledge Graph Forecasting}
@@ -492,19 +644,33 @@ the preceding ones. RE-GCN, due to \citet{Li2021REGCN}, learns time-evolving
 representations of entities and relations by passing each snapshot of the graph
 through a relational graph convolutional network and folding the result into a
 recurrent state, with a decoder that scores candidate future edges. The temporal
-graph neural network implemented in this dissertation follows the RE-GCN design.
+graph neural network implemented here follows the RE-GCN design.
+The FinDKG authors' KGTransformer belongs to the same evolution-based
+family, adding entity-type information to the attention mechanism
+\citep{Li2024FinDKG}; the benchmark of Experiment~3 instead pairs the
+widely replicated RE-GCN design with the recurrence critique below,
+because the question asked there is whether temporal structure helps at
+all under point-in-time discipline, not which temporal architecture is
+strongest.
 
 A recent and directly relevant critique tempers expectations of these models.
 \citet{Gastinger2024Recurrence} show that a simple, training-free recurrence
 baseline, which scores a candidate fact according to how often that exact fact
-has occurred in the past, rivals or outperforms many neural temporal
+has occurred in the past,
+\begin{equation}
+\mathrm{rec}(s, r, o, t) = \bigl| \{ t' < t : (s, r, o, t') \in
+\mathcal{F} \} \bigr|,
+\label{eq:recurrence}
+\end{equation}
+rivals or outperforms many neural temporal
 knowledge-graph forecasters, and they argue that part of the apparent progress in
 the field is an artefact of comparison against weak baselines. This finding
-directly motivates the careful baselining adopted in Experiment~3, in which the
-recurrence baseline is treated not as a foil but as a first-class competitor. It
-also anticipates one of the dissertation's own results, namely that the temporal
-graph neural network adds little forecasting advantage over static structure on
-edges that are genuinely new.
+directly motivates the baselining adopted in Experiment~3, in which the
+recurrence baseline is treated as a competitor rather than a
+formality. It
+also anticipates that the temporal
+graph neural network adds little forecasting advantage over static
+structure on novel edges.
 
 \section{Classical Link-Prediction Heuristics}
 Before the embedding and neural methods described above, link prediction was
@@ -514,11 +680,17 @@ which links would later appear in a network, the simplest of which counts the
 neighbours that two nodes already share. The index of \citet{AdamicAdar2003}
 refines this count by summing over the shared neighbours of a candidate pair,
 weighting each by the inverse logarithm of its degree so that rarer common
-neighbours count for more. These heuristics encode assumptions of triadic closure
+neighbours count for more. For a candidate pair $(x, y)$ with
+neighbourhoods $N(\cdot)$,
+\begin{equation}
+\mathrm{CN}(x, y) = |N(x) \cap N(y)|, \qquad
+\mathrm{AA}(x, y) = \sum_{z \in N(x) \cap N(y)} \frac{1}{\log |N(z)|}.
+\label{eq:heuristics}
+\end{equation} These heuristics encode assumptions of triadic closure
 and homophily that hold well in social graphs. Whether the same assumptions
 transfer to a financial co-mention graph is an empirical question rather than a
 settled one, and a negative answer would itself be informative; for this reason
-the Common Neighbours and Adamic-Adar heuristics are retained as baselines in
+the Common Neighbours and Adamic--Adar heuristics are retained as baselines in
 Experiment~3.
 
 \section{Burst and Event Detection in Streams}
@@ -529,14 +701,24 @@ automaton whose states correspond to different rates of arrival. In its simplest
 two-state form, the optimal state sequence is recovered by trading the improved
 likelihood of attributing a stretch of high activity to an elevated-rate state
 against a cost incurred each time the automaton switches into that state, so that
-only sustained runs of high activity are reported as bursts. The two-state model
+only sustained runs of high activity are reported as bursts. Formally
+the stream's weekly counts $c_t$ are modelled as
+\begin{equation}
+c_t \sim \mathrm{Poisson}(\lambda_{q_t}), \qquad \lambda_0 = N/T, \quad
+\lambda_1 = s \lambda_0,
+\label{eq:burstmodel}
+\end{equation}
+with $q_t$ the automaton's state at week $t$, $N/T$ the mean arrival
+rate over the span, and $s > 1$ the elevated-rate multiplier: a burst is
+a maximum-likelihood attribution of a stretch of counts to the elevated
+state, priced against the cost of entering it. The two-state model
 tends to merge distinct but adjacent episodes into a single long burst, a
 limitation that the hierarchical variant addresses by separating them according
 to intensity.
 
-Kleinberg's automaton is not the only lens on the problem. A complementary and
-much older tradition treats the same question as \emph{sequential change
-detection}: the cumulative-sum (CUSUM) control chart of \citet{Page1954CUSUM}
+Kleinberg's automaton is one of several treatments of the problem. A complementary and
+much older tradition treats the same question as sequential change
+detection: the cumulative-sum (CUSUM) control chart of \citet{Page1954CUSUM}
 accumulates standardised deviations from a baseline rate and raises an alarm
 when the cumulative excess crosses a decision interval, so that it responds to
 sustained shifts in level rather than to discrete spikes. A third treatment is fully Bayesian:
@@ -544,22 +726,22 @@ the Bayesian online changepoint detection of \citet{AdamsMacKay2007BOCD}
 maintains an exact online posterior over the time since the last changepoint
 (here with a conjugate Gamma--Poisson model; changepoints are back-dated to
 the inferred onset).
-This dissertation runs all three detectors over the edge-formation series, so
-that detected episodes are demonstrably not an artifact of a single algorithm:
+We run all three detectors over the edge-formation series, so
+that detected episodes are demonstrably not an artefact of a single algorithm:
 empirically they agree on where activity is elevated while segmenting it at
 different granularities (Kleinberg isolating discrete events, CUSUM and BOCD
 sustained regimes). Since interval widths differ, recall is judged against
-each detector's own chance level (its dilated flagged-week coverage --- the
-recall it would achieve on random event weeks): on the gold events recall runs
+each detector's own chance level (its dilated flagged-week coverage, that is,
+the recall it would achieve on random event weeks): on the gold events recall runs
 78--94\% against chance of 16--29\% (an excess of +59 to +66 points), with a
 three-detector union of 18/18.
 
 Detecting that individual entities accelerate is, however, not yet theme
-discovery: an emerging theme is a \emph{group} of related entities accelerating
-together. For this step the dissertation clusters co-accelerating entities on
+discovery: an emerging theme is a group of related entities accelerating
+together. For this step, we cluster co-accelerating entities on
 their recent co-occurrence subgraph using the Louvain community-detection
 algorithm of \citet{Blondel2008Louvain}, a fast greedy optimiser of modularity,
-and tracks the resulting communities week over week into theme lifelines ---
+and track the resulting communities week over week into theme lifelines,
 a construction in the spirit of the dynamic-community-tracking literature.
 The resulting event catalogue and theme lifelines are validated against an
 independently compiled list of known episodes.
@@ -570,27 +752,42 @@ trained on data from after the prediction date is lookahead bias, that is, the
 leakage of future information into a prediction that is supposed to depend only on
 the past. The risk is acute here because the extractor used to build the graph is
 a pretrained language model whose knowledge cutoff postdates much of the corpus,
-so the resulting hindsight must be measured rather than simply assumed away. The
+so the resulting hindsight must be measured rather than assumed away. The
 most applicable work is that of \citet{He2025Chrono}, who train chronologically
 consistent language models, including ChronoBERT, exclusively on text available
 up to a stated date, so that such models are free of lookahead bias by
 construction. Comparing two versions of the same model that differ only in their
 training cutoff yields a capacity-controlled estimate of the bias, which the
-authors report to be modest. These models descend architecturally from BERT
+authors report to be modest. The estimand is
+\begin{equation}
+\Delta_{\mathrm{lookahead}} = M\bigl(f_{c_2}\bigr) - M\bigl(f_{c_1}\bigr),
+\qquad c_1 < c_2,
+\label{eq:lookaheadgap}
+\end{equation}
+where $f_c$ is the same architecture trained only on text available up
+to cutoff $c$ and $M$ evaluates both models on identical queries: any
+systematic advantage of the later cutoff on events predating $c_1$ is
+attributable to knowledge of the future. Direct measurements in financial
+applications are consistent with this picture: \citet{GlassermanLin2023} compare
+GPT-based sentiment strategies on original against anonymised headlines
+and find that, while look-ahead bias is detectable within the model's
+training window, it is dominated by a distraction effect and is not a
+concern out of sample; Section~\ref{ch:pit} measures the same channel
+for entity-level extraction with a cutoff-controlled instrument. These models descend architecturally from BERT
 \citep{Devlin2019BERT}, the bidirectional transformer encoder. Two alternatives
-sometimes suggested for time-aware financial language modelling are worth
-distinguishing here. FinBERT \citep{Araci2019FinBERT}, a sentiment-oriented
+sometimes suggested for time-aware financial language modelling are
+distinguished here. FinBERT \citep{Araci2019FinBERT}, a sentiment-oriented
 BERT fine-tune, applies no chronological control to its training text and is
 therefore itself exposed to the lookahead risk under study, which is why the
-chronologically consistent family is preferred in this dissertation. And the
-sinusoidal positional encodings of the Transformer \citep{Vaswani2017Attention}
+chronologically consistent family is preferred here.
+Similarly, the sinusoidal positional encodings of the Transformer \citep{Vaswani2017Attention}
 encode token position within a sequence rather than calendar-time information
 availability; point-in-time correctness is accordingly enforced here at the
 data and evaluation-protocol level, where it is verifiable, rather than inside
 the encoder. Experiment~3 uses
 ChronoBERT entity embeddings in two ways: as a point-in-time-clean semantic
 baseline in its own right, and, through the cutoff-controlled comparison, as the
-instrument for the lookahead-bias diagnostic developed in Chapter~\ref{ch:pit}.
+instrument for the lookahead-bias diagnostic developed in Section~\ref{ch:pit}.
 Throughout the dissertation, uncertainty in the reported metrics is quantified
 using the bootstrap \citep{Efron1979Bootstrap}, which resamples the test
 instances with replacement in order to estimate the sampling distribution of a
@@ -600,6 +797,15 @@ statistic without recourse to parametric assumptions.
 \chapter{Experiment 1: Building the Time-Indexed Knowledge Graph}
 \label{ch:exp1}
 % Marking area 2: the build is a substantial, bounded software deliverable.
+\begin{microabstract}
+This chapter presents Experiment 1. It describes the FNSPID corpus and
+its time-stratified subsetting, the extraction with ICKG-v4.2, edge
+construction and timestamping, the compute profile, the
+syndication-duplication audit that motivates the canonical deduplicated
+core, the chronological splits, and the noise controls, and closes with
+results and discussion.
+\end{microabstract}
+
 \section{Introduction}
 This experiment builds the substrate on which the rest of the dissertation
 stands: a time-indexed financial knowledge graph in which every edge can be
@@ -609,6 +815,31 @@ prioritised over modelling sophistication, because any flaw introduced here is
 inherited by every result in Chapters~\ref{ch:exp2} and \ref{ch:exp3}. The
 experiment delivers three versioned graph constructions, a data-hygiene audit
 of the source corpus, and the fixed chronological splits used throughout.
+Figure~\ref{fig:pipeline} gives the overview.
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[node distance=3mm and 4mm,
+  box/.style={draw, rounded corners=1pt, align=center, font=\scriptsize,
+              inner sep=3pt, minimum height=7mm},
+  arr/.style={-{Latex[length=1.6mm]}, thick}]
+\node[box] (corpus) {FNSPID corpus\\ 15.7M articles};
+\node[box, right=of corpus] (subset) {time-stratified\\ subsets (200k / 600k)};
+\node[box, right=of subset] (ickg) {ICKG-v4.2\\ extraction (vLLM)};
+\node[box, right=of ickg] (kg) {weekly quadruple KG\\ + dedup audit};
+\node[box, below left=6mm and -16mm of kg] (bench) {link-prediction\\ benchmark (Ch.~5)};
+\node[box, below right=6mm and -16mm of kg] (themes) {theme discovery\\ (Ch.~4)};
+\draw[arr] (corpus) -- (subset);
+\draw[arr] (subset) -- (ickg);
+\draw[arr] (ickg) -- (kg);
+\draw[arr] (kg) -- (bench);
+\draw[arr] (kg) -- (themes);
+\end{tikzpicture}
+\caption{Pipeline overview. Every edge is timestamped by publication date and
+the chronological splits are fixed before any model sees the data
+(Section~\ref{ch:pit}).}
+\label{fig:pipeline}
+\end{figure}
 
 \section{Data: the FNSPID Corpus}
 FNSPID \citep{Dong2024FNSPID} aligns roughly 15.7 million timestamped
@@ -619,7 +850,7 @@ generative-AI surge together with a multi-year pre-episode baseline.
 
 Raw article counts in FNSPID are strongly skewed towards recent years, so a
 graph built from a uniform random sample would confound structural change with
-sampling density. Subsets are therefore \emph{time-stratified}: a single
+sampling density. Subsets are therefore time-stratified: a single
 streaming pass over the corpus performs per-month reservoir sampling
 \citep{Vitter1985Reservoir} with a fixed seed, keeping only articles whose
 bodies exceed 200 words. Two scales are drawn: 2{,}400 articles per month
@@ -630,22 +861,26 @@ structure rather than changes in corpus volume.
 \section{Extraction with ICKG-v4.2}
 Each article is passed to ICKG-v4.2, the FinDKG relation extractor
 \citep{Li2024FinDKG}, hosted locally via vLLM \citep{Kwon2023vLLM} with greedy
-decoding and the verbatim FinDKG prompt. The extractor returns typed triples
+decoding and the verbatim FinDKG prompt. The extractor arrives
+distilled: its instruction data were generated by GPT-4 over a small
+article set and quality-filtered before fine-tuning
+(Chapter~\ref{ch:background}), which is why extractor hindsight is
+treated in Section~\ref{ch:pit} as a channel to be measured. The extractor returns typed triples
 over the fixed ontology of twelve entity types and fifteen relation types,
 with themes realised as CONCEPT and EVENT nodes.
 
-A practical finding worth recording: the model emits triples in two formats
-interchangeably --- JSON arrays of arrays ($\approx$65\% of articles) and
-Python-style parenthesised tuples ($\approx$35\%) --- and a parser tolerant of
+A practical engineering finding: the model emits triples in two formats
+interchangeably, JSON arrays of arrays ($\approx$65\% of articles) and
+Python-style parenthesised tuples ($\approx$35\%), and a parser tolerant of
 both (plus a filter for purely numeric ``entities'') raised the usable-output
 rate in the pilot from 35\% to over 99\%. The full runs achieved 0\% malformed
 generations at both scales, $\sim$18.5 valid triples per article, and 11.5
 million raw triples at the larger scale. A precision spot-check found both
-entities of a triple verbatim in the source text for 83\% of a sampled set ---
+entities of a triple verbatim in the source text for 83\% of a sampled set,
 a lower bound, since the extractor frequently simplifies surface forms.
 
 \section{Edge Construction and Publication-Date Timestamping}
-Every edge is timestamped by the article's \emph{publication date}, never by
+Every edge is timestamped by the article's publication date, never by
 the date of any event the text describes; this is the single most important
 leakage control in the pipeline. Triples are aggregated into FinDKG-format
 quadruples with weekly time-bucketing, where the weight of an edge-week is the
@@ -658,8 +893,8 @@ Extraction ran on a UCL cluster node with two RTX Pro 6000 GPUs, one vLLM
 instance per GPU over interleaved article shards, taking $\sim$14\,h for the
 200k corpus and $\sim$43\,h for the 600k corpus, with CSV-append checkpointing
 so that interrupted runs resume without repeated work. Every subsequent
-analysis in this dissertation --- including all of Chapters~\ref{ch:exp2} and
-\ref{ch:exp3} --- runs on a single consumer GPU with 6\,GB of memory, which is
+analysis in this dissertation, including all of Chapters~\ref{ch:exp2} and
+\ref{ch:exp3}, runs on a single consumer GPU with 6\,GB of memory, which is
 a deliberate reproducibility property of the design.
 
 \section{The Syndication-Duplication Audit and the Deduplicated Core}
@@ -668,16 +903,16 @@ $k$ tickers can enter a subset up to $k$ times verbatim. Hashing article
 bodies reveals that \textbf{10.5\%} of the 200k subset and \textbf{24.3\%} of
 the 600k subset are exact duplicates; of 102{,}426 duplicate groups in the
 larger subset, 101{,}346 differ only in the ticker column, and only 476 span
-more than one week. The damage is therefore concentrated in \emph{same-week
-weight inflation}: a threshold such as ``keep edges supported by at least
+more than one week. The damage is therefore concentrated in same-week
+weight inflation: a threshold such as ``keep edges supported by at least
 three mentions'' can be satisfied by a single syndicated article, so
 duplication silently biases which edges enter a denoised core.
 
 Removing duplicates (keeping one copy per body) and rebuilding with unchanged
 thresholds halves the denoised 600k core, from 41{,}888 to 21{,}216 entities
-(212{,}294 edge-weeks). This \emph{deduplicated core} is the only
-construction whose thresholds mean what they claim --- support by $N$
-independent articles --- and it is adopted as the canonical graph for the
+(212{,}294 edge-weeks). This deduplicated core is the only
+construction whose thresholds mean what they claim, namely support by $N$
+independent articles, and it is adopted as the canonical graph for the
 remainder of the dissertation. All principal conclusions are re-verified on
 it, and the audit itself is reported as a finding that applies to any
 per-ticker news corpus.
@@ -717,41 +952,61 @@ financial-media boilerplate is measured with the slot-fingerprint method of
 Section~\ref{sec:noisecontrols} and removed by an opt-in filter (on the
 canonical core: 291 entities carrying 15.6\% of edge-instances). Only light
 surface-form normalisation is applied; entity resolution is deliberately out
-of scope, but a crude corporate-suffix merge bounds its effect --- test
+of scope (FinDKG itself normalises mentions with Sentence-BERT-based
+disambiguation, and resolution is the subject of a parallel project on
+this corpus), but a crude corporate-suffix merge bounds its effect: test
 novelty falls from 72.4\% to 68.4\% (200k) and from 64.0\% to 60.1\% (600k),
 so fragmentation is real but secondary. Country (GPE) relations are sparse
 owing to the US-centric corpus and are documented as a limitation rather than
 hand-curated.
 
 \section{Results and Discussion}
-The substrate meets its three design goals. It is \emph{reproducible}: fixed
+The substrate meets its three design goals. It is reproducible: fixed
 seeds, checkpointed extraction, and a fully scripted path from raw corpus to
-splits. It is \emph{point-in-time clean by construction} at the graph level:
+splits. It is point-in-time clean by construction at the graph level:
 publication-date timestamps and chronological splits are enforced before any
-model sees the data. And it is \emph{honest about its noise}: duplication,
+model sees the data. Finally, it showcases its noise: duplication,
 fragmentation and boilerplate are quantified, with the deduplicated core as
-the corrected canonical object. Scale behaves as hoped --- tripling the
-corpus deepens evidence per relationship (test novelty falls monotonically
-across the constructions in Table~\ref{tab:constructions}) --- and the
-duplication audit stands as a transferable methodological result about
+the corrected canonical object. Scale behaves as hoped, in that tripling the corpus deepens evidence per
+relationship (test novelty falls monotonically across the constructions in
+Table~\ref{tab:constructions}), and the duplication audit stands as a transferable methodological result about
 building graphs from per-ticker news data.
 
 % =====================================================================
 \chapter{Experiment 2: Edge-Formation Velocity, Burst Detection, and Walk-Forward Theme Discovery}
 \label{ch:exp2}
 % Core contribution + validation.
+\begin{microabstract}
+This chapter presents Experiment 2, the dissertation's central
+contribution. It defines velocity and acceleration, develops the causal
+surprise statistic, describes the burst and change-point detectors, the
+theme clustering and lifeline tracking, and the data-driven noise
+controls; validates detections against a frozen gold list with a
+placebo control; audits the discovery stream's precision at lifeline
+level and turns the audit into filters and a distilled judge; and
+closes with results and discussion.
+\end{microabstract}
+
 \section{Introduction}
 This chapter contains the dissertation's central contribution: a walk-forward
 system that discovers emerging themes as they form. The pipeline has four
-stages --- score each entity's formation acceleration causally, detect bursts,
+stages: score each entity's formation acceleration causally, detect bursts,
 cluster co-accelerating entities on the graph into themes, and track themes
 into lifelines whose birth week is the date the system would have flagged them
-live --- followed by validation against a frozen gold list with a placebo
+live. The pipeline is then validated against a frozen gold list with a placebo
 control. All analyses run on the canonical deduplicated core of
 Chapter~\ref{ch:exp1}.
 
+The motivation of this experiment is threefold: first, emerging themes are
+usually recognised only once they are widely reported, so a graph-native
+early signal has practical value; second, existing burst-detection work
+operates on term frequencies rather than on relationship formation, leaving
+the structural signal unexplored; and third, a detection claim is credible
+only under strict walk-forward discipline with placebo-controlled validation,
+which this experiment provides.
+
 \section{Velocity and Acceleration: Definitions}
-A \emph{formation} is the first week in which a distinct
+A formation is the first week in which a distinct
 (subject, relation, object) triple appears. For any entity, relation or theme,
 let $c_t$ denote its formation count in week $t$. Velocity and acceleration
 are the first and second differences,
@@ -761,20 +1016,21 @@ a_t = \Delta^2 c_t = v_t - v_{t-1},
 \label{eq:veldef}
 \end{equation}
 per node, per relation and per theme. Two window conventions serve two
-purposes: \emph{centred} windows for descriptive reporting, where a peak
-should align with the event that caused it, and \emph{strictly trailing}
+purposes: centred windows for descriptive reporting, where a peak
+should align with the event that caused it, and strictly trailing
 windows for the detection system, which must be causal to claim real-time
 operation.
 
 The raw second difference in Equation~\ref{eq:veldef} is an unbiased but
 extremely noisy acceleration estimate for sparse count series. The detector
-therefore uses its windowed, variance-stabilised form --- the surprise
+therefore uses its windowed, variance-stabilised form: the surprise
 statistic of the next section, which contrasts the recent-window formation
 rate with the entity's own baseline rate. This is the operational form of
 ``anomalous acceleration'' throughout the dissertation: a smoothed estimate of
 the velocity change, robust to the count noise that dominates $\Delta^2 c_t$.
 
 \section{Causal Acceleration Scoring}
+\label{sec:causalaccel}
 At week $t$, with a recent window of $r=4$ weeks and a baseline window of
 $b=26$ weeks, define for every entity
 \begin{equation}
@@ -785,38 +1041,83 @@ z_t = \frac{O_t - E_t}{\sqrt{E_t + 1}} .
 \end{equation}
 Both windows are strictly trailing. Under a Poisson null the denominator
 stabilises the variance; the $+1$ floor keeps $z_t$ finite for zero baselines,
-so brand-new entities (``Coronavirus'' in January 2020) score high by design
---- new-entity emergence is a feature, not an artifact.
+so brand-new entities (``Coronavirus'' in January 2020) score high by design;
+new-entity emergence is a feature, not an artefact.
+Figure~\ref{fig:surprise} traces the statistic through the flagship
+episode.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\textwidth]{surprise_series.pdf}
+\caption{The surprise statistic for the Coronavirus entity: observed
+four-week formations against the scaled trailing baseline, with the
+first gate crossing ($z_t \geq 3$, $O_t \geq 6$) in the week of
+2020-02-03, three weeks before the market break and identical to the
+lifeline birth week of Section~\ref{sec:themevalidation}: the entity
+layer and the theme layer date the onset independently and agree.}
+\label{fig:surprise}
+\end{figure}
 
 Weekly formation counts are in fact strongly over-dispersed. A
 negative-binomial variant replaces the denominator with
 $\sqrt{E_t + \alpha E_t^2 + 1}$, where the dispersion $\alpha = 3.75$ is
-estimated once by the method of moments on training weeks only. Raising the
+estimated once by the method of moments on training weeks only:
+per entity $i$ with training-week mean $m_i$ and variance $s_i^2$,
+\begin{equation}
+\alpha_i = \frac{s_i^2 - m_i}{m_i^2}, \qquad
+\alpha = \operatorname{median}\{ \alpha_i : m_i \geq 0.25 \} = 3.75,
+\label{eq:nbmom}
+\end{equation}
+the median giving robustness to the heavy upper tail of per-entity
+dispersion estimates. Raising the
 variance raises the detection bar: the Poisson floor is the high-recall
 configuration and the NB correction the high-precision one, and the gold-list
 conclusion of Section~\ref{sec:themevalidation} holds under both. Two
 disclosures apply: $\alpha$ is estimated on weeks 0--254 but applied at every
 $t$, which is conservative for earlier events; and the template blacklist of
-Section~\ref{sec:noisecontrols} is a static full-period list --- the one
-non-trailing input to an otherwise walk-forward system.
+Section~\ref{sec:noisecontrols} is a static full-period list. Together these
+are the only non-trailing inputs to an otherwise walk-forward system.
 
 \section{Burst and Change-Point Methods}
 Three detectors with different inductive biases are run on the formation
-series, so that detected episodes are demonstrably not an artifact of one
+series, so that detected episodes are demonstrably not an artefact of one
 algorithm. Kleinberg's two-state automaton \citep{Kleinberg2003Bursty} finds
 discrete bursts by a Viterbi trade-off between emission likelihood and a
-transition cost for entering the elevated state. The one-sided CUSUM chart
+transition cost for entering the elevated state. Formally, for a state
+sequence $q$ over $T$ weeks with baseline rate $\lambda_0 = N/T$ (total
+events over span) and elevated rate $\lambda_1 = s\lambda_0$ with $s = 2$,
+the automaton minimises
+\begin{equation}
+\mathrm{cost}(q) = \sum_t \left[ \lambda_{q_t} - c_t \ln \lambda_{q_t} \right]
++ \gamma \ln(T) \cdot \#\{t : q_t = 1,\, q_{t-1} = 0\},
+\label{eq:kleinberg}
+\end{equation}
+whose first term is the Poisson negative log-likelihood of the weekly
+counts $c_t$ up to a constant and whose second prices each entry into the
+elevated state; bursts are the maximal $q_t = 1$ runs of the minimising
+sequence. The one-sided CUSUM chart
 \citep{Page1954CUSUM} accumulates standardised deviations,
 $C_t = \max(0,\, C_{t-1} + z_t - k)$ with reference value $k=0.5$, and alarms
 when $C_t$ exceeds a decision interval $h=5$, responding to sustained shifts.
 Bayesian online changepoint detection \citep{AdamsMacKay2007BOCD} maintains
 the exact run-length posterior under a Gamma--Poisson model with hazard
 $1/100$; changepoints are back-dated to the inferred onset $t - \ell_t$, where
-$\ell_t$ is the MAP run length.
+$\ell_t$ is the MAP run length. Writing $\pi_{t-1}(r)$ for
+$P(r_{t-1} = r \mid x_{1:t-1})$, the run-length posterior obeys the exact
+online recursion
+\begin{equation}
+P(r_t \mid x_{1:t}) \propto P(x_t \mid r_t)\,\bigl[ (1-h)\, \pi_{t-1}(r_t - 1)
++ \mathbf{1}\{r_t = 0\}\, h \textstyle\sum_{r'} \pi_{t-1}(r') \bigr],
+\label{eq:bocd}
+\end{equation}
+where the first bracket term continues the current run and the second
+starts a new one; Gamma--Poisson conjugacy gives the predictive
+$P(x_t \mid r_t)$ in closed form as a negative binomial, which is what
+makes the posterior exact rather than approximate.
 
-Because the three flag intervals of very different widths --- Kleinberg
-isolates events, CUSUM and BOCD sustained regimes (their global intervals
-agree at Jaccard 0.81) --- recall must be judged against each detector's own
+The three detectors flag intervals of very different widths: Kleinberg
+isolates events, while CUSUM and BOCD mark sustained regimes (their global
+intervals agree at Jaccard 0.81). Recall must therefore be judged against each detector's own
 chance level, defined as its dilated flagged-week coverage: the recall it
 would achieve on random event weeks. On an 18-event gold list of documented
 2017--2023 episodes (Table~\ref{tab:detectors}), all three detect far above
@@ -827,7 +1128,8 @@ full series); the walk-forward system is the theme detector itself.
 \begin{table}[ht]
 \centering
 \caption{Entity-level event recovery on the canonical core: 18 documented
-episodes, hit $=$ a burst interval overlapping the event week $\pm 3$ weeks.}
+episodes, hit $=$ a burst interval overlapping the event week $\pm 3$ weeks.
+Excesses are computed before rounding.}
 \label{tab:detectors}
 \begin{tabular}{lrrr}
 \toprule
@@ -841,36 +1143,95 @@ Union & \textbf{18/18 $=$ 100\%} & --- & --- \\
 \end{tabular}
 \end{table}
 
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\textwidth]{detectors.pdf}
+\caption{Global edge-formation series on the canonical core with all three
+burst detectors: Kleinberg bursts (shaded), the CUSUM regime (hatched), and
+back-dated BOCD onsets (triangles). The detectors agree on where activity is
+elevated while segmenting it at different granularities.}
+\label{fig:detectors}
+\end{figure}
+
 \section{Theme Clustering and Lifelines}
 Individual acceleration is not yet a theme: an emerging theme is a group of
 related entities accelerating together. Each week, entities passing the gate
 ($z_t \geq 3$ and $O_t \geq 6$) are placed on their trailing eight-week
 co-occurrence subgraph and clustered with Louvain
 \citep{Blondel2008Louvain} (fixed seed; clusters of fewer than three members
-discarded). Clusters are ranked by total excess formations
+discarded). Louvain greedily maximises the modularity
+\begin{equation}
+Q = \frac{1}{2m} \sum_{ij} \left[ A_{ij} - \frac{k_i k_j}{2m} \right]
+\delta(c_i, c_j),
+\label{eq:modularity}
+\end{equation}
+where $A$ holds the trailing eight-week co-mention weights, $k_i$ the
+weighted degrees, $m$ the total edge weight and $\delta$ selects
+same-community pairs: a community scores well exactly when its internal
+weight exceeds the degree-preserving chance expectation. Clusters are ranked by total excess formations
 $\sum_i (O_t - E_t)_i$ and the top eight per week retained. Themes are
-tracked week-over-week into \emph{lifelines} by member overlap (Jaccard
-$\geq 0.3$), matching live lifelines first --- a continuation beats a
-re-activation regardless of overlap --- and allowing a lifeline to be claimed
+tracked week-over-week into lifelines by member overlap (Jaccard
+$\geq 0.3$), matching live lifelines first (a continuation beats a
+re-activation regardless of overlap) and allowing a lifeline to be claimed
 by at most one cluster per week; a re-activation after a gap of more than
 eight weeks rejoins its old lifeline rather than counting as a new emergence.
-A lifeline's \emph{birth week} is the date the system would have flagged the
-theme live.
+The matching statistic and the ranking score are
+\begin{equation}
+J(A, B) = \frac{|A \cap B|}{|A \cup B|} \geq 0.3, \qquad
+S(C) = \sum_{i \in C} (O_i - E_i),
+\label{eq:lifeline}
+\end{equation}
+the member-set overlap deciding continuity and the total excess deciding
+rank. A lifeline's birth week is the date the system would have flagged the
+theme live. Algorithm~\ref{alg:detector} assembles the full weekly loop
+in one place.
+
+\begin{algorithm}[ht]
+\caption{One week of the walk-forward theme detector. At week $t$ every
+quantity is computed from history $\leq t$ only; lifeline updates happen
+after matching, preserving point-in-time discipline.}
+\label{alg:detector}
+\begin{algorithmic}[1]
+\Require formation counts for weeks $\leq t$; live lifeline set
+$\mathcal{L}$; template blacklist
+\For{each entity $i$ not template-excluded}
+  \State $O_i \gets$ formations in the trailing 4 weeks;
+  $E_i \gets$ scaled 26-week baseline
+  \State $z_i \gets (O_i - E_i)/\sqrt{E_i + 1}$
+  \Comment{NB variant: $\sqrt{E_i + \alpha E_i^2 + 1}$}
+\EndFor
+\State $A \gets \{i : z_i \geq 3 \text{ and } O_i \geq 6\}$
+\Comment{accelerating set}
+\State $G \gets$ trailing 8-week co-occurrence subgraph induced on $A$
+\State $\mathcal{C} \gets$ Louvain$(G)$; discard $|C| < 3$; keep the top 8
+clusters by $\sum_{i \in C}(O_i - E_i)$
+\For{each cluster $C \in \mathcal{C}$ in rank order}
+  \State match $C$ to an unclaimed lifeline $L \in \mathcal{L}$ with
+  $J(C, L) \geq 0.3$, live lifelines first
+  \State \textbf{if} no match \textbf{then} open a new lifeline with birth
+  week $t$
+  \State label EMERGING if the excess-weighted share of members with fewer
+  than two prior episodes is high
+\EndFor
+\State update the habituation book-keeping with this week's accelerating
+entities \Comment{after matching}
+\end{algorithmic}
+\end{algorithm}
 
 \section{Data-Driven Noise Controls}
 \label{sec:noisecontrols}
 Two failure modes require control, and both controls are measured from data
-rather than hand-curated. First, \emph{templated screener articles} (options
+rather than hand-curated. First, templated screener articles (options
 screens, quantitative stock reports) inject formulaic entities whose ramp-ups
-mimic themes. Slot-normalised fingerprints of titles and body openings ---
-rare tokens replaced by a placeholder so that ``company-name slots'' collapse
---- identify 26.4\% of articles as template-generated; the 2{,}010 entities
+mimic themes. Slot-normalised fingerprints of titles and body openings, in which rare
+tokens are replaced by a placeholder so that ``company-name slots'' collapse,
+identify 26.4\% of articles as template-generated; the 2{,}010 entities
 drawing $\geq 60\%$ of their mentions from such articles are excluded from
-candidacy. Second, \emph{recurring rituals} (earnings-season screens, index
-complexes) accelerate every quarter without being new. A \emph{habituation}
+candidacy. Second, recurring rituals (earnings-season screens, index
+complexes) accelerate every quarter without being new. A habituation
 score classifies a newborn lifeline as EMERGING only if the excess-weighted
 share of members with fewer than two prior acceleration episodes is at least
-one half --- so a theme is emerging only when the entities driving it are new
+one half, so a theme is emerging only when the entities driving it are new
 phenomena. A stricter configuration additionally excludes walk-forward
 ubiquitous entities (active in more than half of all past weeks); it
 dissolves star-shaped screener clusters at some cost in lead time, and both
@@ -880,8 +1241,8 @@ configurations are reported.
 \label{sec:themevalidation}
 Validation uses a frozen list of ten externally dated 2020--2023 episodes,
 word-boundary entity matching, and an event-anchored birth window ($-13$ to
-$+8$ weeks) so that pre-existing topical lifelines cannot masquerade as
-detections. Table~\ref{tab:goldlist} gives the per-event results for the
+$+8$ weeks) so that pre-existing topical lifelines cannot be credited
+as detections. Table~\ref{tab:goldlist} gives the per-event results for the
 default configuration.
 
 \begin{table}[ht]
@@ -910,43 +1271,423 @@ early-or-on-time.}} \\
 \end{tabular}
 \end{table}
 
-Specificity is established by a placebo control: applying the identical
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\textwidth]{lead_times.pdf}
+\caption{Gold-list detection: theme birth week (circle) against event week
+(diamond), one row per episode. Anticipatable themes are detected weeks early;
+pure shocks sit at the news-flow floor of $+1$ week; the two misses reflect
+corpus coverage and the conservative credit rule
+(Section~\ref{sec:exp2results}).}
+\label{fig:leadtimes}
+\end{figure}
+
+Figure~\ref{fig:leadtimes} visualises Table~\ref{tab:goldlist}. Specificity is established by a placebo control: applying the identical
 detection criterion to random event weeks (100{,}000 Monte-Carlo draws over
 the per-theme chance rates) yields an expected $\approx 2.2/10$; the observed
 8/10 has $p \approx 10^{-4}$ (strict configuration: expected $1.9/10$,
-$p = 2\times10^{-5}$). Robustness: every cell of the $3\times3$ window grid
+$p = 2\times10^{-5}$). Formally, each gold theme $i$ has a chance rate
+$c_i$, the fraction of the $T$ candidate weeks $w$ for which a
+pattern-matching birth falls inside $[w - 13, w + 8]$, and the null
+detection count is Poisson-binomial,
+\begin{equation}
+D = \sum_{i=1}^{10} \mathrm{Bernoulli}(c_i), \qquad p = P(D \geq 8),
+\label{eq:placebo}
+\end{equation}
+evaluated by Monte Carlo; the per-theme chance rates span 6--36\%, giving
+$\mathbb{E}[D] = 2.2$ under the null. Robustness: every cell of the $3\times3$ window grid
 (recent $\in \{2,4,8\}$, baseline $\in \{13,26,52\}$ weeks) detects 7--8/10
 with placebo $p < 4\times10^{-4}$, shorter windows detecting slightly later
 and longer slightly earlier (full grid in Appendix~B); and the
 negative-binomial configuration detects 7/10 at a chance rate of $0.9/10$.
 
+\section{Lifeline-Level Precision Audit}
+\label{sec:precisionaudit}
+The placebo control establishes precision at the week level; it does not say
+what share of all flagged lifelines are real storylines. We therefore
+audit every EMERGING lifeline directly. For each lifeline an audit pack is
+assembled from the provenance chain: its top twelve members by accumulated
+excess, its birth month, and up to ten source headlines from the birth
+window, the top three carrying the article's opening text. Packs contain no
+detector scores, so no judge can defer to the system's own confidence. Each
+pack is classified under a rubric frozen before any judging: REAL (a
+coherent, externally documentable storyline with genuine coverage),
+TEMPLATE (screener or boilerplate constructs dominate) or
+INCOHERENT (incidental co-occurrence). The judge is a locally hosted
+quantised Qwen2.5-14B language model under greedy decoding with a fixed
+prompt, an LLM-as-judge design \citep{Zheng2023Judge}, and its labels are
+quoted only because it passes two validations:
+eleven of eleven control themes are labelled correctly (eight earnings-ritual
+themes as TEMPLATE, three COVID lifelines as REAL), and on a seed-fixed
+random subset of fourteen packs hand-labelled by the author it agrees on
+13/14 (93\%) of the binary real-versus-noise decisions the estimate uses,
+with the three-way disagreements confined to the TEMPLATE/INCOHERENT
+boundary and the model marginally the more conservative rater. A further
+ten hand-labelled packs from the template-filtered arm serve as a transfer
+check (8/10 binary agreement; 21/24 across both subsets, Cohen's
+$\kappa = 0.74$); both transfer
+disagreements are cases where the judge reads a single storyline inside a
+cluster the author assessed as over-merged, so the template-filtered
+estimate is, if anything, marginally optimistic. Precision is quoted
+throughout with Wilson score intervals \citep{Wilson1927}: for $k$ REAL
+among $n$ packs and
+$p = k/n$, the 95\% interval is
+\begin{equation}
+\frac{p + z^2/2n}{1 + z^2/n} \;\pm\; \frac{z}{1 + z^2/n}
+\sqrt{\frac{p(1-p)}{n} + \frac{z^2}{4n^2}}, \qquad z = 1.96,
+\label{eq:wilson}
+\end{equation}
+preferred over the Wald interval for its coverage at moderate $n$ and
+proportions away from one half.
+
+\begin{table}[ht]
+\centering
+\caption{Lifeline-level precision by configuration (share of EMERGING
+lifelines judged REAL; Wilson 95\% CIs, \citealp{Wilson1927}). The
+template-filtered arm removes
+template-fingerprinted articles from the detector substrate before
+graph assembly; its gold-list performance is unchanged.}
+\label{tab:precaudit}
+\begin{tabular}{lrrrr}
+\toprule
+Configuration & Lifelines & REAL & Precision & Gold list \\
+\midrule
+Lenient & 282 & 107 & 37.9\% [32.5, 43.7] & 8/10, $-1$wk \\
+Strict & 238 & 102 & 42.9\% [36.7, 49.2] & 8/10 \\
+Negative-binomial & 97 & 36 & 37.1\% [28.2, 47.0] & 7/10 \\
+Template-filtered & 244 & 109 & \textbf{44.7\%} [38.6, 50.9] & 8/10, $-1$wk \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\textwidth]{audit_frontier.pdf}
+\caption{The four detector configurations as a measured
+precision--recall frontier: stream precision (share of EMERGING
+lifelines judged REAL, Wilson 95\% CIs) with gold-list recall
+annotated. The template-filtered configuration dominates; the
+negative-binomial configuration shows that event-level specificity
+does not purchase stream purity.}
+\label{fig:auditfrontier}
+\end{figure}
+
+Three findings follow (Table~\ref{tab:precaudit} and
+Figure~\ref{fig:auditfrontier}). First, the
+high-recall stream is roughly one-third real: 37.9\% of lenient lifelines
+are genuine storylines, and ranking does not rescue the reader, since
+screener rituals generate large excess counts and rank high (top-25 by peak
+score: 28\% REAL). The largest correctable share of the failure mass is
+exactly the boilerplate the noise controls target: the entity-level template filter removes
+template-dominated entities, but clusters of legitimate entities can
+still be bound together by template articles, as when an options
+screener fires across many tickers in one week. Second, structural
+cohesion cannot certify quality. Template themes bind more densely than
+real ones (median share of binding articles mentioning three or more members
+0.121 against 0.105), because a mail-merge article lists many concepts at
+once; what distinguishes real themes is mutual pair connectivity (median
+pair coverage 0.643 against 0.434). The best post-hoc structural filter
+(pair coverage $\geq 0.5$) lifts precision to 47.4\% while retaining 68.2\%
+of real themes, and stacked filters saturate near 50\%: the residue is
+semantic, not structural. Third, the audit points to its own remedy.
+Excluding template-fingerprinted articles (25.1\% of the corpus, a
+re-implemented and documented fingerprinter) from the detector substrate
+removes 16.9\% of triple instances and yields a configuration that keeps
+every gold-list detection (8/10, median $-1$ week, placebo
+$p = 5\times10^{-5}$) and essentially every real discovery (109 REAL against
+107) while shrinking the stream by 13\% and cutting template lifelines from
+86 to 54: precision rises to 44.7\%, and conservatively so, since the
+fingerprinter under-catches skeletons that embed full company names. One
+result cuts the other way and is reported as such: the negative-binomial
+configuration, whose event-level specificity is the strongest (chance
+$0.9/10$), has the highest template share of any arm (44\%); tail
+tightening suppresses ordinary noise but not boilerplate, whose counts are
+large and systematic, so event-detection specificity and stream purity are
+distinct properties that must be measured separately. The audit also
+supplied a concrete specimen of the deduplication bound stated in
+Chapter~\ref{ch:exp1}: one syndicated article appears three times, twice
+byte-identical (and deduplicated) and once differing by a single character,
+which survives exact hashing. Manual inspection additionally decomposes the
+INCOHERENT mass: part of it is not absent signal but over-merged
+clusters containing several distinct storylines (in one specimen an
+AstraZeneca and a BHP storyline fused, plausibly through index-roundup
+co-mentions), a clustering-granularity failure that member counts do not
+separate from incidental bags. A direct test of the obvious remedy fails:
+raising the Louvain resolution to 1.5 on the template-filtered substrate
+keeps the gold list (8/10, median $-1$ week) and recovers some split
+storylines (117 REAL lifelines against 109), but rituals and bags fragment
+into more units still (284 lifelines, 78 TEMPLATE, 89 INCOHERENT; precision
+41.2\%), and resolution 2.0 loses a gold-list detection. The over-merge
+failure mode therefore calls for drift-aware lifeline tracking or locally
+adaptive splitting rather than a uniform resolution increase; both remain
+future work. Scope: the judge assesses whether sourcing is
+genuine and related, not whether the reported news is true, and the audit
+rests on one judging model under one rubric, anchored by the human subset
+and controls. Two candidate second judges (a 7B and a quantised 14B of
+different model families) were run on the identical packs and failed
+the control gate, labelling nearly every pack REAL including all
+earnings-ritual controls; both were excluded, an outcome consistent
+with the gate's design: the validation is carried by the controls and the human subset,
+not by model consensus.
+
+\textbf{A distilled lightweight filter.} The audit's labels make a final
+reduction in inference cost: a logistic regression on twelve cheap, text-free pack
+features (detector outputs at birth, the cohesion statistics, member-type
+composition, and the binding articles' template share) distils the judge
+into a standing filter with no language model at inference, under a
+protocol fixed before fitting (grouped cross-validation by birth year;
+fixed comparison points; hypothesis stated in advance). It reaches PR-AUC
+0.602 against a 0.379 base rate, and tuned to retain half the real themes
+it lifts stream precision from 37.9\% to 68.4\%; at the 68\% retention of
+the fixed threshold baseline it edges that baseline (50.7\% against
+47.4\%), reconfirming from a third direction that text-free filtering
+saturates near 50\% at high retention. The standardised coefficients turn
+the audit's qualitative findings into effect sizes: the concept share of
+the membership is the strongest negative signal ($-0.71$; real themes are
+actor-heavy) and mutual pair connectivity the strongest positive ($+0.67$),
+while freshness is mildly negative, consistent with the earlier observation
+that template clusters are often ``fresh''. Two limits are disclosed:
+agreement with the hand-labelled subset is 79\%, below the judge's 93\%,
+and a strict temporal holdout (training before 2022, testing on the 46
+later lifelines, whose REAL rate falls to 21.7\%) retains a ranking lift
+(PR-AUC 0.406 against 0.217) but not fixed-threshold precision, so the
+filter inherits the regime dependence recorded among the limitations and
+would need periodic re-distillation in deployment.
+
+\textbf{A fine-tuned small judge.} The text-free filter's ceiling
+motivates one further distillation, this time keeping a language model
+but shrinking it. The teacher's labels across every audited
+configuration, including the rejected resolution sweep (1{,}145 packs in
+all), fine-tune a 1.5B-parameter judge by low-rank adaptation
+\citep{Hu2022LoRA}, under a protocol fixed before training: packs are
+grouped into storylines by cross-configuration member overlap so that
+near-duplicates of one story never straddle the split, and the held-out
+groups are additionally temporal, born 2022 or later. The result passes
+exactly the validation gate that the zero-shot candidates failed. The base model fails
+the eleven-control gate (it over-labels TEMPLATE, the opposite failure
+mode to the second judges' uniform REAL labelling), while eight minutes of adapter
+training on a consumer GPU yield a perfect gate, 9/9 noise controls to
+TEMPLATE and 3/3 real to REAL, under the same greedy protocol. On the
+held-out storyline groups the small judge agrees with its teacher on
+82.6\% of binary REAL-versus-noise calls (69.1\% three-way, the
+confusions being the same TEMPLATE-versus-INCOHERENT boundary the human
+comparison found), and it matches the twenty-four hand-labelled packs
+on 20/24, one short of the teacher itself (Cohen's $\kappa = 0.66$
+against the teacher's $0.74$). Deployed over the full
+stream it tracks the teacher's REAL share within three percentage
+points in every configuration. The score behind the retention curves is
+computed exactly rather than sampled:
+\begin{equation}
+P(\mathrm{REAL} \mid \mathrm{pack}) =
+\frac{P(\ell_{\mathrm{REAL}} \mid \mathrm{prompt})}
+{\sum_{\ell} P(\ell \mid \mathrm{prompt})}, \qquad
+P(\ell \mid \mathrm{prompt}) = \prod_{k} P\bigl(w_k^{\ell} \mid
+\mathrm{prompt}, w_{<k}^{\ell}\bigr),
+\label{eq:judgescore}
+\end{equation}
+each candidate label's probability being the product of its
+completion-token probabilities under the fine-tuned model, renormalised
+over the three labels. Used as a ranking score it reaches held-out PR-AUC
+0.766 against a 0.237 base rate (precision 0.565 at 30\% retention). The comparison with the text-free
+filter is made paired and like-for-like: retrained on the matching
+training side and scored on the same held-out packs (the 46 held-out
+lenient lifelines), the filter reaches
+0.406 where the judge reaches 0.756, an advantage of $+0.35$ PR-AUC
+[paired bootstrap 95\% CI $+0.13, +0.55$];
+Figure~\ref{fig:retention} shows the two retention curves.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.72\textwidth]{retention_judge.pdf}
+\caption{Precision at each level of stream retention on the
+group-disjoint temporal held-out packs, ranking by the distilled
+judge's REAL probability and by the text-free filter retrained on the
+matching training side (PR-AUC 0.756 against 0.406; base rate 0.217
+dotted).}
+\label{fig:retention}
+\end{figure}
+
+The judge's probabilities are
+also usable as probabilities, within a stated limit: the held-out Brier
+score is 0.112 against an all-base-rate reference of 0.181 (five-bin
+expected calibration error 0.074), with a monotone reliability curve
+that is over-confident in the middle bins, where packs scored 0.4--0.6
+are empirically 30\% REAL (the reliability curve is reproduced in
+Appendix~B). The audit no longer needs its 14B teacher at
+inference: a model roughly
+an order of magnitude smaller reproduces the labels well enough to run
+as a standing filter on every detector pass. It remains a distillation,
+not an independent check; trained on the teacher's labels alone, it
+inherits the teacher's blind spots by construction.
+
 \section{Results and Discussion}
-The central empirical pattern is that \emph{lead time reflects the
-information structure of the event itself}. Anticipatable themes --- ones
-whose build-up is reported before the market-moving moment --- are detected
+\label{sec:exp2results}
+The central empirical pattern is that lead time reflects the
+information structure of the event itself. Anticipatable themes, those
+whose build-up is reported before the market-moving moment, are detected
 weeks early: the COVID market crisis three weeks before the crash, the
 vaccine race eight weeks before Operation Warp Speed was announced, the
-efficacy theme six weeks before the Pfizer readout. Pure shocks --- an
-invasion, a bank run, a strike --- land at the news-flow floor of $+1$ week,
-because no public reporting precedes them. The two misses are coverage-honest
-rather than algorithmic: FTX and OpenAI are barely present in a Nasdaq-equity
-news corpus. One label is worth noting: GameStop is detected in the squeeze
-week but classified \emph{recurring}, since squeeze-adjacent entities had
-prior acceleration episodes --- an honest reflection of the habituation
-bookkeeping rather than an error. Beyond the gold list the system surfaces
+efficacy theme six weeks before the Pfizer readout. Pure shocks, such as an
+invasion, a bank run or a strike, land at the news-flow floor of $+1$ week,
+because no public reporting precedes them. The two misses are genuine rather
+than algorithmic, and they fail for different reasons, dissected at the end
+of this section: thin corpus coverage in one case, credit withheld by the
+conservative birth-window rule in the other. GameStop is detected in
+the squeeze
+week but classified recurring, since squeeze-adjacent entities had
+prior acceleration episodes; the label is a genuine reflection of the
+habituation bookkeeping rather than an error. Beyond the gold list the system surfaces
 correctly dated discoveries including the 2019 cannabis boom
 (HEXO/Aurora/Tilray, born 2019-03-18), the EV/SPAC wave (Nikola/Nio, born
 2020-06-22) and the stay-at-home complex (Zoom/Kroger/Virgin Galactic, born
 2020-04-06).
 
+\textbf{The COVID theme, week by week.} The flagship detection is
+presented at weekly resolution, exactly as a live system would have
+surfaced it.
+In the week of 2020-02-03, three weeks before the market break of
+2020-02-24, a new cluster entered the theme list in second place (score
+57.5, seven members): the newly accelerating Coronavirus entity, bound to
+consumer names with China exposure (Starbucks, Beyond Meat, Tesla) and the
+drug maker Biogen. Contemporaneous coverage was still dismissive; one of
+the theme's own binding articles that fortnight is headlined ``Dow Jones
+Today: Stocks Shrug Off Q1 GDP Warning'' (2020-02-10). The lifeline
+persisted through mid-February (2020-02-17, score 55.8, Global Markets and
+Caterpillar joining) and in the crash week itself, 2020-02-24, moved to
+first place (score 87.7, nine members, Morgan Stanley now among them). On
+2020-03-02 it drew in the healthcare sector fund, and it then grew with the
+crisis, ranked first again on 2020-03-09 (score 129.1) and 2020-03-16
+(score 157.7, twelve members), by which point the membership read as a
+cross-section of the pandemic economy: United Airlines, Plug Power, the
+market indices. Two properties of the episode generalise. Detection
+preceded the price event because the news-flow build-up did; and the
+theme's composition broadened as the crisis broadened, from China-exposed
+consumer names to the whole market. Figure~\ref{fig:covidsubgraph}
+shows the two stages side by side.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\textwidth]{covid_subgraph.pdf}
+\caption{The COVID theme as a co-occurrence subgraph at birth (week of
+2020-02-03, left) and three weeks after the crash (week of 2020-03-16,
+right): the membership broadens from China-exposed consumer names to a
+cross-section of the market as the crisis broadens.}
+\label{fig:covidsubgraph}
+\end{figure}
+
+\textbf{Choosing an operating point.} The four configurations of
+Table~\ref{tab:precaudit} are best read not as competitors but as operating
+points on a measured precision--recall frontier, and the audit
+quantifies the choice between them. The lenient configuration is the maximum-recall
+setting (8/10 at median $-1$ week; stream precision 37.9\%), appropriate
+where a missed theme costs more than a noisy list, as on a screening desk
+with a human downstream. The strict configuration dissolves the
+ubiquitous-entity glue, cutting incoherent clusters from 89 to 54 and
+lifting precision to 42.9\%, at the documented cost of roughly three weeks
+of COVID lead. The negative-binomial configuration is the clearest
+demonstration that two distinct notions of precision exist: its event-level specificity is the best of any
+arm (chance $0.9/10$), yet its stream carries the highest template share
+(44\%), because tightening the tail suppresses ordinary variance while
+boilerplate, whose counts are large and systematic, passes the
+tightened gate. The
+template-filtered configuration dominates when both properties matter:
+44.7\% precision, every real discovery retained, and the gold list
+unchanged. A user choosing a configuration is choosing which error they can
+afford; the audit turns that choice from judgement into measurement.
+
+\textbf{Filtering as an operating point on the benchmark.} The audit's
+labels can also be applied as a filter, and the frozen gold-list
+machinery then quantifies the recall cost of precision directly. The
+filters act on emerging lifelines only, so the fair baseline is the
+emerging-only stream: 8/10 detections with median lead $-0.5$ weeks
+(the canonical $-1$ week includes GameStop's earliest match, a
+recurring-status lifeline; on the emerging-only stream its replacement
+match arrives one week later). Table~\ref{tab:survival} reports the
+operating points. Removing every TEMPLATE-labelled lifeline, 30\% of
+the lenient stream and 22\% of the template-filtered stream, costs
+zero gold-list detections in either configuration: real events
+do not occur in the boilerplate class. Restricting the stream to
+REAL-labelled lifelines costs exactly one detection per configuration,
+and the losses are instructive rather than random: the UAW lifeline is
+teacher-labelled INCOHERENT in both configurations, and the
+template-filtered COVID lifeline likewise, so strict REAL-filtering
+re-matches COVID to the vaccine-race lifeline three weeks late. The
+placebo control tightens under every filter (expected chance detections
+fall from 1.8 to 1.0--1.7 of 10), the signature of a genuine precision
+filter: noise lifelines are removed faster than topical ones. The
+distilled judge of Section~\ref{sec:precisionaudit} reproduces the
+zero-cost result and slightly improves on it: under its labels the REAL-only
+stream retains 8/10 in both configurations ($p < 10^{-5}$), because
+the student departs from its teacher on the gold-conflicted
+packs. Two of those three disagreements sit near its decision boundary
+(REAL probability $\approx 0.49$, the mid-range where the calibration
+check of Section~\ref{sec:precisionaudit} finds the judge
+over-confident), so the survival of all eight
+detections is a point estimate at one threshold; the retention curve of
+Section~\ref{sec:precisionaudit} (Figure~\ref{fig:retention}) is the
+robust reading.
+
+\begin{table}[ht]
+\centering
+\caption{Gold-list survival under audit-label filtering on the
+emerging-lifeline stream (medians in weeks; teacher labels unless
+stated). Dropping the TEMPLATE class is free in both configurations;
+keeping only REAL costs one detection under the teacher and none under
+the distilled judge.}
+\label{tab:survival}
+\begin{tabular}{llrrrr}
+\toprule
+Config & Stream & Kept & Gold & Median & Placebo $p$ \\
+\midrule
+lenient & all emerging & 282 & 8/10 & $-0.5$ & $10^{-5}$ \\
+lenient & drop TEMPLATE & 196 & 8/10 & $-0.5$ & $10^{-5}$ \\
+lenient & keep REAL & 107 & 7/10 & $-2$ & $2\times10^{-5}$ \\
+lenient & keep REAL, distilled & 115 & 8/10 & $-0.5$ & $<10^{-5}$ \\
+tf & all emerging & 244 & 8/10 & $-0.5$ & $<10^{-5}$ \\
+tf & drop TEMPLATE & 190 & 8/10 & $-0.5$ & $<10^{-5}$ \\
+tf & keep REAL & 109 & 7/10 & $+1$ & $<10^{-5}$ \\
+tf & keep REAL, distilled & 111 & 8/10 & $-0.5$ & $<10^{-5}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Anatomy of the misses.} The two misses are examined
+individually because they fail differently, and one is only partially
+a miss. FTX is a genuine coverage
+absence: the entity appears in 148 of the corpus's 457{,}619 unique
+articles (0.03\%, against 1{,}855 articles for Coronavirus), far too little
+news flow for formation counts to accelerate; a US-equity corpus
+under-reports a private offshore crypto exchange. ChatGPT is different.
+OpenAI and ChatGPT each appear in over five hundred articles, but the
+evaluation's own diagnostic records, for both events, a pre-existing
+topical lifeline: a crypto-collapse lifeline born 2022-01-10 and an AI
+lifeline born 2022-02-07, each predating its event's window by nine months.
+The detector had been tracking both storylines since early 2022, and the
+November events accelerated existing lifelines rather than founding new
+ones; the frozen credit rule, designed so that pre-existing themes
+cannot count as new detections, therefore withholds credit. A
+re-acceleration criterion would count both events, but the rule is not
+relaxed after the fact. To summarise, FTX is missed for coverage,
+ChatGPT largely for book-keeping, and the conservative scoring convention,
+working as designed, is part of the reported recall.
+
 % =====================================================================
 \chapter{Experiment 3: Temporal Link Prediction under Point-in-Time Discipline}
 \label{ch:exp3}
 % Marking areas 2 & 4: ML benchmark + critical analysis; contextualises Exp 2.
+\begin{microabstract}
+This chapter presents Experiment 3. It defines the forecasting task and
+protocol, describes the temporal model and the baselines, reports the
+benchmark and its replication across the three graph constructions,
+presents the velocity-feature ablation, the error anatomy, and the
+retraining on the template-filtered substrate, and closes with results
+and discussion.
+\end{microabstract}
+
 \section{Introduction}
-Where Chapter~\ref{ch:exp2} asks \emph{what is emerging}, this chapter asks
+Where Chapter~\ref{ch:exp2} asks what is emerging, this chapter asks
 how far the graph's future can be predicted at all at the level of individual
-edges, contextualising the theme system. The benchmark deliberately follows
+edges, contextualising the theme system. The benchmark follows
 the recurrence-baseline critique of \citet{Gastinger2024Recurrence}: the
 training-free baseline is treated as a first-class competitor, uncertainty is
 quantified, and the same benchmark is repeated on all three graph
@@ -963,45 +1704,75 @@ is Mean Reciprocal Rank and Hits@$k$,
 \mathrm{Hits@}k = \frac{1}{|Q|} \sum_{q \in Q}
 \mathbb{1}[\mathrm{rank}_q \leq k],
 \end{equation}
-averaged over both directions, under the conservative \emph{raw} ranking of
-Section~2.2 and with mean-rank tie handling (ties share the expected rank, so
+averaged over both directions, under the conservative raw ranking of
+Section~\ref{sec:kgembed} and with mean-rank tie handling (ties share the expected rank, so
 count-based baselines are neither inflated nor penalised). Every result is
-decomposed by a key property of the data: a test edge is \emph{recurring} if
-its exact triple appeared before its prediction week and \emph{novel}
-otherwise. On the canonical core 61.6\% of test directions are novel.
+decomposed by a key property of the data: a test edge is recurring if
+its exact triple appeared before its prediction week and novel
+otherwise. On the canonical core 61.6\% of test edges are novel (the recurring/novel
+label is identical for the two directions of an edge).
 
 \section{Models}
 The temporal model is an RE-GCN-style network \citep{Li2021REGCN}: a
 relational graph convolution over each weekly snapshot folded into a
 recurrent state, with entity representations re-evolved from their base
 embeddings over a trailing window at each prediction time and a decoder
-scoring candidate edges. Hyperparameters are selected by validation-based
+scoring candidate edges. One relational-convolution layer, of the R-GCN
+family \citep{Schlichtkrull2018RGCN}, and the weekly GRU evolution
+\citep{Cho2014GRU} are
+\begin{equation}
+\mathbf{h}_i^{(l+1)} = \sigma\!\left( \sum_{r} \sum_{j \in N_i^r}
+\frac{1}{c_{i,r}} W_r^{(l)} \mathbf{h}_j^{(l)} + W_0^{(l)}
+\mathbf{h}_i^{(l)} \right), \qquad
+H_t = \mathrm{GRU}\bigl(H_{t-1},\, \mathrm{RGCN}(G_t, H_{t-1})\bigr),
+\label{eq:regcn}
+\end{equation}
+where $N_i^r$ are entity $i$'s neighbours under relation $r$, $c_{i,r}$ a
+degree normaliser and $H_t$ the entity-state matrix after folding week
+$t$'s snapshot $G_t$ into the recurrent state; candidates are scored
+against the evolved states by a DistMult decoder with a learned
+temperature. Hyperparameters are selected by validation-based
 early stopping on each core's own validation weeks (epoch 22 on the canonical
 core), never transplanted across constructions.
 
 \section{Baselines}
 Five baseline families bracket the model. The training-free
-\emph{recurrence} baseline scores a candidate by how often the exact triple
-occurred in prior history \citep{Gastinger2024Recurrence}; \emph{popularity}
-ranks by global historical frequency. Static embeddings --- ComplEx
-\citep{Trouillon2016ComplEx} and DistMult \citep{Yang2015DistMult} --- are
-trained on all pre-test weeks and score structural plausibility independent
-of recurrence. Classical heuristics --- Common Neighbours and Adamic--Adar
-\citep{AdamicAdar2003, LibenNowell2007} --- operate on a trailing twelve-week
-subgraph, with the query entity excluded from its own candidate set. Finally,
+recurrence baseline scores a candidate by how often the exact triple
+occurred in prior history (\citealp{Gastinger2024Recurrence};
+Equation~\ref{eq:recurrence}); popularity
+ranks by global historical frequency. The static embedding ComplEx
+\citep{Trouillon2016ComplEx} is trained on all pre-test weeks and scores
+structural plausibility independent of recurrence; its bilinear predecessor
+DistMult \citep{Yang2015DistMult} appears as the decoder form inside the
+temporal network and the semantic scorer rather than as a separate baseline;
+both scoring functions are displayed in Equation~\ref{eq:scoring}. The classical heuristics Common Neighbours and Adamic--Adar
+\citep{AdamicAdar2003, LibenNowell2007} operate on a trailing twelve-week
+subgraph, with the query entity excluded from its own candidate set
+(Equation~\ref{eq:heuristics}). Finally,
 ChronoBERT entity-name embeddings \citep{He2025Chrono} with a lightweight
-trained scorer provide a point-in-time-clean \emph{semantic} baseline.
+trained scorer provide a point-in-time-clean semantic baseline.
 Backoff hybrids use the recurrence rank for recurring candidates and a second
 scorer for novel ones.
 
 \section{Evaluation Protocol and Uncertainty}
 All scorers observe strictly pre-$t$ history, with within-week
 update-after-scoring ordering so no same-week information leaks. Confidence
-intervals are 95\% paired bootstrap (1{,}000 resamples over test directions),
-and --- a methodological lesson of this dissertation --- small gaps are
+intervals are 95\% paired bootstrap \citep{Efron1979Bootstrap} (1{,}000
+resamples over test directions),
+and, as a methodological lesson of this dissertation, small gaps are
 additionally checked against training-seed replication, because query
 resampling alone conditions on a single training run and understates
-uncertainty (Chapter~\ref{ch:pit}). The full benchmark is run on the 200k
+uncertainty (Section~\ref{ch:pit}). Concretely, with per-direction
+reciprocal ranks $\mathrm{rr}_d$ (seed-averaged where seed replicates
+exist) and resample index sets $I_b$,
+\begin{equation}
+\widehat{\mathrm{MRR}}_b = \frac{1}{|I_b|} \sum_{d \in I_b}
+\mathrm{rr}_d, \qquad b = 1, \dots, 1{,}000,
+\label{eq:bootstrap}
+\end{equation}
+and the percentile interval of the $\widehat{\mathrm{MRR}}_b$ is reported;
+a gap between two systems reuses the same $I_b$ for both, pairing the
+comparison at the query level. The full benchmark is run on the 200k
 core, the 600k core and the canonical deduplicated core.
 
 \section{Central Question: Does Temporal Structure Help?}
@@ -1012,6 +1783,7 @@ Table~\ref{tab:benchmark} reports the canonical-core benchmark.
 \caption{Link-prediction benchmark on the canonical deduplicated core
 (raw ranking; 95\% bootstrap CIs in brackets where computed).}
 \label{tab:benchmark}
+\resizebox{\textwidth}{!}{%
 \begin{tabular}{lrrrr}
 \toprule
 Method & MRR all & MRR recurring & MRR novel & Hits@10 \\
@@ -1027,57 +1799,334 @@ Backoff (rec $\rightarrow$ RE-GCN) & 0.215 & 0.511 & 0.031 & 0.337 \\
 \textbf{Backoff (rec $\rightarrow$ ChronoBERT)} & \textbf{0.218 [.215,
 .221]} & 0.511 & 0.035 & \textbf{0.342} \\
 \bottomrule
+\end{tabular}}%
+\end{table}
+
+Four findings follow. Recurrence dominates what is predictable:
+recurring edges reach MRR $\approx 0.5$ while every method sits near a low
+ceiling on novel edges. Semantic beats structural on novel edges: the
+ChronoBERT baseline exceeds ComplEx by $+0.011$ MRR
+[95\% CI $+0.009, +0.013$], a gap well above seed noise and five times the
+lookahead bound, making the recurrence$\rightarrow$ChronoBERT backoff
+the strongest system. Temporal structure helps only with density: on
+the sparse 200k core the temporal network merely matches ComplEx (novel MRR
+0.025 for both), and its score is invariant to shuffling the order of history;
+on the denser cores, however, a modest advantage emerges (0.031 vs 0.025 novel
+on the canonical core). This qualified null is reported as a substantive
+finding. The ranking replicates: the method ordering
+(recurrence-backoff best overall; ChronoBERT $>$ RE-GCN $\geq$ ComplEx $\gg$
+heuristics on novel edges) is identical on all three constructions
+(Appendix~B), across corpus scale, thresholds and deduplication.
+
+\section{Ablation: Velocity Features in the Forecasting Model}
+\label{sec:velablation}
+The theme system of Chapter~\ref{ch:exp2} rests on link-formation velocity;
+a natural question is whether the same signal improves link-level
+forecasting. We test the hypothesis directly. Each entity-week receives
+three trailing features from the detector's own machinery
+(Section~\ref{sec:causalaccel}): $\log(1+O)$, $\log(1+E)$ and the clipped
+surprise $z$, computed over the same four-week recent and 26-week baseline
+windows. The features are linearly projected into the pre-activation of the
+temporal network's weekly evolution step: the snapshot pre-activation
+becomes
+\begin{equation}
+\mathbf{a}_i = W_n\, \mathrm{agg}_i + W_s \mathbf{h}_i + W_f
+\mathbf{f}_{i,t}, \qquad
+\mathbf{f}_{i,t} = \bigl( \log(1+O),\, \log(1+E),\, \mathrm{clip}(z)/10
+\bigr),
+\label{eq:velinject}
+\end{equation}
+with $\mathrm{agg}_i$ the relational message aggregate and $W_f$ the only
+added parameters. The baseline arm, with the
+projection disabled, is bit-identical to the frozen benchmark model, and its
+three-seed mean (0.120 all, 0.031 novel) reproduces the benchmark entry in
+Table~\ref{tab:benchmark}. Both arms are trained under identical
+hyperparameters and early stopping, three seeds each, and compared by paired
+per-query bootstrap on seed-averaged reciprocal ranks (1{,}000 resamples
+over the 49{,}620 test directions).
+
+\begin{table}[ht]
+\centering
+\caption{Velocity-feature ablation on the canonical deduplicated core
+(three-seed mean MRR; paired per-query bootstrap gap with 95\% CI; gaps
+are computed before rounding).}
+\label{tab:velablation}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lrrr}
+\toprule
+ & MRR all & MRR recurring & MRR novel \\
+\midrule
+RE-GCN (baseline arm) & 0.120 & 0.264 & 0.031 \\
+RE-GCN $+$ velocity features & 0.106 & 0.239 & 0.023 \\
+\midrule
+Paired gap & $-0.015$ [$-.016,-.014$] & $-0.025$ [$-.027,-.022$] &
+$-0.009$ [$-.010,-.008$] \\
+\bottomrule
+\end{tabular}}%
+\end{table}
+
+The result is unambiguous: velocity features degrade forecasting on
+every subset (Table~\ref{tab:velablation}), by margins far exceeding the
+training-seed spread ($\leq 0.008$ MRR). Validation scores of the two arms
+are comparable (0.123--0.129 against 0.118--0.121), so the degradation appears
+out of sample rather than in optimisation. The interpretation is consistent
+with the bimodal picture above: burst statistics announce that an
+entity is becoming active, not which partner it will link to, and
+injecting this attention signal into entity evolution perturbs the stable
+co-occurrence geometry on which recurrence-dominated prediction relies. The
+degradation is largest where that geometry does the work, on
+recurring edges. One integration design is tested here (input-side linear
+injection of three features); richer designs could behave differently, and
+the claim is scoped accordingly. The direction is consonant with
+evidence from general temporal networks, where \citet{He2024Stacking}
+find that computationally expensive temporal topological features are
+often no more accurate than well-chosen static features; the result here
+sharpens that lesson for a relation-typed financial graph, where the
+injected activity statistics are not merely unhelpful but harmful. Read together with Chapter~\ref{ch:exp2},
+the ablation sharpens the division of labour: velocity is a detection
+signal, not a forecasting feature.
+
+\section{Error Anatomy and Worked Examples}
+\label{sec:erroranatomy}
+Aggregate metrics answer whether the models work; they do not show what the
+forecaster actually does. This section gives the benchmark the same
+instance-level treatment the theme system received in
+Section~\ref{sec:precisionaudit}, from the frozen per-query ranks (the
+reconstruction is validated by recomputing the published backoff MRR to
+four decimal places).
+
+\begin{table}[ht]
+\centering
+\caption{Per-relation forecastability (three-seed RE-GCN, canonical core;
+relations with at least 100 test edges).}
+\label{tab:perrel}
+\begin{tabular}{lrrrr}
+\toprule
+Relation & $n$ & Novel & MRR & MRR novel \\
+\midrule
+Operate\_In & 11{,}030 & 60\% & 0.119 & 0.022 \\
+Relate\_To & 4{,}817 & 55\% & 0.118 & 0.030 \\
+Positive\_Impact\_On & 3{,}162 & 71\% & 0.082 & 0.037 \\
+Has & 1{,}301 & 77\% & 0.080 & 0.028 \\
+Control & 841 & 52\% & 0.232 & 0.065 \\
+Raise & 817 & 69\% & 0.162 & 0.035 \\
+Impact & 786 & 63\% & 0.194 & 0.057 \\
+Negative\_Impact\_On & 540 & 79\% & 0.099 & 0.057 \\
+Produce & 517 & 57\% & 0.185 & 0.066 \\
+Invests\_In & 505 & 69\% & 0.060 & 0.034 \\
+Is\_Member\_Of & 229 & 23\% & 0.282 & 0.015 \\
+\bottomrule
 \end{tabular}
 \end{table}
 
-Four findings follow. \emph{Recurrence dominates what is predictable}:
-recurring edges reach MRR $\approx 0.5$ while every method sits near a low
-ceiling on novel edges. \emph{Semantic beats structural on novel edges}: the
-ChronoBERT baseline exceeds ComplEx by $+0.011$ MRR
-[95\% CI $+0.009, +0.013$], a gap an order of magnitude above both seed noise
-and the lookahead bound, making the recurrence$\rightarrow$ChronoBERT backoff
-the strongest system. \emph{Temporal structure helps only with density}: on
-the sparse 200k core the temporal network merely matches ComplEx (novel MRR
-0.025 for both), and its score is invariant to shuffling the order of history
---- but on the denser cores a modest advantage emerges (0.031 vs 0.025 novel
-on the canonical core). This qualified null is reported as a substantive
-finding. \emph{The ranking replicates}: the method ordering ---
-recurrence-backoff best overall; ChronoBERT $>$ RE-GCN $\geq$ ComplEx $\gg$
-heuristics on novel edges --- is identical on all three constructions
-(Appendix~B), across corpus scale, thresholds and deduplication.
+\textbf{Where the skill lives, by relation.} The most forecastable
+relations are the structural staples (Table~\ref{tab:perrel}):
+Is\_Member\_Of (0.282, and only 23\% novel, since memberships persist) and
+Control (0.232, with the best novel-edge MRR of any relation, 0.065:
+ownership structure is the one thing that can partially be anticipated).
+The causal impact relations are notably not the weak spot: their
+novel edges (0.037--0.057) sit at or above the global novel ceiling of
+0.031, while the largest relation, Operate\_In, sits below it (0.022). This
+matters for interpreting Section~\ref{ch:pit}: the blinded re-extraction
+flags impact relations for extraction entity-dependence, and this table
+shows that concern does not translate into degraded forecastability. The
+two diagnostics measure different things, and both are needed.
+
+\textbf{Rank anatomy.} Over 21{,}216 candidates, recurring queries place
+the truth first 19.6\% of the time and in the top ten 42.7\%, yet a quarter
+still rank beyond 1{,}000: memory helps, but not uniformly. Novel queries
+place the truth in the top ten only 6.9\% of the time, with median rank
+1{,}728. The comparison that makes the ceiling precise: a random ranker's
+median would be near 10{,}600, so the network compresses novel ranks
+roughly sixfold even on queries it does not rank highly. There is
+genuine signal about novel
+formations; it is nowhere near the top of the list, which is the
+property the recurrence backoff exploits.
+Figure~\ref{fig:rankecdf} shows the two distributions in full.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\textwidth]{rank_ecdf.pdf}
+\caption{Empirical CDF of test ranks over 21{,}216 candidates
+(logarithmic axis), recurring against novel queries. Recurring mass
+concentrates at the head of the ranking; the novel median of 1{,}728
+sits far from the head yet roughly six times better than the random
+median near 10{,}600: novel-edge signal exists without being
+top-of-list.}
+\label{fig:rankecdf}
+\end{figure}
+
+\textbf{Composition of the headline number.} Decomposing the
+recurrence$\rightarrow$RE-GCN backoff (MRR 0.215): 91.0\% of the metric's
+mass comes from recurring queries, and exact rank-one recurrence hits alone
+contribute 0.139, which is 64\% of the headline. The best system is,
+quantifiably, two-thirds memory plus a small semantic component on the
+novel remainder; stated this way, the bimodal claim becomes an
+accounting identity rather than a qualitative description.
+
+\textbf{Worked examples.} A replica run of the canonical model (identical
+configuration and seed, landing in the canonical band at 0.119 overall and
+0.031 novel) dumped its top-ten candidates for every test query. The
+degeneracy check passes: the ten most-predicted entities fill 14.1\% of all
+top-ten slots against a natural concentration of 10.3\% in the true
+answers, over 5{,}813 distinct predicted candidates, so the model is not
+merely predicting hubs (though the third most-frequent candidate,
+a surviving template entity, echoes the noise findings of
+Chapter~\ref{ch:exp2}). The examples show what each regime looks like.
+Memory: (Apple, Operate\_In, ?) is answered Technology Sector at rank one.
+Semantic skill on a novel edge: (AbbVie, Control, ?) has truth
+Skyrizi at rank three, behind Humira and Imbruvica, three drugs of the same
+company; the model has learned the product portfolio and ranks a new
+control edge plausibly. Deep failures are often not failures of the model
+at all: (Amazon, Operate\_In, High Inflation), ranked 17{,}443, is a
+schema-bending extraction artefact, a company does not operate in a
+macroeconomic condition, so part of the irreducible novel-edge ceiling is
+anomalous ``true'' edges that no forecaster could, or should, predict.
+
+\section{Retraining on the Template-Filtered Substrate}
+\label{sec:tfretrain}
+The audit of Chapter~\ref{ch:exp2} established that filtering template
+articles improves the detection stream at no recall cost. This section
+closes the loop in the forecasting direction: if the extraction layer
+is cleaned, does edge-level forecasting improve? We retrain the
+identical RE-GCN configuration (same protocol, hyperparameters and
+three seeds) on the template-filtered core, whose substrate removes
+25.1\% of articles and 16.9\% of triple instances.
+
+The aggregate numbers move in the direction opposite to naive
+expectation, and the decomposition below makes the reason precise. Within the filtered graph the test set is far less answerable by
+memory: the recurrence baseline scores 0.157 where the canonical test
+set gives 0.196, and the backoff system lands at a three-seed mean of
+0.177 (seed spread below 0.002), while the network's novel-edge MRR is
+essentially unchanged (three-seed mean 0.030 against 0.031). These
+aggregates are not directly comparable, per the commensurability rule
+used throughout (the two graphs differ in test set and in candidate-set
+size, 19{,}374 against 21{,}216 entities); we perform a
+paired comparison on shared queries. The filtered test set is in fact a
+strict subset of the canonical one (21{,}133 of 24{,}810 queries), the
+per-query reconstruction is validated exactly (novelty flags match
+100\% and every published MRR is reproduced from the dumped ranks), and
+the novelty labels agree on 99.4\% of shared queries.
+Table~\ref{tab:tfshared} reports the paired result: on identical test
+queries the per-seed differences in mean reciprocal rank are $-0.011$,
+$-0.001$ and $-0.004$, with one confidence interval spanning zero, and
+this despite the filtered model ranking against roughly two thousand
+fewer candidates, a mild advantage that does not translate into higher
+scores. Pooling the
+seeds exactly as the ablation of Section~\ref{sec:velablation} does
+(seed-averaged reciprocal ranks, one paired bootstrap) sharpens this to
+a small but significant per-edge deficit of $-0.005$ [95\% CI $-0.006,
+-0.004$], an order of magnitude smaller than the $0.038$ aggregate
+difference that composition accounts for.
+
+\begin{table}[ht]
+\centering
+\caption{Paired comparison on the 21{,}133 test queries shared by the
+canonical and template-filtered graphs (query-level mean reciprocal
+rank; bootstrap 95\% CIs). Per-edge differences (pooled seed-averaged
+delta $-0.005$) are an order of magnitude smaller than the aggregate
+benchmark difference, which is test-set composition.}
+\label{tab:tfshared}
+\begin{tabular}{lrrr}
+\toprule
+Seed & Canonical & Filtered & $\Delta$ [95\% CI] \\
+\midrule
+0 & 0.118 & 0.107 & $-0.011$ [$-0.013,-0.010$] \\
+1 & 0.111 & 0.110 & $-0.001$ [$-0.002,+0.001$] \\
+2 & 0.111 & 0.107 & $-0.004$ [$-0.005,-0.002$] \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Template filtering changes what is being predicted, not how well the
+model predicts it. The removed edges were
+disproportionately boilerplate recurrences: triples extracted from the
+templated screener articles of Section~\ref{sec:noisecontrols}, which
+republish the same article skeleton across many tickers week after week
+(an options screener linking dozens of companies to the same metric
+entities, a ranking service re-listing its constituents), so that the
+same triples re-enter the graph on a weekly schedule. Such edges are
+exactly the queries the
+recurrence baseline answers for free, so the aggregate benchmark falls
+while per-edge skill on the surviving queries moves by an order of
+magnitude less. Combined
+with the backoff decomposition of Section~\ref{sec:erroranatomy}, in
+which 91\% of the metric's mass comes from recurring queries, the
+conclusion is that template noise inflates apparent
+forecastability, and a cleaner graph is harder to score. This
+is the substrate-level counterpart of the velocity ablation: each layer
+of the system has its own notion of signal, and improving one layer's
+input is not automatically an improvement for the other. Both effects
+are reported as measured, signed results rather than assumptions.
 
 \section{Results and Discussion}
-The picture is bimodal: the past is legible, the future is genuinely
-surprising. What recurs can be predicted almost for free, novel formations
+The picture is bimodal: the past is legible; the future is genuinely
+surprising. Recurring structure is predicted at almost no modelling
+cost, novel formations
 resist every model family tested, and the best available lever on novel edges
-is semantic knowledge of \emph{what an entity is} rather than temporal or
+is semantic knowledge of what an entity is rather than temporal or
 structural pattern. Cross-construction comparisons of absolute MRR are
-avoided throughout --- raw ranks over candidate sets of 21k--46k entities are
-not commensurable --- so the defensible cross-corpus claims are the novelty
+avoided throughout, since raw ranks over candidate sets of 21k--46k entities
+are not commensurable; the defensible cross-corpus claims are the novelty
 trajectory (72.4\% $\rightarrow$ 64.0\% $\rightarrow$ 61.6\%) and the
 invariant method ranking. The failure of triadic-closure heuristics
 (novel MRR $\approx 0.008$) is itself informative: the assumptions that hold
 in social networks transfer poorly to a financial co-mention graph. These
 results frame the theme system of Chapter~\ref{ch:exp2}: individual novel
 edges are near-unforecastable, yet their aggregate acceleration is exactly
-where exploitable signal lives.
+where exploitable signal lives. The ablation of
+Section~\ref{sec:velablation} establishes the converse as well: feeding
+that acceleration back into the link-level model only degrades it. The
+substrate-level counterpart (Section~\ref{sec:tfretrain}) completes the
+accounting: cleaning template noise out of the graph leaves per-edge
+skill intact while deflating the aggregate benchmark, so part of the
+apparent predictability of the unfiltered graph was boilerplate all
+along. A final
+slice analysis connects the two layers descriptively: partitioning the
+frozen per-query test ranks by the precision audit's labels
+(Section~\ref{sec:precisionaudit}) shows that forecasting skill
+concentrates around real themes. Test edges touching members of
+audited-REAL lifelines rank far better (MRR 0.193) than edges touching
+only noise-theme members (0.064) or neither (0.058), and the gap survives
+on novel edges (0.056 against 0.025 and 0.012, nearly twice the global
+novel ceiling). Both caveats are disclosed: the membership sets span the
+full period and the labels are post hoc, so this is descriptive rather
+than deployable, and much of the lift is an activity effect (the REAL
+slice is 51\% novel against roughly 70\% elsewhere). Two readings remain.
+The legible part of the future clusters around genuinely emerging themes,
+sharpening the bimodal picture; and the slice independently corroborates
+the audit's judge, since a network that never saw its labels finds
+REAL-theme regions three times more predictable than noise-theme regions.
 
 % =====================================================================
-\chapter{Point-in-Time Integrity}
+\chapter{Discussion and Conclusions}
+\label{ch:conclusions}
+% Marking area 4: PIT backbone + critical analysis, weaknesses, extensions.
+\begin{microabstract}
+This chapter gathers the point-in-time framework that governs all three
+experiments and concludes the dissertation. It distinguishes the two
+kinds of leakage, records what is prevented by design, and reports the
+four checks that measure what cannot be prevented; it then summarises
+the findings per experiment, weighs strengths against weaknesses,
+states the limitations and threats to validity, and sets out future
+work.
+\end{microabstract}
+
+\section{Point-in-Time Integrity}
 \label{ch:pit}
-% Marking area 4: the methodological backbone governing all three experiments.
-\section{Two Kinds of Leakage}
+\subsection{Two Kinds of Leakage}
 Two distinct threats are conflated by the umbrella term ``lookahead bias'',
-and this dissertation treats them separately. \emph{Graph and feature
-leakage} is the use, at prediction time $t$, of any data dated after $t$; it
+and this dissertation treats them separately. Graph and feature
+leakage is the use, at prediction time $t$, of any data dated after $t$; it
 is a property of the pipeline and can be eliminated by construction.
-\emph{Extractor hindsight} is subtler: the language model that built the
+Extractor hindsight is subtler: the language model that built the
 graph was trained on text postdating the corpus, so its extractions could in
 principle encode knowledge of outcomes. It cannot be eliminated without
 retraining the extractor; it can only be measured and bounded.
 
-\section{Prevented by Design}
-The first threat is addressed by mechanism, not by care: publication-date
+\subsection{Prevented by Design}
+The first threat is addressed by mechanism rather than by manual
+vigilance: publication-date
 timestamping of every edge (the single most important control); chronological
 train/validation/test splits fixed once; structural masking, so any model at
 time $t$ observes only \Gle; strictly trailing windows and rolling causal
@@ -1088,54 +2137,130 @@ disclosed exceptions to the trailing-statistics rule are the static template
 blacklist and the train-estimated NB dispersion of Chapter~\ref{ch:exp2},
 both conservative in direction.
 
-\section{Measured, Not Eliminated}
+\subsection{Measured, Not Eliminated}
 ICKG is distilled from GPT-4 and is not point-in-time clean. Residual
-hindsight is quantified with four independent checks. (i)
-\emph{Apples-to-apples retraining}: the temporal network trained on identical
-data matches static ComplEx, so no comparison rests on an uneven split. (ii)
-\emph{Time-shuffle placebo}: the temporal model's score is invariant to
-randomising the order of its history snapshots (MRR $0.090 \rightarrow
-0.091$), so the null result is intrinsic to the data rather than a tuning
-artifact. (iii) \emph{Blinded re-extraction}: re-extracting a 300-article
-sample with entity names and dates masked retains the relational structure
-(relation-mix total-variation distance 0.10), confirming text-grounded
-extraction; only the causal ``impact'' relations lose share ($27.5\%
-\rightarrow 21.1\%$), which flags impact-relation analyses --- not link
-prediction --- as entity-dependent. (iv) \emph{Cutoff-controlled ChronoBERT
-comparison} \citep{He2025Chrono}: scoring the same task with two versions of
-the same model differing only in training cutoff (2022, blind to the test
-year, vs 2024) bounds lookahead below measurement resolution. The apparent
-gap ($+0.0010$ MRR at 200k) initially tested significant under the query
-bootstrap, but training-seed replication showed run-to-run noise of the same
-size, and on the canonical core the gap is not significant even before that
-correction ($+0.0005$, 95\% CI $[-0.0009, +0.0019]$). The honest conclusion
-is a bound, not a detection: extractor lookahead is below $\sim$0.002 MRR,
-an order of magnitude smaller than the semantic effect it could be confused
-with. The methodological lesson --- query resampling conditions on a single
-training run and can certify noise as signal --- is reported as a
-contribution in its own right.
+hindsight is quantified with four independent checks, chosen so that each
+rules out a different contamination channel; they are summarised in
+Table~\ref{tab:pitchecks} and examined in turn below.
 
-% =====================================================================
-\chapter{Discussion and Conclusions}
-\label{ch:conclusions}
-% Marking area 4: critical analysis, weaknesses, extensions.
+\begin{table}[ht]
+\centering
+\caption{The four extractor-hindsight checks and what each rules out.}
+\label{tab:pitchecks}
+\begin{tabular}{lll}
+\toprule
+Check & Result & Rules out \\
+\midrule
+Apples-to-apples retrain & novel MRR 0.025 $=$ 0.025 & an uneven data split \\
+Time-shuffle placebo & $0.090 \rightarrow 0.091$ & temporal-order signal \\
+Blinded re-extraction & relation-mix TV $0.10$ & hindsight-driven structure \\
+ChronoBERT cutoff test & $+0.0005$ [$-.0009, .0019$] & lookahead in embeddings \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{Apples-to-Apples Retraining}
+Architectural comparisons can conceal data advantages: the early-stopped
+temporal network holds out validation weeks that the static embedding
+trains on, so a gap between them could reflect the split rather than the
+architecture. The check retrains the temporal network on data identical to
+ComplEx's, removing the asymmetry. On the sparse 200k core the two then
+match exactly (novel MRR 0.025 for both): no comparison in
+Chapter~\ref{ch:exp3} rests on an uneven split, and the temporal network's
+later advantage on denser cores cannot be a data artefact.
+
+\subsubsection{Time-Shuffle Placebo}
+If a temporal model's score is unchanged when the order of its history
+snapshots is randomised, the model is, by definition, extracting no
+temporal-ordering information. This is observed on the 200k core: MRR
+$0.090 \rightarrow 0.091$ under shuffling. The check is decisive for
+interpreting the qualified null of Chapter~\ref{ch:exp3}: the absence of a
+temporal advantage at that density is intrinsic to the data, not a tuning
+failure, and no amount of hindsight in the extractor could manufacture
+ordering signal that the shuffle shows is absent. The same check motivated
+the density investigation, since a null that is intrinsic at one density
+may lift at another, which is what the 600k rebuild found.
+
+\subsubsection{Blinded Re-Extraction}
+The most direct probe of extractor hindsight: re-extract a 300-article
+sample with entity names and dates masked, so the model cannot recognise
+who or when, and compare the output. The relational structure is retained
+(valid triples per article $16.8 \rightarrow 21.8$; relation-mix
+total-variation distance $0.10$), confirming that extraction is grounded in
+the text rather than in recalled knowledge of the entities. The
+distributional statement is
+\begin{equation}
+\mathrm{TV}(p, q) = \tfrac{1}{2} \sum_{r} | p_r - q_r | = 0.10,
+\label{eq:tv}
+\end{equation}
+over the fifteen relation shares $p$ (unblinded) and $q$ (blinded): the
+two distributions can disagree on at most 10\% of probability mass. One family is
+the exception: the causal ``impact'' relations lose roughly a third of
+their share ($27.5\% \rightarrow 21.1\%$), so causal attributions carry
+measurable entity-dependence, and hindsight versus naming-specificity is
+not separable by this test. The concern attaches to impact-relation analyses
+specifically, and the error anatomy of Section~\ref{sec:erroranatomy}
+sharpens the boundary from the other side: the forecastability of impact
+relations is unimpaired (their novel edges sit at or above the global
+ceiling), so the entity-dependence concern is about how impact edges are
+extracted, not about how they behave once in the graph.
+
+\subsubsection{The Cutoff-Controlled ChronoBERT Comparison}
+The sharpest instrument, following the capacity-controlled design of
+\citet{He2025Chrono}: score the same link-prediction task with two versions
+of the same model differing only in training cutoff, 2022 (blind to the
+test year) against 2024 (which has ingested it). Any lookahead in entity
+knowledge should appear as the 2024 model's advantage. The apparent gap
+($+0.0010$ MRR at 200k) initially tested significant under the query
+bootstrap; training-seed replication then showed run-to-run noise of the
+same size (three-seed ranges fully overlapping, the later model not even
+consistently ahead), and on the canonical core the gap is not significant
+even before that correction ($+0.0005$, 95\% CI $[-0.0009, +0.0019]$). The
+conclusion is a bound, not a detection: extractor lookahead is below
+$\sim$0.002 MRR, well below the $+0.011$ semantic effect it could be
+confused with. Query resampling that conditions on a single training run
+can certify noise as signal; this means that small model-comparison effects need
+training-stochasticity replication before they are believed.
+
 \section{Summary of Findings}
-Five findings summarise the dissertation. First, a reproducible,
+\textbf{Building the Time-Indexed Knowledge Graph.} A reproducible,
 point-in-time-clean temporal knowledge graph can be built from public news
 with an open, locally hosted extractor at practical cost, and its dominant
-data-hygiene hazard --- syndication duplication in per-ticker corpora --- can
-be measured and corrected. Second, link-formation velocity, causally scored
-and clustered on the graph, supports a walk-forward theme-discovery system
-that detects 8/10 major 2020--2023 themes at a median lead of $-1$ week,
-far above a placebo chance of $\approx 2/10$ ($p \approx 10^{-4}$), robustly
-across detector families, dispersion assumptions and window choices. Third,
-lead time reflects the information structure of the event: anticipatable
-themes are flagged weeks early, pure shocks at the news-flow floor. Fourth,
-edge-level forecasting is bimodal --- recurring relationships are highly
-predictable, novel ones sit near a low ceiling for every method, temporal
-structure helps only as data density grows, and semantic priors are the best
-lever on novel edges. Fifth, extractor lookahead bias is bounded below
-measurement resolution by a cutoff-controlled comparison.
+data-hygiene hazard, syndication duplication in per-ticker corpora, can
+be measured and corrected.
+
+\textbf{Edge-Formation Velocity, Burst Detection, and Walk-Forward Theme
+Discovery.} Link-formation velocity, causally scored and clustered on the graph, supports
+a walk-forward theme-discovery system that detects 8/10 major 2020--2023
+themes at a median lead of $-1$ week, far above a placebo chance of
+$\approx 2/10$ ($p \approx 10^{-4}$), robustly across detector families,
+dispersion assumptions and window choices. Lead time reflects the information
+structure of the event: anticipatable themes are flagged weeks early, pure
+shocks at the news-flow floor. A blind, validated lifeline-level audit puts
+the high-recall stream's precision at 37.9\%, localises its largest
+correctable share to template-bound clusters, and shows that filtering
+template articles from the substrate lifts precision to 44.7\% at no cost
+to recall. The audit's labels generalise into instruments: a distilled
+lightweight judge reproduces them on held-out storylines, and removing
+the labelled template class from the stream costs no gold-list
+detection.
+
+\textbf{Temporal Link Prediction under Point-in-Time Discipline.}
+Edge-level forecasting is bimodal:
+recurring relationships are highly predictable, novel ones sit near a low
+ceiling for every method, temporal structure helps only as data density
+grows, and semantic priors are the best lever on novel edges. Injecting the
+detector's velocity features into the temporal network significantly
+degrades forecasting on every subset, confirming that velocity is a
+detection signal rather than a forecasting feature. Retraining the
+network on the template-filtered graph adds the complementary
+composition result: per-edge skill on shared queries barely moves while
+the aggregate benchmark falls, because template noise inflates apparent
+forecastability.
+
+\textbf{Point-in-Time Integrity.} Extractor lookahead bias is bounded below
+measurement resolution by a cutoff-controlled comparison, and query
+resampling alone is shown to be an unreliable certifier of small effects.
 
 \section{Strengths and Weaknesses}
 The work's principal strength is the validation discipline around its central
@@ -1143,37 +2268,56 @@ claim: a frozen gold list with event-anchored windows, a placebo null, three
 burst detectors scored against their own chance levels, dispersion and window
 sensitivity, and replication of the benchmark across three graph
 constructions. Its corresponding weakness is breadth over depth in places:
-the theme system's precision is established at the week level (placebo) but a
-lifeline-level false-discovery audit remains manual future work; and the
-velocity signal is used for discovery, not yet injected as a feature into the
-temporal network, so the feature-ablation form of the velocity question
-remains open.
+the lifeline-level audit of Section~\ref{sec:precisionaudit} rests on a
+single judging model under a single rubric, anchored by controls and
+twenty-four hand-labelled packs across two subsets; the two candidate second
+judges failed the control gate, so no independent model corroboration
+exists (the distilled small judge, trained on the teacher's own labels,
+inherits rather than corrects this dependence); and the
+velocity-feature ablation of Section~\ref{sec:velablation} tests a single
+integration design, so its negative verdict is scoped to that design rather
+than to every conceivable use of burst statistics in a forecasting model.
 
 \section{Limitations and Threats to Validity}
-\emph{Residual extractor hindsight} is bounded, not zero, and causal impact
-relations carry measurable entity-dependence. \emph{Corpus coverage}: a
-Nasdaq-equity news corpus under-reports crypto and private-company themes,
-which is why FTX and ChatGPT are missed --- detection is bounded by what the
-corpus reports. \emph{Duplication}: exact-hash deduplication is a lower
-bound; near-duplicates survive. \emph{GPE sparsity}: country relations are
-thin in a US-centric corpus. \emph{Metric comparability}: absolute raw MRRs
+Residual extractor hindsight is bounded, not zero, and causal impact
+relations carry measurable entity-dependence. Corpus coverage: a
+US-equity news corpus under-reports crypto and private-company themes,
+which is why FTX is missed outright; the ChatGPT signal is instead absorbed
+by a pre-existing lifeline under the conservative credit rule
+(Section~\ref{sec:exp2results}). Detection is bounded by what the corpus reports. Duplication: exact-hash deduplication is a lower
+bound; near-duplicates survive. GPE sparsity: country relations are
+thin in a US-centric corpus. Metric comparability: absolute raw MRRs
 are not comparable across candidate-set sizes, so cross-construction claims
-are restricted to rankings and novelty rates. \emph{Regime dependence}: the
+are restricted to rankings and novelty rates. Temporal resolution:
+all analyses run on weekly buckets, so lead times are quantised to whole
+weeks and carry an inherent $\pm 1$-week jitter at bucket boundaries; the
+$+1$-week news-flow floor observed for shock events is therefore partly a
+resolution artefact, and a daily-resolution system might flag such events
+within days. Finer bucketing is a data-density trade-off rather than a free
+improvement: daily formation counts on this core would be too sparse to
+support stable surprise baselines. Regime dependence: the
 gold list is concentrated in 2020--2023; earlier, calmer regimes contribute
-fewer validation events. \emph{Multiple testing}: the gold list and windows
+fewer validation events. Multiple testing: the gold list and windows
 were frozen before evaluation, but ten events remain a small sample.
-\emph{Static inputs}: the template blacklist and the NB dispersion are
+Static inputs: the template blacklist and the NB dispersion are
 full-period or train-period statistics, disclosed in
 Chapter~\ref{ch:exp2}.
 
 \section{Future Work}
-Four extensions follow directly. Injecting velocity and acceleration as
-explicit features into the temporal network would answer the feature-ablation
-form of the velocity question. Entity resolution --- shown by the crude-merge
-bound to move novelty by roughly four percentage points --- is the next
+Five extensions follow directly. The velocity-feature ablation tested one
+input-side injection of burst statistics; gated, decoder-side or
+per-relation integrations would establish whether any design escapes its
+negative verdict. At the extraction layer, the audit motivates prompt- or
+fine-tune-level noise suppression: the extractor was run with its
+training-matched prompt as a fixed instrument, but a retrained adapter
+could be asked to emit canonical entity names, to ignore screener
+boilerplate at source, or to attach per-triple confidence, each targeting a
+failure mode this dissertation measured downstream. Entity resolution, shown by the crude-merge
+bound to move novelty by roughly four percentage points, is the next
 data-quality lever. The detection layer would benefit from a rolling template
-blacklist, hierarchical burst detection, and a lifeline-level false-discovery
-audit. Finally, the FNSPID price series enable a downstream study of whether
+blacklist, extended fingerprint coverage for the template-filtered
+configuration (company-name skeletons are under-caught), and hierarchical
+burst detection. Finally, the FNSPID price series enable a downstream study of whether
 theme leads translate into investable signal; that application is treated
 throughout as a use of the method, not its aim.
 
@@ -1203,6 +2347,11 @@ Mechanics: Theory and Experiment}, P10008. arXiv:0803.0476.
 Bordes, A. et al., 2013. Translating Embeddings for Modeling Multi-relational
 Data. {\em Advances in Neural Information Processing Systems 26 (NeurIPS 2013)}.
 
+\bibitem[Cho et al.(2014)]{Cho2014GRU}
+Cho, K. et al., 2014. Learning Phrase Representations using RNN
+Encoder--Decoder for Statistical Machine Translation. {\em Proceedings of
+EMNLP 2014}. arXiv:1406.1078.
+
 \bibitem[Devlin et al.(2019)]{Devlin2019BERT}
 Devlin, J., Chang, M.-W., Lee, K. \& Toutanova, K., 2019. BERT: Pre-training of
 Deep Bidirectional Transformers for Language Understanding. {\em Proceedings of
@@ -1221,6 +2370,16 @@ Annals of Statistics}, 7(1), pp. 1--26.
 Gastinger, J. et al., 2024. History Repeats Itself: A Baseline for Temporal
 Knowledge Graph Forecasting. {\em Proceedings of the 33rd International Joint
 Conference on Artificial Intelligence (IJCAI)}. arXiv:2404.16726.
+
+\bibitem[Glasserman \& Lin(2023)]{GlassermanLin2023}
+Glasserman, P. \& Lin, C., 2023. Assessing Look-Ahead Bias in Stock Return
+Predictions Generated by GPT Sentiment Analysis. {\em arXiv preprint}
+arXiv:2309.17322.
+
+\bibitem[He et al.(2024)]{He2024Stacking}
+He, X., Ghasemian, A., Lee, E., Clauset, A. \& Mucha, P. J., 2024. Sequential
+Stacking Link Prediction Algorithms for Temporal Networks. {\em Nature
+Communications}, 15.
 
 \bibitem[He et al.(2025)]{He2025Chrono}
 He, S., Lv, L., Manela, A. \& Wu, J., 2025. Chronologically Consistent Large
@@ -1267,6 +2426,12 @@ pp. 100--115.
 \bibitem[Qwen Team(2024)]{Qwen2024}
 Qwen Team, 2024. Qwen2.5 Technical Report. {\em arXiv preprint} arXiv:2412.15115.
 
+\bibitem[Schlichtkrull et al.(2018)]{Schlichtkrull2018RGCN}
+Schlichtkrull, M., Kipf, T. N., Bloem, P., van den Berg, R., Titov, I. \&
+Welling, M., 2018. Modeling Relational Data with Graph Convolutional
+Networks. {\em Proceedings of the 15th European Semantic Web Conference
+(ESWC 2018)}. arXiv:1703.06103.
+
 \bibitem[Trouillon et al.(2016)]{Trouillon2016ComplEx}
 Trouillon, T. et al., 2016. Complex Embeddings for Simple Link Prediction. {\em
 Proceedings of the 33rd International Conference on Machine Learning (ICML)}.
@@ -1280,10 +2445,20 @@ Information Processing Systems 30 (NeurIPS 2017)}. arXiv:1706.03762.
 Vitter, J. S., 1985. Random Sampling with a Reservoir. {\em ACM Transactions on
 Mathematical Software}, 11(1), pp. 37--57.
 
+\bibitem[Wilson(1927)]{Wilson1927}
+Wilson, E. B., 1927. Probable Inference, the Law of Succession, and
+Statistical Inference. {\em Journal of the American Statistical Association},
+22(158), pp. 209--212.
+
 \bibitem[Yang et al.(2015)]{Yang2015DistMult}
 Yang, B. et al., 2015. Embedding Entities and Relations for Learning and
 Inference in Knowledge Bases. {\em International Conference on Learning
 Representations (ICLR)}. arXiv:1412.6575.
+
+\bibitem[Zheng et al.(2023)]{Zheng2023Judge}
+Zheng, L. et al., 2023. Judging LLM-as-a-Judge with MT-Bench and Chatbot
+Arena. {\em Advances in Neural Information Processing Systems (NeurIPS),
+Datasets and Benchmarks Track}. arXiv:2306.05685.
 
 \end{thebibliography}
 
@@ -1296,14 +2471,17 @@ All experiments are scripted and seeded. Extraction ran with vLLM on two RTX
 Pro 6000 GPUs (Chapter~\ref{ch:exp1}); every analysis, including the temporal
 network with validation-based early stopping, the ChronoBERT scorers, the
 bootstrap, the three burst detectors and the full theme system, reproduces on
-a single 6\,GB consumer GPU. The analysis environment is Python 3.12 with
+a single 6\,GB consumer GPU; the precision-audit judge additionally requires
+a ${\sim}16$\,GB GPU for its quantised 14B judging model (vLLM 0.9.2 with
+transformers 4.53.2). The analysis environment is Python 3.12 with
 PyTorch (CUDA), networkx, NumPy, SciPy and pandas. Each graph construction is
 a directory of FinDKG-format flat files (entity, relation and time indices;
 chronologically split quadruple lists; weighted edge-week table); an
 environment variable selects the construction so that every module runs
-unchanged on any of the three. The derived knowledge-graph dataset (triples
+unchanged on any of them (the three benchmark constructions and the
+template-filtered detector substrate). The derived knowledge-graph dataset (triples
 and indices) and the source code are released for replication. Article text
-is not re-redistributed: FNSPID is distributed under CC BY-NC 4.0 and the
+is not redistributed onward: FNSPID is distributed under CC BY-NC 4.0 and the
 underlying articles remain publisher-copyrighted, so the release instead
 includes the exact FNSPID row identifiers of every sampled article together
 with the seeded sampling scripts, from which both corpora reconstruct
@@ -1311,7 +2489,19 @@ exactly from the public FNSPID distribution. Fixed constants: weekly bucketing o
 0--254/255--309/310--364; detector gate $z \geq 3$, $O_t \geq 6$; windows
 $r=4$, $b=26$ (defaults); Louvain seed 42; lifeline matching Jaccard
 $\geq 0.3$ with an eight-week gap; NB dispersion $\alpha = 3.75$; bootstrap
-$B = 1{,}000$; placebo draws $100{,}000$.
+$B = 1{,}000$; placebo draws $100{,}000$. Audit constants: packs of the top
+twelve members with up to ten source articles from the window
+$[\text{birth}-4\text{wk}, \text{birth}+1\text{wk}]$, the top three carrying
+450-character body ledes; judge Qwen2.5-14B-Instruct-AWQ under greedy
+decoding with a fixed prompt and a rubric frozen before judging; article
+fingerprints (v2) with skeleton recurrence $\geq 25$ and entity
+template-share $\geq 60\%$; Louvain resolution 1.0 (1.5 and 2.0 appear only
+in the rejected sweep). Distilled-judge constants:
+Qwen2.5-1.5B-Instruct with LoRA rank 16, $\alpha_{\text{LoRA}} = 32$,
+dropout 0.05, learning rate $10^{-4}$, three epochs, completion-only
+loss, sequence length 3{,}072, seed 0; storyline groups by
+cross-configuration member overlap (Jaccard $\geq 0.3$); held-out
+groups born 2022 or later.
 \chapter{Additional Results}
 \section*{Cross-construction replication}
 The method ranking of Chapter~\ref{ch:exp3} is identical on all three graph
@@ -1356,5 +2546,26 @@ $r=8$ & 8/10 ($p=3.8\times10^{-4}$) & 8/10 ($p=4\times10^{-5}$) &
 
 The $r=8$, $b=26$ cell achieves the earliest detection (median lead $-2$
 weeks; 88\% early-or-on-time); shorter recent windows detect slightly later.
+
+\section*{Judge calibration}
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.62\textwidth]{calibration_judge.pdf}
+\caption{Reliability of the distilled judge's REAL probability on the
+207 held-out packs (five equal-width bins; Brier 0.112 against an
+all-base-rate reference of 0.181; expected calibration error 0.074).
+The curve is monotone but over-confident in the middle bins.}
+\label{fig:calibration}
+\end{figure}
+
+\section*{Theme lifeline landscape}
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\textwidth]{timeline_lenient.pdf}
+\caption{The top 28 theme lifelines by peak score (lenient configuration)
+across the study window, with gold-list event weeks overlaid. EMERGING
+lifelines in blue, recurring in grey.}
+\label{fig:timeline}
+\end{figure}
 
 \end{document}

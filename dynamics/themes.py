@@ -105,6 +105,12 @@ def main():
     ap.add_argument("--recent", type=int, default=RECENT, help="trailing acceleration window (wk)")
     ap.add_argument("--base", type=int, default=BASE, help="trailing baseline window (wk)")
     ap.add_argument("--tag", default=None, help="output-file tag (default: lenient/strict)")
+    ap.add_argument("--dump-members", action="store_true",
+                    help="also write full lifeline membership (theme_members_<mode>.csv); "
+                         "adds an output, changes nothing else")
+    ap.add_argument("--resolution", type=float, default=1.0,
+                    help="Louvain resolution (>1 = smaller, tighter clusters; the audit found "
+                         "part of the INCOHERENT mass is over-merged clusters)")
     a = ap.parse_args()
     mode = a.tag or ("strict" if a.strict else "lenient")
 
@@ -174,7 +180,8 @@ def main():
                 if s in cset and o in cset and s != o:
                     G.add_edge(s, o, weight=G.get_edge_data(s, o, {"weight": 0})["weight"] + wt)
 
-        comms = nx.community.louvain_communities(G, weight="weight", seed=SEED)
+        comms = nx.community.louvain_communities(G, weight="weight", seed=SEED,
+                                                 resolution=a.resolution)
         clusters = [sorted(c) for c in comms if len(c) >= MIN_SIZE]
         if not clusters:
             book(); continue
@@ -239,6 +246,11 @@ def main():
                                      "fresh", "status", "members"])
     lf = lf.sort_values("peak_score", ascending=False).reset_index(drop=True)
     lf.to_csv(OUT / f"theme_lifelines_{mode}.csv", index=False)
+    if a.dump_members:   # full untruncated membership for the precision audit (display col is top-6)
+        mrows = [(tid, e, kg.id2name[e], round(th["excess_by_ent"][e], 2))
+                 for tid, th in themes.items() for e in sorted(th["excess_by_ent"])]
+        pd.DataFrame(mrows, columns=["theme", "ent", "name", "excess"]).to_csv(
+            OUT / f"theme_members_{mode}.csv", index=False)
 
     em = lf[lf["status"] == "EMERGING"]
     print(f"\n=== [{mode}] {len(lf):,} theme lifelines ({len(em):,} EMERGING / {len(lf)-len(em):,} recurring) "

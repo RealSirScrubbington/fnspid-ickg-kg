@@ -189,6 +189,17 @@ The full pipeline was re-run on a 3× larger sample (604,800 articles → 11.5M 
   SAME ranking as the 200k and duplicated-600k cores (replication). **Lookahead on the canonical core:
   +0.0005 [−0.0009, +0.0019] n.s.** — confirms the "< ~0.002 MRR bound" conclusion empirically.
   CN/AA (fixed): 0.025/0.029 all, ~0.008 novel — negative result replicates.
+- **VELOCITY-FEATURE ABLATION (dedup core, `regcn.py --velocity-features` + `ablation_eval.py`):**
+  the theme detector's three trailing per-entity statistics (log1p obs, log1p exp, clipped z;
+  exact 4wk/26wk machinery) linearly projected into RE-GCN's weekly evolution pre-activation;
+  2 arms × 3 seeds, identical hyperparameters + early stopping (baseline arm bit-identical to the
+  frozen model; 3-seed mean 0.120 all / 0.031 novel reproduces the benchmark entry). Paired
+  per-query bootstrap on seed-averaged reciprocal ranks (B=1000, 49,620 test directions):
+  **velocity features significantly DEGRADE forecasting** — all −0.015 [−.016,−.014], recurring
+  −0.025 [−.027,−.022], novel −0.009 [−.010,−.008]; seed spread ≤ 0.008 (gap ≫ spread). Burst
+  statistics say THAT an entity is active, not WHICH link forms: **velocity is a detection signal,
+  not a forecasting feature** (one integration design tested — input-side linear injection).
+  Outputs: `data/dynamics/linkpred/regcn_{results,ranks}_abl_*.{csv,npz}`.
 
 ## Emerging-theme detection (`themes.py`, `themes_eval.py`) — the headline system
 Walk-forward detector of anomalously accelerating themes (the thesis brief's core deliverable), run
@@ -219,3 +230,45 @@ gold-list conclusion holds under both.
 base ∈ {13,26,52}) detects 7–8/10 with placebo p < 4e-4; shorter windows detect slightly later,
 longer slightly earlier (r8/b26: 8/10, median −2wk). Detection is not a window artifact.
 Outputs: `data/dynamics/themes/{theme_weeks,theme_lifelines}_<tag>.csv`.
+
+## Lifeline-level precision audit (`theme_audit.py`, `theme_cohesion.py`, `theme_judge.py`)
+The placebo establishes week-level precision; this audit measures **lifeline-level precision**:
+are the system's EMERGING discoveries real storylines, and are the co-occurrence edges inside
+each theme substantive rather than listicle glue? Protocol (frozen before any judging):
+- **Population:** all 282 EMERGING lifelines of the lenient config. Full membership recovered via
+  `themes.py --dump-members` (adds `theme_members_lenient.csv`; the rerun reproduced
+  `theme_weeks/theme_lifelines_lenient.csv` **byte-identically**, so frozen outputs are untouched
+  — the display `members` column is a top-6/28-char label only).
+- **Audit packs** (`theme_audit.py` → `audit_packs.jsonl`): per theme, the top-12 members by
+  accumulated excess, birth month, and up to 10 source articles from the window [birth − 4wk,
+  birth + 1wk] mentioning ≥ 1 member, ranked by distinct members hit; top-3 articles carry a
+  450-char body lede. Provenance is deterministic (dedup triple rows → article ids → corpus
+  parquet); judges see NO detector scores (blind to z/freshness/rank).
+- **Rubric (frozen):** REAL = coherent, externally documentable storyline with genuine coverage;
+  TEMPLATE = screener/boilerplate constructs dominate; INCOHERENT = incidental co-occurrence.
+- **Judges:** (i) locally-hosted LLM (`theme_judge.py`, vLLM, greedy, fixed prompt); (ii) human
+  hand-labels on a seed-42 sample of 15 (`audit_sample_human.csv`); (iii) known controls —
+  Coronavirus/GameStop lifelines must judge REAL, the Earnings-ESP ritual TEMPLATE — excluded
+  from the estimate; a judge that fails controls or disagrees badly with the human subset is not
+  quoted. Reported: share REAL with Wilson 95% CI (all EMERGING + top-K by peak score).
+- **Edge-level cohesion** (`theme_cohesion.py` → `cohesion_stats.csv`, `cohesion_packs.jsonl`):
+  per theme, binding articles (≥ 2 members), multi3_share (≥ 3 members), pair_coverage, and the
+  top member-pairs each with the actual joint article (headline + body lede);
+  `theme_judge.py --mode pairs` classifies each binding edge SUBSTANTIVE vs COINCIDENTAL.
+  FINDING (controls): raw structural cohesion does NOT certify quality — the boilerplate control
+  binds denser (multi3 0.45) than COVID (0.04) because screener articles list many concepts at
+  once; the semantic (judged) layer is the primary instrument, cohesion stats are descriptive.
+- **Scope:** read-only over frozen artifacts; no entity merging; article text stays local
+  (CC BY-NC); truthfulness of the news itself is out of scope — the audit certifies genuine,
+  related sourcing, not events.
+- **RESULTS (judged 2026-07-12, Qwen2.5-14B-AWQ on huffer; judge validated 11/11 controls +
+  13/14 = 93% binary human agreement):** lenient **37.9%** REAL [Wilson 32.5, 43.7] (107/282;
+  top-25 by peak score only 28% — rituals rank high); strict 42.9% [36.7, 49.2]; NB 37.1%
+  [28.2, 47.0] with the HIGHEST template share (44%) — event-level specificity ≠ stream purity;
+  **template-filtered arm 44.7% [38.6, 50.9]** (109/244 — keeps every real discovery AND the
+  full gold-list result 8/10 / −1wk / p=5e-5). Post-hoc structural filter ceiling ~50%
+  (pair_coverage ≥ 0.5: 47.4% at 68.2% REAL retention) — the residue is semantic.
+- **Template-filtered arm (`template_flags.py` v2 + filtered rebuild):** v2 article fingerprints
+  (25.1% of corpus; v1 script lost, re-implementation documented in the module docstring; v1
+  entity list stays canonical) removed from the dedup triples (−16.9% instances) →
+  `data/kg_600k_dedup_tf_core` (same w≥3/d≥3) → identical detector settings (`--tag tf`).

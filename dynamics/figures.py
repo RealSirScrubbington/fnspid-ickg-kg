@@ -140,3 +140,5 @@ def lead_time_figure():
 if __name__ == "__main__":
     lifeline_timeline("lenient")
     lead_time_figure()
+    from dynamics import figures2
+    figures2.main()   # audit-era figures + the rewritten detector overlay (one-command regen)
