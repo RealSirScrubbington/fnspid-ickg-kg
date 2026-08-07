@@ -1,155 +1,157 @@
-# FNSPID → ICKG → FinDKG temporal knowledge graph
+# FNSPID → ICKG → FinDKG: a time-indexed financial knowledge graph
 
-A time-indexed financial knowledge graph built by running the open-source **ICKG-v4.2**
-extractor over a bounded, time-stratified subset of the **FNSPID** news corpus, output in
-**FinDKG-compatible quadruple format**. This is the *input substrate* for an MSc thesis (UCL
-CS&ML) on the temporal dynamics of financial relationships (velocity, burst/theme detection,
-link prediction). Correctness, point-in-time (PIT) integrity, and reproducibility were
-prioritised over scale. **Entity resolution is deliberately out of scope** (a parallel thesis);
-only light surface-form normalisation is applied.
+Companion repository for the UCL MSc thesis *Inductive Temporal Theme Velocity
+Discovery on a Knowledge Graph* (COMP0098, MSc Computational Statistics and
+Machine Learning). A temporal financial knowledge graph is built from public
+news by running the open-source **ICKG-v4.2** extractor over a time-stratified
+subset of the **FNSPID** corpus, output in **FinDKG-compatible quadruple
+format**, and used for three experiments under strict point-in-time (PIT)
+discipline:
 
-## Result (KG summary)
-| | |
-|---|---|
-| entities | **628,765** (unresolved surface forms — see limitations) |
-| relations | **15** (FinDKG schema) |
-| timesteps | **365** weekly buckets, 2017-01-02 → 2023-12-18 |
-| unique edges | **2,379,438** (deduped per `(subj,rel,obj,time)`; mention-count kept as weight) |
-| split (chronological) | train **1,640,947** (wks 0–254) · valid **372,732** (255–309) · test **365,759** (310–364) |
-| validation | round-trip OK — counts match, no time leakage across splits |
+1. **Building the substrate** (thesis Ch. 3): construction at two corpus
+   scales, a syndication-duplication audit, and a canonical deduplicated core.
+2. **Walk-forward theme discovery** (Ch. 4): causal acceleration scoring,
+   burst detection, theme clustering into dated lifelines, gold-list and
+   placebo validation, a lifeline-level precision audit, and a distilled
+   lightweight judge.
+3. **Temporal link prediction** (Ch. 5): a replicated benchmark of edge-level
+   predictability, a velocity-feature ablation, and a retraining on the
+   template-filtered substrate.
 
-Output files in `data/kg/`: `stat.txt`, `entity2id.txt` (`name⇥id⇥type⇥type_id`),
-`relation2id.txt`, `train.txt`/`valid.txt`/`test.txt` (`subj⇥rel⇥obj⇥time⇥index`),
-`time2date.txt` (`time_id⇥bucket_start_date`), and `edges_weighted.tsv` (per-edge mention count,
-for the velocity signal).
-
-## Corpus subset (reproducible)
-- Source: `Zihan1004/FNSPID`, `Stock_news/nasdaq_exteral_data.csv` (full-text `Article` column).
-- Window **2017–2023**; body **≥200 words**; **time-stratified** to **2,400 articles/month**
-  (even monthly coverage so graph density reflects structure, not sampling skew).
-- **201,600 articles**, fixed **seed 42**, one streaming pass (`build_subset.py`); selected
-  FNSPID row indices saved (`subset_200k.ids.txt`) + a unique processing id per article.
-- Availability ranged from ~7.3k/month (early 2020) to **366,780** (Dec 2023) — all normalised
-  to 2,400, so the recency skew does not masquerade as real activity.
-
-## Extractor
-- **`victorlxh/ICKG-v4.2`** = a LoRA adapter on **`unsloth/Qwen2.5-14B-Instruct`** (apache-2.0).
-  A *local, fixed* model (never a frontier API) so the knowledge cutoff is controllable.
-- The **verbatim FinDKG KG-construction prompt** (12 entity types, 15 relation verbs), wrapped
-  in Qwen ChatML. Greedy decoding, `max_new_tokens=1280`, bf16.
-- **Note:** ICKG-v4.2 emits triplets as Python paren-tuples *and* JSON arrays-of-arrays
-  interchangeably; the parser handles both, and filters numeric/percentage "entities" the prompt
-  forbids. (Output FORMAT is the first thing to check if a future ICKG version extracts poorly.)
-
-## Extraction quality (200k build)
-- **malformed-output rate: 0.00%** · mean **18.5 valid triplets/article** · valid-tuple fraction **97.5%**
-- **precision spot-check: 83%** of 300 sampled triplets have *both* entities verbatim in the source
-  text (a *lower bound* — ICKG simplifies surface forms, so true precision is higher).
-- **GPE (country) edge density: 6.70%** (159,368 edges, 15,407 distinct geopolitical entities).
-
-**Entity-type counts:** CONCEPT 157,291 · PRODUCT 104,557 · SECTOR 79,778 · COMP 63,980 ·
-ECON_INDICATOR 58,680 · FIN_INSTRUMENT 44,104 · PERSON 36,312 · EVENT 33,577 · ORG 28,479 ·
-GPE 15,407 · ORG/GOV 5,226 · ORG/REG 1,374.
-
-**Relation distribution (unique edges):** Operate_In 678,556 · Relate_To 491,214 ·
-Positive_Impact_On 317,766 · Has 156,123 · Raise 125,377 · Negative_Impact_On 107,619 ·
-Control 97,988 · Invests_In 89,618 · Produce 88,219 · Announce 59,518 · Is_Member_Of 51,297 ·
-Impact 45,206 · Introduce 36,460 · Participates_In 18,258 · Decrease 16,219.
-
-## Point-in-time integrity
-- Every triplet is dated by the **article publication date**, never by any event the article
-  describes. Time-bucket resolution is a **config flag** (`--time-resolution week|fortnight|month`;
-  weekly here). Train/valid/test are split strictly by time-step (never random) and validated for
-  no cross-split leakage.
-- **Blinded-vs-unblinded diagnostic** (`pit_sample.py`): a 100-article sample extracted with the
-  publication date + ticker masked vs unmasked, to *measure* how much the extractor leans on
-  recognisable entities/world knowledge. _Caveat:_ Qwen2.5's pretraining post-dates the entire
-  2017–2023 corpus, so residual hindsight is plausible — hence this is measured, not assumed.
-  **Result (100-article sample):** masking the publication date + ticker leaves the triplet *count*
-  essentially unchanged (unmasked **13.8** vs masked **13.7** valid edges/article) but **only 55% of the
-  exact edges survive masking** — the extractor is count-stable yet moderately sensitive to the masked
-  cues. This is a basic hook (masks dates+ticker, not full entity names); the rigorous hindsight study
-  (more complete masking) is the downstream dynamics phase. Per-article data: `data/pit_sample_compare.csv`.
-
-## Pipeline / reproduce
-`build_subset.py` (stratified subset) → `extract.py` (vLLM ICKG, sharded data-parallel,
-CSV-checkpointed/resumable; `run_build.sh` launches one instance per GPU) → `assemble.py`
-(→ FinDKG files) → this report. Built on **2× RTX PRO 6000 Blackwell** (96 GB), ~14 h wall-time,
-~2 art/s/GPU.
-
-## Noise characterisation & denoising
-Noise is **measured and controlled-for, not destructively scrubbed** — the raw substrate is preserved
-so the (out-of-scope) entity-resolution thesis and the noise study itself stay valid.
-
-**Measured noise (full graph):**
-- **Long tail (dominant):** 66% of entities are singletons (degree 1); 83% of edges are single-article
-  (weight 1), only 6.9% supported by ≥3 articles.
-- **Fragmentation (resolution headroom):** 628,765 surface forms → 564,922 crude-normalised keys
-  (≈**1.11× lower bound**), concentrated in head companies (Alibaba 20 forms, PayPal 18, MarketAxess 17…).
-- **Type skew:** CONCEPT = 25% of entities (often vague themes).
-- **Metadata heterogeneity:** the `Publisher` field is empty for **95.7%** of articles (a few have
-  Russian-language category labels) — so templated boilerplate is identifiable by *content*, not publisher.
-- Plus the **blinded-PIT** extractor-hindsight measurement (above).
-
-**Denoising lever — a non-destructive "core" graph** (`build_core.py`, same temporal axis):
-thresholding to edge weight ≥2 + entity degree ≥2 collapses the long tail:
-
-| | full | core (w≥2, deg≥2) |
-|---|---|---|
-| entities | 628,765 | **46,026** (7.3%) |
-| edges | 2,379,438 | **307,647** (12.9%) |
-| train/valid/test | 1.64M / 373k / 366k | 215k / 43k / 49k |
-
-The core is training-ready (COMP-dominated; CONCEPT share 25%→14%). Thresholds are config flags so the
-dynamics analysis can tune them per-experiment; edge weights, entity degree, and per-triplet
-source-grounding are the available controls. Full entity resolution remains the parallel thesis.
-
-## Known limitations (measured, not hidden)
-- **Entity resolution OUT OF SCOPE** → **628k unresolved surface forms** (e.g. "Apple"/"Apple Inc."
-  separate). The downstream resolution thesis collapses these; counts here are raw surface forms.
-- **US-centricity** → thin country/regulator relations (ORG/REG 1,374; GPE 6.7% of edges). Measured
-  and documented; *not* corrected by curating a non-random "global" subset.
-- **Templated/boilerplate noise** — repetitive options/dividend/Zacks-style articles inflate some
-  entities/edges (the `Publisher` field is mostly empty, so this is content- not publisher-identified);
-  removed/downweighted by the edge-weight column and the `kg_core` thresholds (see Noise section).
-- **Extraction noise** — ~17% of valid tuples were filtered (numeric/unmappable); residual
-  per-article relation skew (e.g. over-use of `Operate_In`) is inherent extractor noise.
-- **Licensing** — ICKG + FNSPID are non-commercial/research; source article text is **not**
-  redistributed (only ids + extracted triplets).
+**To reproduce the results, start with [REPRODUCING.md](REPRODUCING.md)** —
+it walks the full pipeline stage by stage with commands and expected outputs.
 
 ---
 
-## Code map (for readers)
+## Headline results
 
-Everything runs from the repo root; `KG_CORE_PATH` selects the graph construction
-(default `data/kg_core`; canonical: `data/kg_600k_dedup_core`).
+**Substrate.** Extraction is clean at scale: 0% malformed generations,
+~18.5 valid triples per article, 83% entity-grounding precision (lower
+bound) on a 300-triple spot check. A duplication audit shows 10.5% (200k
+subset) and 24.3% (600k subset) of articles are verbatim syndication
+duplicates; removing them halves the denoised core, and the deduplicated
+core is adopted as canonical.
 
-### Pipeline (thesis Chapter 3 / Experiment 1)
-| module | what it does |
-|---|---|
-| `build_subset.py` | one streaming pass over FNSPID; per-month reservoir sampling (fixed seed) -> time-stratified article subset |
-| `extract.py` | ICKG-v4.2 via vLLM -> raw typed triples; dual-format parser (JSON + Python tuples); CSV-append checkpointing (resumable) |
-| `assemble.py` | triples -> FinDKG flat files: weekly buckets, chronological 70/15/15 splits, weighted edge-weeks |
-| `build_core.py` | denoised core: edge-weight + entity-degree thresholds (fixed-point), re-indexed and re-split |
+| construction | articles | entities | edge-weeks | test novelty |
+|---|---:|---:|---:|---:|
+| 200k core (w≥2, d≥2) | 201,600 | 46,026 | 307,647 | 72.4% |
+| 600k core (w≥3, d≥3) | 604,800 | 41,888 | 493,238 | 64.0% |
+| **600k dedup core (canonical)** | 457,619 unique | **21,216** | **212,294** | **61.6%** |
 
-### Dynamics (thesis Chapters 4-6 / Experiments 2-3)
+**Theme discovery.** The walk-forward detector finds **8/10** major
+2020–2023 themes at a **median lead of −1 week** against a placebo
+expectation of ~2.2/10 (**p ≈ 1e-4**); anticipatable themes come weeks early
+(COVID −3, vaccine race −8), shocks sit at the +1-week news-flow floor.
+A blind LLM audit puts stream precision at 37.9% (lenient) rising to
+**44.7%** under a template-article filter at zero recall cost; a fine-tuned
+1.5B judge reproduces the audit labels (held-out binary agreement 82.6%,
+PR-AUC 0.766) and retains 8/10 gold detections when used as a REAL-only
+stream filter.
+
+**Link prediction.** Edge-level forecasting is bimodal: recurring edges
+reach MRR ≈ 0.5 while novel edges sit near a low ceiling for every method.
+Best system: recurrence→ChronoBERT backoff, **MRR 0.218** [.215, .221],
+Hits@10 0.342 on the canonical core; the method ranking replicates on all
+three constructions. Injecting the detector's velocity features into the
+temporal network **degrades** forecasting on every subset (−0.015 MRR
+overall); retraining on the template-filtered graph moves per-edge skill by
+only −0.005 on shared queries while the aggregate falls by 0.038 — template
+noise inflates apparent forecastability. Extractor lookahead bias is bounded
+below 0.002 MRR by a cutoff-controlled ChronoBERT comparison.
+
+---
+
+## Repository layout
+
+```
+├── README.md                  this file
+├── REPRODUCING.md             stage-by-stage reproduction guide
+├── requirements.txt           analysis environment (see REPRODUCING.md §0)
+│
+├── build_subset.py            FNSPID → time-stratified article subset (seeded reservoir)
+├── select_fnspid.py           FNSPID download/selection helper
+├── extract.py                 ICKG-v4.2 via vLLM → raw typed triples (resumable)
+├── assemble.py                triples → FinDKG flat files (weekly buckets, chrono splits)
+├── build_core.py              denoised core (edge-weight + degree thresholds)
+├── pit_sample.py              blinded (masked) re-extraction sample
+├── blinded_check.py           blinded-vs-unblinded extraction comparison
+├── generate_report.py         regenerates FNSPID_ICKG_project_report.pdf
+│
+├── dynamics/                  all Experiment 2 & 3 analysis modules (see table below)
+├── ickg_kg/                   early extraction package (config, sampler, extractor wrapper)
+├── release/                   FNSPID row-id lists: the licensed-clean reproduction path
+├── figures/                   thesis figures (vector PDF + PNG previews)
+├── thesis/                    LaTeX source of the dissertation
+├── results_600k/              consolidated 600k-scale results (RESULTS_600k.md + CSVs)
+├── scripts/                   cluster launch scripts (records of the exact GPU invocations)
+├── archive/                   pilot scripts and run logs, kept for provenance only
+└── data/                      NOT in git: corpora, graphs, model outputs (see .gitignore)
+```
+
+Everything runs from the repo root. The environment variable `KG_CORE_PATH`
+selects the graph construction (canonical: `data/kg_600k_dedup_core`), so
+every module runs unchanged on any core.
+
+## Code map: `dynamics/`
+
 | module | what it does | thesis |
 |---|---|---|
-| `dynamics/loader.py` | loads a core into time-indexed structures; `drop_noise=True` removes templated-media entities | 3.8 |
-| `dynamics/eda.py` | descriptive weekly aggregates | 4 |
-| `dynamics/velocity.py` | descriptive velocity/acceleration (centred windows) + per-entity z leaderboards | 4.2 |
-| `dynamics/burst.py` | three burst detectors: Kleinberg, CUSUM, BOCD (Gamma-Poisson, back-dated onsets) | 4.4 |
-| `dynamics/event_validate.py` | 18-event recovery, per detector vs its chance level (dilated coverage) | 4.4 |
-| `dynamics/themes.py` | THE HEADLINE: walk-forward theme detector (trailing Poisson/NB surprise -> Louvain -> lifelines; template + habituation controls; `--strict`, `--nb`, window flags) | 4.3-4.6 |
-| `dynamics/themes_eval.py` | frozen 10-event gold list: lead times + 100k-draw placebo control (tags as argv) | 4.7 |
-| `dynamics/linkpred.py` / `linkpred_eval.py` | PIT ranking harness (raw ranks, mean-rank ties, update-after-scoring) + recurrence/popularity/backoff baselines | 5 |
-| `dynamics/complex_kge.py` | ComplEx/DistMult trained on weeks < test only | 5.4 |
-| `dynamics/temporal_heur.py` | Common-Neighbours / Adamic-Adar on trailing subgraph (query excluded from candidates) | 5.4 |
-| `dynamics/regcn.py` | RE-GCN-style temporal GNN; validation-based early stopping per core | 5.3 |
-| `dynamics/text_embed.py` / `text_linkpred.py` | ChronoBERT/Qwen name embeddings + PIT-clean semantic scorer | 5.4, 6 |
-| `dynamics/bootstrap_ci.py` | paired bootstrap CIs + the ChronoBERT cutoff (lookahead) comparison | 5.5, 6 |
-| `dynamics/resolve_check.py` | crude entity-resolution sensitivity bound (resolution itself is out of scope) | 3.8 |
-| `dynamics/figures.py` | regenerates every thesis figure (vector PDF) with one command | all |
+| `loader.py` | loads a core into time-indexed structures; `drop_noise=True` removes templated-media entities | 3.8 |
+| `eda.py` | descriptive weekly aggregates | 4 |
+| `velocity.py` | descriptive velocity/acceleration (centred windows) + per-entity z leaderboards | 4.2 |
+| `burst.py` | three burst detectors: Kleinberg, CUSUM, BOCD (Gamma–Poisson, back-dated onsets) | 4.4 |
+| `event_validate.py` | 18-event recovery, per detector vs its chance level (dilated coverage) | 4.4 |
+| `themes.py` | **the walk-forward theme detector** (trailing Poisson/NB surprise → Louvain → lifelines; template + habituation controls; `--strict`, `--nb`, window flags) | 4.3–4.6 |
+| `themes_eval.py` | frozen 10-event gold list: lead times + 100k-draw placebo control | 4.7 |
+| `theme_audit.py` | builds blind audit packs (members + provenance headlines, no detector scores) | 4.8 |
+| `theme_judge.py` | LLM judge (Qwen2.5-14B-AWQ via vLLM) over audit packs; control-gated | 4.8 |
+| `theme_cohesion.py` | structural cohesion statistics (binding articles, pair coverage) | 4.8 |
+| `theme_filter.py` | text-free logistic filter distilled from audit labels (pre-registered protocol) | 4.8 |
+| `template_flags.py` | v2 template-article fingerprinter → template-filtered substrate | 4.6, 4.8 |
+| `judge_distill_data.py` | assembles group-disjoint temporal train/held-out splits from teacher labels | 4.8 |
+| `judge_finetune.py` | LoRA fine-tune of the 1.5B judge (completion-only loss, ~8 min consumer GPU) | 4.8 |
+| `judge_score.py` | deploys the 1.5B judge: greedy label + exact P(REAL) from completion log-probs | 4.8 |
+| `linkpred.py` / `linkpred_eval.py` | PIT ranking harness (raw ranks, mean-rank ties, update-after-scoring) + recurrence/popularity/backoff baselines | 5 |
+| `complex_kge.py` | ComplEx/DistMult trained on pre-test weeks only | 5.4 |
+| `temporal_heur.py` | Common-Neighbours / Adamic–Adar on a trailing 12-week subgraph | 5.4 |
+| `regcn.py` | RE-GCN-style temporal GNN; validation-based early stopping; `--velocity-features` ablation arm | 5.3, 5.7 |
+| `ablation_eval.py` | paired per-query bootstrap over ablation arms and retrains | 5.7, 5.9 |
+| `text_embed.py` / `text_linkpred.py` | ChronoBERT entity embeddings + PIT-clean semantic scorer; cutoff pair | 5.4, 6 |
+| `bootstrap_ci.py` | paired bootstrap CIs + the ChronoBERT cutoff (lookahead) comparison | 5.5, 6 |
+| `resolve_check.py` | crude entity-resolution sensitivity bound (resolution itself is out of scope) | 3.8 |
+| `figures.py` / `figures2.py` | regenerate every thesis figure (vector PDF) | all |
 
-Scratch/pilot scripts in the root (`trial.py`, `smoke_test.py`, `measure_*.py`, ...) are
-retained for provenance and are not part of the analysis path.
+`dynamics/README.md` carries the full narrative of the analysis phase with
+per-module results.
+
+---
+
+## Data access and licences
+
+- **No article text is redistributed.** FNSPID is distributed under
+  CC BY-NC 4.0 and the underlying articles remain publisher-copyrighted.
+  Reproduction instead flows through `release/`: the exact FNSPID row
+  identifiers of every sampled article (`subset_200k.ids.txt`,
+  `subset_600k.ids.txt`), the identifiers dropped by the duplication audit
+  (`dedup_drop_ids_600k.txt`), and the seeded sampling scripts. Both corpora
+  reconstruct exactly from the public FNSPID distribution
+  (`Zihan1004/FNSPID` on Hugging Face).
+- **Extractor:** `victorlxh/ICKG-v4.2`, a LoRA adapter on
+  `unsloth/Qwen2.5-14B-Instruct` (Apache-2.0 base; ICKG for research use).
+- **Scope notes:** entity resolution is deliberately out of scope (a
+  parallel project on this corpus); only a crude-merge sensitivity bound is
+  reported. Country (GPE) relations are sparse in a US-centric corpus and
+  documented as a limitation.
+
+## Hardware
+
+Extraction ran on 2× RTX Pro 6000 (~14 h for 200k, ~43 h for 600k articles).
+**Every analysis reproduces on a single consumer GPU with 6 GB memory**;
+the 14B audit judge additionally needs a ~16 GB GPU (vLLM); the 1.5B judge
+fine-tune takes ~8 minutes on a 4070-class GPU.
+
+## Citing
+
+If you use this repository, cite the thesis, and for the upstream assets:
+FinDKG/ICKG (Li & Sanna Passino, ICAIF 2024, arXiv:2407.10909) and FNSPID
+(Dong, Fan & Peng, KDD 2024, arXiv:2402.06698).

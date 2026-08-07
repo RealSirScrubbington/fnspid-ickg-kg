@@ -1,5 +1,10 @@
 # Phase 2 — Temporal dynamics of the financial KG
 
+> Narrative record of the analysis phase, in chronological order (earlier sections quote the
+> 200k core; the canonical results are on the deduplicated 600k core — see the 600k, theme,
+> audit, judge and retrain sections below). For runnable step-by-step commands with expected
+> outputs, see [../REPRODUCING.md](../REPRODUCING.md).
+
 Analysis of the temporal dynamics of financial relationships on the denoised **core KG**
 (46,026 entities / 307,647 edge-instances / 236,416 distinct relationships / 365 weekly
 timesteps, 2017–2023). Four method families: temporal EDA, edge-formation velocity, burst
@@ -272,3 +277,62 @@ each theme substantive rather than listicle glue? Protocol (frozen before any ju
   (25.1% of corpus; v1 script lost, re-implementation documented in the module docstring; v1
   entity list stays canonical) removed from the dedup triples (−16.9% instances) →
   `data/kg_600k_dedup_tf_core` (same w≥3/d≥3) → identical detector settings (`--tag tf`).
+
+## Distilled 1.5B judge (`judge_distill_data.py`, `judge_finetune.py`, `judge_score.py`)
+The 14B teacher's labels across every audited configuration (1,145 packs incl. the rejected
+resolution sweep) fine-tune **Qwen2.5-1.5B-Instruct + LoRA** (r=16, α=32, lr 1e-4, 3 epochs,
+completion-only loss, seq 3072, seed 0; ~8 min on a 4070 Ti Super). Protocol frozen before
+training: packs grouped into storylines by cross-config member overlap (Jaccard ≥ 0.3) so
+near-duplicates never straddle the split; held-out groups additionally **temporal (born 2022+)**.
+- **Gate:** zero-shot 1.5B FAILS the 11-control gate (over-labels TEMPLATE — the opposite
+  failure mode to the yes-saying second judges); fine-tuned passes **9/9 noise → TEMPLATE,
+  3/3 real → REAL** under the same greedy protocol.
+- **Held-out (207 packs, group-disjoint + temporal, base REAL 23.7%):** binary agreement
+  **82.6%** / 3-way 69.1% (confusions on the same TEMPLATE-vs-INCOHERENT boundary as the
+  human comparison); human packs 20/24 (κ = 0.66; teacher 21/24, κ = 0.74).
+- **Deployment sweep (all 1,145 packs, 5 arms):** greedy label + exact P(REAL) from
+  completion log-probs (ID-level token concat, renormalised over the 3 labels). REAL shares
+  track the teacher within 3pp everywhere (lenient 40.8 vs 37.9, tf 45.5 vs 44.7, strict
+  43.7 vs 42.9, nb 38.1 vs 37.1, tf_r15 41.9 vs 41.2).
+- **Retention (P(REAL) as ranking score, held-out only):** PR-AUC **0.766** (base 0.237),
+  P@30% 0.565. Paired vs the text-free filter RETRAINED on the matching train side and
+  scored on the same 46 held-out lenient packs: judge **0.756** vs filter 0.406,
+  **Δ +0.350 [95% CI +0.130, +0.550]** (B=10k paired bootstrap). Calibration (207 packs):
+  Brier 0.112 (all-base-rate ref 0.181), ECE 0.074, monotone but mid-bin over-confident
+  (packs scored 0.4–0.6 are 30% REAL).
+- Artifacts: `judge_lora/` adapter (37 MB), `audit/judge_scores.csv` (+`judge_scores_extra.csv`),
+  `figures/{retention,calibration}_judge.pdf`. The distilled judge inherits the teacher's
+  blind spots by construction — it is a distillation, not an independent check.
+
+## Gold-list survival under audit-label filtering (unmodified `themes_eval` machinery)
+Filters act on EMERGING lifelines only; the fair baseline is the emerging-only stream
+(8/10, median **−0.5wk** — the canonical −1wk includes GameStop's recurring-status match).
+- **Drop-TEMPLATE is free:** lenient keeps 196/282 (69.5%), tf keeps 190/244 — **8/10 in
+  both, zero recall cost** (real events do not occur in the boilerplate class).
+- **Keep-REAL (teacher labels) costs exactly one detection per arm:** 7/10 (UAW's lifeline is
+  teacher-INCOHERENT in both; tf additionally re-matches COVID to the vaccine-race lifeline
+  +3wk late).
+- **Keep-REAL (1.5B judge labels) keeps 8/10 in BOTH arms** (lenient 115 REAL, tf 111;
+  placebo p ≤ 1e-5) — the student departs from its teacher exactly on the gold-conflicted
+  packs. Caveat: two of the three rescues sit at p_real ≈ 0.49 (the over-confident mid-bin),
+  so 8/10 is a point estimate at one threshold; the retention curve is the robust framing.
+- **Placebo tightens under every filter** (expected chance detections 1.8 → 1.0–1.7 of 10):
+  the signature of a genuine precision filter — noise lifelines are removed faster than
+  topical ones.
+
+## Template-filtered substrate retrain (`regcn.py` on tf core + `ablation_eval.py`)
+Closes the extraction→forecasting loop: the identical RE-GCN configuration (same CLI,
+ES patience 8, dim 128, hist 6, lr 2e-3; seeds 0/1/2) retrained on
+`data/kg_600k_dedup_tf_core` (19,374 entities, 176,261 edge-weeks).
+- **Within-tf aggregates** (never compare across cores): recurrence 0.157 (vs canonical
+  0.196), backoff mean **0.1767** (spread <0.002), RE-GCN novel mean 0.0299 (vs 0.031).
+- **Shared-edge paired comparison** (tf test queries are a strict subset: 21,133 of 24,810;
+  reconstruction validated — novelty flags 100% match, published MRRs reproduced <1e-4):
+  per-seed deltas −0.0114 / −0.0007 / −0.0037 (one CI spans zero); **pooled seed-averaged
+  delta −0.0053 [−0.0063, −0.0043]** (B=10k) — small but significant, an order of magnitude
+  below the 0.038 aggregate backoff difference.
+- **Reading:** template filtering changes WHAT is predicted, not how well. The removed
+  edges were boilerplate recurrences (easy recurrence fodder), so the aggregate falls while
+  per-edge skill on shared queries barely moves — **template noise inflates apparent
+  forecastability**. Quote "barely moves", not "preserved". Artifacts:
+  `regcn_results_tf{,_s1,_s2}.csv`, `regcn_ranks_tf{,_s1,_s2}.npz`.

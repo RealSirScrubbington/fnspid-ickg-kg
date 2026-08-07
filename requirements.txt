@@ -2,14 +2,23 @@
 #   pip install torch --index-url https://download.pytorch.org/whl/cu124
 #   pip install -r requirements.txt
 # (torch is intentionally not pinned here so the CUDA wheel is used.)
-transformers>=4.40
+#
+# Extraction (extract.py) and the 14B audit judge (dynamics/theme_judge.py)
+# additionally need vllm on a Linux GPU host; everything else runs on a
+# single 6 GB GPU (Windows or Linux).
+transformers>=4.53
 accelerate>=0.30
 bitsandbytes>=0.43        # 4-bit nf4; has native Windows wheels
-peft>=0.11                # ICKG-v3.2 is a LoRA adapter on Mistral-7B
+peft>=0.11                # ICKG-v4.2 and the 1.5B judge are LoRA adapters
 datasets>=2.19
 huggingface_hub>=0.23
 pandas>=2.0
 pyarrow>=15
+numpy>=1.26
+scipy>=1.11               # burst detectors, bootstrap
+networkx>=3.2             # co-occurrence subgraphs; Louvain via nx.community
+scikit-learn>=1.4         # distilled text-free filter (theme_filter.py)
+matplotlib>=3.8           # figures
 requests>=2.31
-sentencepiece>=0.2        # LlamaTokenizer (tokenizer.model)
+sentencepiece>=0.2
 protobuf>=4
