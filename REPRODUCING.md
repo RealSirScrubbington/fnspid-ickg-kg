@@ -47,11 +47,20 @@ directly instead; they are the ground truth.
 ## 2. Extraction (2× large GPUs, ~14 h / ~43 h)
 
 ICKG-v4.2 over the subset via vLLM, one instance per GPU over interleaved
-shards, CSV-append checkpointed (re-run the same line to resume):
+shards, CSV-append checkpointed (re-run the same line to resume). One
+process per GPU:
 
 ```bash
-bash scripts/run_build.sh data/subset_600k.parquet data/tripl_600k
+CUDA_VISIBLE_DEVICES=0 python extract.py --input data/subset_600k.parquet --out data/tripl_600k_0.csv --shard 0/2 --tp 1 --chunk 1000 --max-new-tokens 1280 --max-model-len 8192
 ```
+
+```bash
+CUDA_VISIBLE_DEVICES=1 python extract.py --input data/subset_600k.parquet --out data/tripl_600k_1.csv --shard 1/2 --tp 1 --chunk 1000 --max-new-tokens 1280 --max-model-len 8192
+```
+
+(`scripts/run_build.sh` is the preserved record of the exact cluster
+wrapper around these two commands; it hardcodes cluster paths and is
+documentation, not a turnkey script.)
 
 **Expect:** 0% malformed generations, ~18.5 valid triples per article,
 ~11.5M raw triples at 600k. The parser accepts both output formats the
@@ -197,3 +206,39 @@ KG_CORE_PATH=data/kg_600k_dedup_core python -m dynamics.figures
 
 plus `dynamics.figures2` for the audit-era figures. Vector PDFs land in
 `figures/`, matching the thesis one-to-one.
+
+## 11. Optional: canonicalization sensitivity arm (CPU, minutes)
+
+An additive arm that upgrades the crude-merge bound of `resolve_check.py`
+to a deterministic ticker-anchored alias table (protocol in the module
+docstring). Fetch the SEC EDGAR ticker list first (public; a descriptive
+User-Agent is required by sec.gov):
+
+```bash
+curl -A "your-name your@email" -o data/company_tickers.json https://www.sec.gov/files/company_tickers.json
+```
+
+```bash
+KG_CORE_PATH=data/kg_600k_dedup_core python -m dynamics.canon_check
+```
+
+```bash
+python -m dynamics.canon_core
+```
+
+```bash
+KG_CORE_PATH=data/kg_600k_dedup_canon_core python -m dynamics.themes --tag canon
+```
+
+```bash
+KG_CORE_PATH=data/kg_600k_dedup_canon_core python -m dynamics.themes_eval canon
+```
+
+`canon_check` needs the deduplicated triple files of Stage 3
+(`data/tripl_600k_{0,1}_dedup.csv`) for ticker-provenance anchoring.
+**Expect:** entities 21,216 → 18,280 (1,679 merge groups, largest 10);
+test novelty 61.6% → 58.1%; recurrence MRR 0.196 → 0.209; gold-list
+canary on the merged core **9/10, median −2 wk, p = 1e-5** (all eight
+canonical detections at identical leads; the AI theme's lifeline timing
+shifts into the credit window under merging). Review
+`data/dynamics/canon/merge_groups.csv` before quoting anything.

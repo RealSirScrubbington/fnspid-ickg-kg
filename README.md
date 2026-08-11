@@ -119,6 +119,8 @@ every module runs unchanged on any core.
 | `text_embed.py` / `text_linkpred.py` | ChronoBERT entity embeddings + PIT-clean semantic scorer; cutoff pair | 5.4, 6 |
 | `bootstrap_ci.py` | paired bootstrap CIs + the ChronoBERT cutoff (lookahead) comparison | 5.5, 6 |
 | `resolve_check.py` | crude entity-resolution sensitivity bound (resolution itself is out of scope) | 3.8 |
+| `canon_check.py` | deterministic ticker-anchored canonicalization sensitivity arm (SEC EDGAR + provenance anchors; additive) | 3.8 |
+| `canon_core.py` | builds the merged core for the canonicalization detector arm | 3.8 |
 | `figures.py` / `figures2.py` | regenerate every thesis figure (vector PDF) | all |
 
 `dynamics/README.md` carries the full narrative of the analysis phase with

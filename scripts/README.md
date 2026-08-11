@@ -1,10 +1,13 @@
 # Cluster launch scripts
 
-Records of the exact GPU-cluster invocations used for the thesis runs. All
-are launched **from the repo root** (`bash scripts/<name>.sh`); paths inside
-are relative to the root. They wrap the Python entry points documented in
-[REPRODUCING.md](../REPRODUCING.md) — nothing here contains logic of its
-own beyond sharding, environment activation, and resumable `nohup` chaining.
+Records of the exact GPU-cluster invocations used for the thesis runs,
+**preserved verbatim**: they hardcode cluster paths, source
+`goldbug_env.sh` from the repo root (their original location), and call
+sibling scripts by bare name, so they document what ran rather than serve
+as turnkey tools. The runnable equivalents are the plain Python commands
+in [REPRODUCING.md](../REPRODUCING.md) — nothing here contains logic of
+its own beyond sharding, environment activation, and resumable `nohup`
+chaining.
 
 | script | purpose |
 |---|---|

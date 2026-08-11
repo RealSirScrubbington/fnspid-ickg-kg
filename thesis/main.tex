@@ -946,6 +946,7 @@ Construction & Articles & Entities & Edge-weeks & Test novelty \\
 \end{table}
 
 \section{Extraction-Noise Controls and Limitations}
+\label{sec:exp1noise}
 Noise is measured rather than hidden. In the full graphs roughly two thirds of
 entities are singletons, motivating the degree/weight cores. Templated
 financial-media boilerplate is measured with the slot-fingerprint method of
@@ -956,7 +957,23 @@ of scope (FinDKG itself normalises mentions with Sentence-BERT-based
 disambiguation, and resolution is the subject of a parallel project on
 this corpus), but a crude corporate-suffix merge bounds its effect: test
 novelty falls from 72.4\% to 68.4\% (200k) and from 64.0\% to 60.1\% (600k),
-so fragmentation is real but secondary. Country (GPE) relations are sparse
+so fragmentation is real but secondary.
+A stronger deterministic check sharpens this bound on the canonical core:
+a ticker-anchored alias table (within-type suffix-key merging, company
+entities anchored to tickers through SEC EDGAR titles and article-ticker
+provenance, anchor conflicts vetoing a merge rather than permitting one)
+collapses 21{,}216 entities to 18{,}280 across 1{,}679 reviewed groups.
+Test novelty falls from 61.6\% to 58.1\%, the recurrence baseline rises
+from 0.196 to 0.209 MRR, and the walk-forward detector of
+Chapter~\ref{ch:exp2}, rerun on the merged graph, keeps every canonical
+detection at an identical lead while additionally crediting the AI theme,
+whose lifeline timing shifts into the event window under merging
+(9/10 detected, median $-2$~weeks, placebo $p = 10^{-5}$; the new match
+is a recurring-status lifeline). The alias table is a static present-day
+input, disclosed like the template blacklist of
+Section~\ref{sec:noisecontrols}; canonicalisation strengthens rather than
+weakens the headline results, which are quoted throughout from the
+unmerged canonical core. Country (GPE) relations are sparse
 owing to the US-centric corpus and are documented as a limitation rather than
 hand-curated.
 
@@ -2301,7 +2318,8 @@ fewer validation events. Multiple testing: the gold list and windows
 were frozen before evaluation, but ten events remain a small sample.
 Static inputs: the template blacklist and the NB dispersion are
 full-period or train-period statistics, disclosed in
-Chapter~\ref{ch:exp2}.
+Chapter~\ref{ch:exp2}, as is the alias table of the canonicalisation
+check (Section~\ref{sec:exp1noise}).
 
 \section{Future Work}
 Five extensions follow directly. The velocity-feature ablation tested one

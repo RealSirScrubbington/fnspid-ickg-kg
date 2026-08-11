@@ -320,6 +320,19 @@ Filters act on EMERGING lifelines only; the fair baseline is the emerging-only s
   the signature of a genuine precision filter — noise lifelines are removed faster than
   topical ones.
 
+## Canonicalization sensitivity arm (`canon_check.py`, `canon_core.py`) — additive
+Upgrades the crude-merge bound of `resolve_check.py` to a deterministic ticker-anchored
+alias table (protocol + guards in the module docstring; SEC EDGAR titles take precedence
+over mention-dominance anchors; both noise lists excluded from merging; anchor-conflict
+veto). **Results:** entities 21,216 → 18,280 (1,679 groups, largest 10 = Alibaba's forms);
+test novelty 61.6% → 58.1% (−3.5pp; crude bound was −3.9pp); recurrence MRR 0.196 → 0.209.
+Gold-list canary on the merged core (`--tag canon`): **9/10, median −2wk, p = 1e-5** — all
+eight canonical detections at identical leads, and the AI theme's lifeline timing shifts
+into the credit window under merging (a recurring-status, C3.ai-anchored lifeline born
+2022-09-12; the canonical arm's AI lifeline predates the window). Framed as a sensitivity
+line: the canonical 8/10 / −1wk remains the headline. Review artifact:
+`data/dynamics/canon/merge_groups.csv`.
+
 ## Template-filtered substrate retrain (`regcn.py` on tf core + `ablation_eval.py`)
 Closes the extraction→forecasting loop: the identical RE-GCN configuration (same CLI,
 ES patience 8, dim 128, hist 6, lr 2e-3; seeds 0/1/2) retrained on
